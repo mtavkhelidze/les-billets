@@ -7,7 +7,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 
-import { WebSocketServer } from "ws";
+import { type RawData, WebSocketServer } from "ws";
 import { wsPort } from "./config.ts";
 
 
@@ -20,7 +20,7 @@ const closeWsServer = (ws: WebSocketServer): Effect.Effect<void, never, never> =
       cb(Effect.void);
     });
   }).pipe(
-    Effect.andThen(() => Effect.log("Server socket closed")),
+    Effect.andThen(() => Effect.logInfo("Server socket closed")),
   );
 
 export const createWsServer = Effect.acquireRelease(
@@ -35,6 +35,46 @@ export class WsServerError extends Data.TaggedError("ServerSocketError")<{
   originalError: Error
 }> {}
 
+export class MessageStreamError extends Data.TaggedError("MessageStreamError")<{
+  originalError: Error
+}> {}
+
+export class RawDataToStringError
+  extends Data.TaggedError("MessageStreamError")<{
+    originalError: unknown
+  }> {}
+
+export const rawDataToString: (data: RawData) => Effect.Effect<string, RawDataToStringError> = (data: RawData) =>
+  Effect.try({
+    try: () => {
+      if (data instanceof Buffer) {
+        return data.toString();
+      }
+      if (data instanceof ArrayBuffer) {
+        return Buffer.from(data).toString();
+      }
+      if (Array.isArray(data)) {
+        return data.map(d => rawDataToString(d)).join("");
+      }
+      throw new Error("Cannot read message data.");
+    },
+    catch: (e: unknown) => new RawDataToStringError({ originalError: e }),
+  });
+
+export const createMessageStream = (ws: WebSocket): Stream.Stream<RawData, MessageStreamError> =>
+  Stream.async(emit => {
+    ws.on("message", (data: RawData) => {
+      void emit(Effect.succeed(Chunk.of(data)));
+    });
+    ws.on("error", (err) => {
+      void emit(
+        Effect.fail(O.some(new MessageStreamError({ originalError: err }))),
+      );
+    });
+    ws.on("close", () => {
+      void emit(Effect.fail(O.none()));
+    });
+  });
 
 export const createConnectionStream = (wss: WebSocketServer): Stream.Stream<WebSocket, WsServerError> => {
   return Stream.async<WebSocket, WsServerError>(
@@ -47,7 +87,7 @@ export const createConnectionStream = (wss: WebSocketServer): Stream.Stream<WebS
       wss.on("close", (ws: WebSocket) => {
         void emit(Effect.zipLeft(
           Effect.fail(O.none()),
-          Effect.log("Websocket closed"),
+          Effect.logInfo("Websocket closed"),
         ));
       });
 
@@ -75,9 +115,12 @@ export class WsIncomingStreamService extends Context.Tag(
 }
 
 export const WsStreamServer = (connectionHandler: (ws: WebSocket) => Effect.Effect<void, void>) => Layer.scopedDiscard(
-  WsIncomingStreamService.pipe(
-    Effect.flatMap(Stream.runForEach(flow(connectionHandler, Effect.fork))),
+  Effect.zipRight(
+    Effect.logInfo("Starting server..."),
+    WsIncomingStreamService.pipe(
+      Effect.flatMap(
+        Stream.runForEach(flow(connectionHandler, Effect.fork)),
+      ),
+    ),
   ),
-).pipe(
-  Layer.withSpan("WsStreamServer"),
 );

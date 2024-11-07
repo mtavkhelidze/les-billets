@@ -1,19 +1,42 @@
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import { constVoid } from "effect/Function";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Stream from "effect/Stream";
+import type { RawData } from "ws";
 import { runBunMain } from "./runtime.ts";
-import { WsIncomingStreamService, WsStreamServer } from "./wsServer.ts";
+import {
+  createMessageStream,
+  rawDataToString,
+  WsIncomingStreamService,
+  WsStreamServer,
+} from "./wsServer.ts";
 
-const handleClientConnection = (wsc: WebSocket) => Effect.gen(function* (_) {
-  yield* _(Effect.log("New connection"));
-  yield* _(
-    Effect.fail(constVoid()),
+const handleClientMessage = (message: RawData) =>
+  pipe(
+    rawDataToString(message),
+    Effect.andThen(Effect.logInfo),
   );
 
-}).pipe(Effect.withSpan("handleClientConnection"));
+export class TimeoutError extends Data.TaggedError("TimeoutError") {}
+
+const handleClientConnection = (wsc: WebSocket) => Effect.gen(function* (_) {
+  yield* _(Effect.logInfo("New connection."));
+  const processMessages = pipe(
+    createMessageStream(wsc),
+    Stream.runForEach(handleClientMessage),
+    Stream.timeoutFail(() => new TimeoutError(), "5 seconds"),
+    Stream.runDrain,
+  ).pipe(Effect.withSpan("handleClientConnection"));
+
+  yield* _(
+    Effect.raceAll([processMessages]),
+    Effect.catchAll(e => Effect.logInfo(`Client disconnected: ${e}.`)),
+    Effect.ignore,
+  );
+});
 
 const main = Effect.gen(function* (_) {
-  yield* _(Effect.logInfo("Begin"));
   yield* _(
     Layer.launch(WsStreamServer(handleClientConnection)),
   );
