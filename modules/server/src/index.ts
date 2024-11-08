@@ -6,9 +6,9 @@ import * as Stream from "effect/Stream";
 import type { RawData } from "ws";
 import { runBunMain } from "./runtime.ts";
 import {
-  createMessageStream,
+  mkMessageStream,
   rawDataToString,
-  WsIncomingStreamService,
+  WsConnectionsStream,
   WsStreamServer,
 } from "./wsServer.ts";
 
@@ -20,10 +20,10 @@ const handleClientMessage = (message: RawData) =>
 
 export class TimeoutError extends Data.TaggedError("TimeoutError") {}
 
-const handleClientConnection = (wsc: WebSocket) => Effect.gen(function* (_) {
+export const handleClientConnection = (wsc: WebSocket) => Effect.gen(function* (_) {
   yield* _(Effect.logInfo("New connection."));
   const processMessages = pipe(
-    createMessageStream(wsc),
+    mkMessageStream(wsc),
     Stream.runForEach(handleClientMessage),
     Stream.timeoutFail(() => new TimeoutError(), "5 seconds"),
     Stream.runDrain,
@@ -44,6 +44,6 @@ const main = Effect.gen(function* (_) {
 
 runBunMain(
   main.pipe(
-    Effect.provide(WsIncomingStreamService.live),
+    Effect.provide(WsConnectionsStream.live),
   ),
 );
