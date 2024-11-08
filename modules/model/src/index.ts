@@ -3,10 +3,12 @@ import * as E from "effect/Either";
 import * as S from "effect/Schema";
 import * as uuid from "uuid";
 
-export type { ClientMessage } from "./ClientMessage.ts";
-export { GetTickets } from "./ClientMessage.ts";
+export {
+  ClientMessage, GetTickets, LockTicket, UpdateTicket,
+} from "./ClientMessage.ts";
 
-class ModelError extends Data.Error<{ message: string }> {}
+class ModelError extends Data.Error<{ message: string }> {
+}
 
 export class User extends S.Class<User>("User")({
   id: S.UUID,
@@ -22,4 +24,4 @@ export class User extends S.Class<User>("User")({
       catch: e => new ModelError({ message: `${e}` }),
     });
   }
-};
+}

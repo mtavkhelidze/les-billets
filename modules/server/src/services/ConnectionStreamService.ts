@@ -97,13 +97,13 @@ export const mkConnectionsStream = (wss: WebSocketServer): Stream.Stream<WebSock
 };
 
 
-export class WebSocketConnectionStreamService extends Context.Tag(
-  "WebSocketConnectionStreamService")<
-  WebSocketConnectionStreamService,
+export class ConnectionStreamService extends Context.Tag(
+  "ConnectionStreamService")<
+  ConnectionStreamService,
   Stream.Stream<WebSocketConnection, WebSocketError>
 >() {
   public static live = Layer.scoped(
-    WebSocketConnectionStreamService,
+    ConnectionStreamService,
     acquireServer.pipe(
       Effect.map(mkConnectionsStream),
     ),

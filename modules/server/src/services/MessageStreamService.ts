@@ -1,11 +1,12 @@
 import * as Chunk from "effect/Chunk";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
-import * as Layer from "effect/Layer";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
-import type {RawData} from "ws";
+import type { RawData } from "ws";
+import type { WebSocketConnection } from "./ConnectionStreamService.ts";
 
 class MessageStreamError extends Data.TaggedError("MessageStreamError")<{
   error: Error
@@ -34,41 +35,41 @@ const rawDataToString = (rd: RawData): Effect.Effect<string, RawDataDecodeError>
       }
       throw new Error("Cannot read message data.");
     },
-    catch: (error: unknown) => new RawDataDecodeError({error}),
+    catch: (error: unknown) => new RawDataDecodeError({ error }),
   }).pipe(
     Effect.andThen(s => s),
   );
 
-const createStringStream = (ws: WebSocket): Stream.Stream<string, MessageStreamError> => {
+const createStringStream = (wsc: WebSocketConnection): Stream.Stream<string, MessageStreamError> => {
   return Stream.async(emit => {
-    ws.on("message", (data: RawData) => {
+    wsc.ws.on("message", (data: RawData) => {
       void emit(
         rawDataToString(data).pipe(
           Effect.map(s => Chunk.of(s)),
-          Effect.catchAll(error => Effect.fail(O.some(new MessageStreamError({error})))),
+          Effect.catchAll(error => Effect.fail(O.some(new MessageStreamError({ error })))),
         ),
       );
     });
-    ws.on("error", error => {
-      void emit(Effect.fail(O.some(new MessageStreamError({error}))));
+    wsc.ws.on("error", error => {
+      void emit(Effect.fail(O.some(new MessageStreamError({ error }))));
     });
-    ws.on("close", () => {
+    wsc.ws.on("close", () => {
       void emit(Effect.fail(O.none()));
     });
   });
 };
 
-export class ClientMessageStreamService extends Context.Tag(
-  "ClientMessageStreamService")<
-  ClientMessageStreamService,
+export class MessageStreamService extends Context.Tag(
+  "MessageStreamService")<
+  MessageStreamService,
   {
-    create: (ws: WebSocket) => Stream.Stream<string, MessageStreamError>
+    create: (ws: WebSocketConnection) => Stream.Stream<string, MessageStreamError>
   }
 >() {
   public static live = Layer.succeed(
-    ClientMessageStreamService,
-    ClientMessageStreamService.of({
+    MessageStreamService,
+    MessageStreamService.of({
       create: createStringStream,
-    })
-  )
+    }),
+  );
 }
