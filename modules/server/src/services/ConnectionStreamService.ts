@@ -9,7 +9,7 @@ import * as Stream from "effect/Stream";
 import * as uuid from "uuid";
 
 import { type AddressInfo, WebSocketServer } from "ws";
-import { serverPort } from "../config.ts";
+import { logLevelLayer, serverPort } from "../config.ts";
 
 class WebSocketError extends Data.TaggedError("ServerSocketError")<{
   error: Error
@@ -25,9 +25,9 @@ const silentlyStopServer = (ws: WebSocketServer): Effect.Effect<void> =>
     });
   }).pipe(
     Effect.catchAll(
-      e => Effect.logInfo("Cannot stop server", e)),
+      e => Effect.logError("Cannot stop server", e)),
     Effect.andThen(
-      () => Effect.logInfo("Server shutdown."),
+      () => Effect.logDebug("Server shutdown."),
     ),
   );
 
@@ -106,6 +106,7 @@ export class ConnectionStreamService extends Context.Tag(
     ConnectionStreamService,
     acquireServer.pipe(
       Effect.map(mkConnectionsStream),
+      Effect.provide(logLevelLayer),
     ),
   );
 }

@@ -1,4 +1,8 @@
 import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
+import * as LogLevel from "effect/LogLevel";
 
 export const serverPort =
   Config
@@ -7,4 +11,9 @@ export const serverPort =
 
 export const logLevel =
   Config.logLevel("LOG_LEVEL")
-    .pipe(Config.withDefault("info"));
+
+export const logLevelLayer = Layer.unwrapEffect(
+  logLevel.pipe(
+    Effect.andThen(level => Logger.minimumLogLevel(level)),
+  ),
+);

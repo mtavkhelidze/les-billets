@@ -13,7 +13,6 @@ class MessageStreamError extends Data.TaggedError("MessageStreamError")<{
 }> {
 }
 
-
 export class RawDataDecodeError
   extends Data.TaggedError("RowDataDecodeError")<{
     error: unknown

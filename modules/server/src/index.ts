@@ -2,6 +2,7 @@ import { pipe } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
+import { logLevelLayer } from "./config.ts";
 
 import { bunRunProgram } from "./runtime.ts";
 import {
@@ -33,6 +34,7 @@ bunRunProgram(
         ConnectionStreamService.live,
         MessageProcessorService.live,
         MessageStreamService.live,
+        logLevelLayer,
       ),
     ),
   ),

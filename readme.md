@@ -20,35 +20,38 @@ sequenceDiagram
     box Backend
         participant ws as WebSocket Server
         participant db as In-Memory Database
-        participant ps as PubSub Channel
+        participant pubSub as PubSub Channel
         participant updater as Client Updater
     end
     note over all, updater: Initial load
-    cl ->> ws: connect
+    cl --> ws: ClientMessage::GetTickets
     db ->> ws: getTickets()
-    ws ->> cl: Tickets(ts:List[Ticket])
+    ws ->> cl: ServerMessage::Tickets(ts:List[Ticket])
     note over all, updater: Lock ticket
-    cl ->> ws: LockTicket(ticketId:UUID)
+    cl ->> ws: ClientMessage::LockTicket(ticketId:UUID)
     ws ->> db: lock(ticketId:UUID)
-    ws ->> ps: TicketLocked(ticketId:UUID)
-    ps ->> updater: TicketLocked(ticketId:UUID)
-    updater ->> all: TicketLocked(ticketId:UUID)
+    ws ->> pubSub: WireEvent::TicketUpdated(ticketId:UUID)
+    pubSub ->> updater: WireEvent::TicketLocked(ticketId:UUID)
+    par update
+        updater ->>  cl: ServerMessage::TicketLocked(ticketId:UUID)
+        updater ->> all: ServerMessage::TicketLocked(ticketId:UUID)
+    end
     note over all, updater: Update ticket
     cl ->> ws: UpdateTicket(ticket=Ticket)
     ws ->> db: update(ticket=Ticket)
-    ws ->> ps: TicketUpdated(ticket=Ticket)
-    ps ->> updater: TicketUpdated(ticket=Ticket)
+    ws ->> pubSub: TicketUpdated(ticket=Ticket)
+    pubSub ->> updater: TicketUpdated(ticket=Ticket)
     updater ->> all: TicketUpdated(ticket=Ticket)
     note over all, updater: Create ticket
     cl ->> ws: CreateTicket(ticket=Ticket)
     ws ->> db: create(ticket=Ticket)
-    ws ->> ps: TicketCreated(ticket=Ticket)
-    ps ->> updater: TicketCreated(ticket=Ticket)
+    ws ->> pubSub: TicketCreated(ticket=Ticket)
+    pubSub ->> updater: TicketCreated(ticket=Ticket)
     updater ->> all: TicketCreated(ticket=Ticket)
     note over all, updater: Unlock ticket
     cl ->> ws: UnlockTicket(ticketId:UUID)
     ws ->> db: unlock(ticketId:UUID)
-    ws ->> ps: TicketUnlocked(ticketId:UUID)
-    ps ->> updater: TicketUnlocked(ticketId:UUID)
+    ws ->> pubSub: TicketUnlocked(ticketId:UUID)
+    pubSub ->> updater: TicketUnlocked(ticketId:UUID)
     updater ->> all: TicketUnlocked(ticketId:UUID)
 ```
