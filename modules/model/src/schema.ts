@@ -6,7 +6,7 @@ export const ticketsTable = D.sqliteTable("tickets", {
   createdAt: D.text("created_at")
     .notNull()
     .default(sql`(current_timestamp)`),
-  createdBy: D.text("created_by").notNull(),
+  createdBy: D.text("created_by").notNull().references(() => usersTable.id),
   description: D.text("description").notNull(),
   id: D.text("id", { length: 36 })
     .primaryKey()
@@ -18,9 +18,15 @@ export const ticketsTable = D.sqliteTable("tickets", {
   title: D.text("title").notNull(),
   updatedAt: D.text("updated_at")
     .notNull()
+    .default(sql`(current_timestamp)`)
     .$onUpdate(() => sql`(current_timestamp)`),
-  updatedBy: D.text("updated_by"),
+  updatedBy: D.text("updated_by")
+    .references(() => usersTable.id),
 });
+
+
+export type TicketsRow = typeof ticketsTable.$inferSelect;
+
 
 export const usersTable = D.sqliteTable("users", {
   email: D.text("email").notNull(),

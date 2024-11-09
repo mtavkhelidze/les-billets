@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1731144629231,
+      "tag": "0000_smart_stryfe",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1731144636481,
+      "tag": "0001_mighty_switch",
+      "breakpoints": true
+    }
+  ]
+}

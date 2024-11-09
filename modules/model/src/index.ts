@@ -6,9 +6,12 @@ import * as uuid from "uuid";
 export {
   ClientMessage, GetTickets, LockTicket, UpdateTicket,
 } from "./ClientMessage.ts";
+export { Ticket } from "./Ticket.ts";
 
 class ModelError extends Data.Error<{ message: string }> {
 }
+
+export { ticketsTable, usersTable, type TicketsRow } from "./schema.ts";
 
 export class User extends S.Class<User>("User")({
   id: S.UUID,

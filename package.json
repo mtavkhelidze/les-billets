@@ -3,11 +3,18 @@
         "effect": "^3.10.13"
     },
     "devDependencies": {
+        "@libsql/client": "^0.14.0",
+        "@types/bun": "latest",
+        "drizzle-kit": "^0.28.0",
         "typescript": "^5.6.3"
     },
     "name": "des-billets",
     "packageManager": "pnpm@8.5.1+sha1.97019f5a8ec2416123506419ab36dd558e4c72eb",
     "private": true,
+    "scripts": {
+        "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+        "db:migrate": "drizzle-kit migrate"
+    },
     "version": "1.0.0",
     "workspaces": [
         "modules/*"
