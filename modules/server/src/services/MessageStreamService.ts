@@ -58,13 +58,13 @@ const createStringStream = (wsc: WebSocketConnection): Stream.Stream<string, Mes
   });
 };
 
-export class MessageStreamService extends Context.Tag(
-  "MessageStreamService")<
-  MessageStreamService,
-  {
-    create: (ws: WebSocketConnection) => Stream.Stream<string, MessageStreamError>
-  }
->() {
+export class MessageStreamService
+  extends Context.Tag("MessageStreamService")<
+    MessageStreamService,
+    {
+      create: (ws: WebSocketConnection) => Stream.Stream<string, MessageStreamError>
+    }
+  >() {
   public static live = Layer.succeed(
     MessageStreamService,
     MessageStreamService.of({
