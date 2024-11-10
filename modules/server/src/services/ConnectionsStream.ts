@@ -34,7 +34,7 @@ const silentlyShutdown = (ws: WebSocketServer): Effect.Effect<void> =>
     Effect.catchAll(
       e => Effect.logDebug(`Error stopping server: ${e}`)),
     Effect.andThen(
-      () => Effect.logInfo("Server shutdown."),
+      () => Effect.logInfo("Server shutdown"),
     ),
   );
 
@@ -42,7 +42,7 @@ const addressString = (ai: AddressInfo | string | null): string =>
   ai
     ? typeof ai == "string"
       ? ai
-      : `${ai.family} address ${ai.address}:${ai.port}`
+      : `${ai.family}(${ai.address}:${ai.port})`
     : "unknown";
 
 const mkServer = (port: number): Effect.Effect<WebSocketServer, WebSocketError, Scope.Scope> => {
@@ -72,7 +72,7 @@ export const mkStream = (wss: WebSocketServer): Stream.Stream<WebSocketConnectio
         void emit(
           Effect.zipLeft(
             Effect.succeed(Chunk.of({ id, ws })),
-            Effect.logDebug(`${id} connected.`),
+            Effect.logDebug(`${id}: connected`),
           ),
         );
       });
@@ -80,14 +80,14 @@ export const mkStream = (wss: WebSocketServer): Stream.Stream<WebSocketConnectio
         void emit(
           Effect.zipLeft(
             Effect.fail(O.none()),
-            Effect.logDebug(`${id} closed.`),
+            Effect.logDebug(`${id}: closed`),
           ));
       });
       wss.on("error", error => {
         void emit(
           Effect.zipLeft(
             Effect.fail(O.some(new WebSocketError({ error }))),
-            Effect.logWarning(`${id} error.`, { error }),
+            Effect.logWarning(`${id}: error`, { error }),
           ));
       });
     },
@@ -104,6 +104,7 @@ export class ConnectionsStream extends Context.Tag(
     ConnectionsStream,
     serverPort.pipe(
       Effect.andThen(mkServer),
+      Effect.tap(server => Effect.logDebug(`Server: ${addressString(server.address())}`)),
       Effect.andThen(mkStream),
       Effect.provide(AppLogLevel.layer),
     ),
@@ -114,8 +115,9 @@ const sendPing = (wsc: WebSocketConnection) =>
   Effect.async<void, WebSocketConnection>(resume => {
     wsc.ws.ping("", undefined, error => {
       if (error) {
+        wsc.ws.close();
         return resume(
-          Effect.logDebug(`${wsc.id} gone.`).pipe(
+          Effect.logDebug(`${wsc.id} gone`).pipe(
             Effect.andThen(Effect.fail(wsc)),
           ),
         );
@@ -128,23 +130,22 @@ const sendPing = (wsc: WebSocketConnection) =>
 
 export const keepAliveProcess =
   keepAliveInterval.pipe(
-    Effect.tap(interval => Effect.logDebug(`Keep alive: ${interval}`)),
-    Effect.andThen(
-      interval =>
-        ClientRegistry.pipe(
-          Effect.andThen(
-            registry => registry.all.pipe(
-              Effect.andThen(List.toArray),
-              Effect.andThen(
-                list => Stream.fromIterable(list).pipe(
-                  Stream.tap(sendPing),
-                  Stream.catchAll(registry.remove),
-                  Stream.runCollect,
-                ),
+    Effect.tap(interval => Effect.logDebug(`Keep-Alive: ${interval}`)),
+    Effect.andThen(interval =>
+      ClientRegistry.pipe(
+        Effect.andThen(registry =>
+          registry.all.pipe(
+            Effect.andThen(List.toArray),
+            Effect.andThen(list =>
+              Stream.fromIterable(list).pipe(
+                Stream.tap(sendPing),
+                Stream.catchAll(registry.remove),
+                Stream.runCollect,
               ),
-              Effect.repeat(Schedule.spaced(interval)),
             ),
+            Effect.repeat(Schedule.spaced(interval)),
           ),
         ),
+      ),
     ),
   );

@@ -20,16 +20,23 @@ import { MessageStreamService } from "./services/MessageStreamService.ts";
 
 const acceptConnections =
   pipe(
-    Effect.all([ConnectionsStream, ClientRegistry]),
-    Effect.andThen(([connections, registry]) =>
+    Effect.all([
+      ConnectionsStream,
+      ClientRegistry,
+      MessageStreamService,
+      MessageProcessorService,
+    ]),
+    Effect.andThen(([connections, registry, messageStream, processor]) =>
       connections.pipe(
-        Stream.flatMap(registry.add),
-        Stream.tap(n => Effect.logDebug(`Total clients: ${n}`)),
-        Stream.runDrain,
+        Stream.tap(registry.add),
+        Stream.flatMap(wsc => messageStream.create(wsc).pipe(
+            Stream.runForEach(processor.process(wsc)),
+          ),
+        ),
+        Stream.runCollect,
       ),
     ),
     Effect.catchAll(e => Effect.logDebug(`Error accepting connections: ${e}`)),
-    Effect.ignore,
   );
 
 bunRunProgram(

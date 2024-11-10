@@ -15,7 +15,6 @@ import {
   serverMessageToJson,
   UpdateTicket,
 } from "model";
-import type { CreateTicket } from "model/src/ClientMessage.ts";
 import type { WebSocketConnection } from "./ConnectionsStream.ts";
 import { DataStorageService } from "./DataStorageService.ts";
 
@@ -67,10 +66,8 @@ export class MessageProcessorService extends Context.Tag(
         pipe(
           clientMessageFromJson(msg),
           Effect.andThen(dispatch(wsc)),
-          Effect.catchAll(e => Effect.logError(`Cannot parse ${msg}`)),
+          Effect.catchAll(e => Effect.logError(`${wsc.id}: cannot process \`${msg.trim()}\``)),
         ),
     }),
-  ).pipe(
-    Layer.provide(DataStorageService.live),
   );
 }

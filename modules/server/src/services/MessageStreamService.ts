@@ -32,7 +32,7 @@ const rawDataToString = (rd: RawData): Effect.Effect<string, RawDataDecodeError>
         // @misha: don't like that
         return rd.map(d => rawDataToString(d)).join(" ");
       }
-      throw new Error("Cannot read message data.");
+      throw new Error("Cannot read message data");
     },
     catch: (error: unknown) => new RawDataDecodeError({ error }),
   }).pipe(
@@ -53,7 +53,11 @@ const createStringStream = (wsc: WebSocketConnection): Stream.Stream<string, Mes
       void emit(Effect.fail(O.some(new MessageStreamError({ error }))));
     });
     wsc.ws.on("close", () => {
-      void emit(Effect.fail(O.none()));
+      void emit(
+        Effect.zipRight(
+          Effect.logDebug(`${wsc.id} message stream closed`),
+          Effect.fail(O.none()),
+        ));
     });
   });
 };
