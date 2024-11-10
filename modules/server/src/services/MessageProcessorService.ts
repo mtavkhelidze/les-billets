@@ -1,31 +1,53 @@
+import * as SqliteDrizzle from "@effect/sql-drizzle/Sqlite";
+import { SqlClient } from "@effect/sql/SqlClient";
 import { pipe } from "effect";
 import * as Context from "effect/Context";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import type { ParseError } from "effect/ParseResult";
-import * as Schema from "effect/Schema";
-import { ClientMessage, GetTickets, LockTicket, UpdateTicket } from "model";
-import type { WebSocketConnection } from "./ConnectionStreamService.ts";
+import {
+  AllTickets,
+  ClientMessage,
+  clientMessageFromJson,
+  GetTickets,
+  LockTicket,
+  serverMessageToJson,
+  UpdateTicket,
+} from "model";
+import type { CreateTicket } from "model/src/ClientMessage.ts";
+import type { WebSocketConnection } from "./ConnectionsStream.ts";
+import { DataStorageService } from "./DataStorageService.ts";
+
+class ProcessorError extends Data.TaggedError("ProcessorError")<{
+  error: Error
+}> {}
 
 const onGetTickets = (wsc: WebSocketConnection) => (m: GetTickets) =>
-  Effect.logInfo(`>>>>>>> GetTickets: ${wsc.id}`);
+  pipe(
+    DataStorageService,
+    Effect.andThen(service => service.getTickets),
+    Effect.andThen(tickets => new AllTickets({ tickets })),
+    Effect.andThen(serverMessageToJson),
+    Effect.flatMap(
+      json => Effect.try({
+        try: () => wsc.ws.send(json),
+        catch: error => new ProcessorError({ error: error as DOMException }),
+      }),
+    ),
+    Effect.provide(SqliteDrizzle.layer),
+  );
 
-const onLockTicket = (wsc: WebSocketConnection) => (m: LockTicket) =>
+const onTicketDummy = (wsc: WebSocketConnection) => (m: LockTicket) =>
   Effect.logInfo(`>>>>>>> LockTicket: ${wsc.id}`);
 
 const onUpdateTicket = (wsc: WebSocketConnection) => (m: UpdateTicket) =>
   Effect.logInfo(`>>>>>>> UpdateTicket: ${wsc.id}`);
 
-const fromJson = (msg: string) => Effect.try({
-  try: () => Schema.decodeUnknownSync(Schema.parseJson(ClientMessage))(msg),
-  catch: (e) => e as ParseError,
-});
-
 const dispatch = (wsc: WebSocketConnection) =>
   Match.type<ClientMessage>().pipe(
     Match.tag("GetTickets", onGetTickets(wsc)),
-    Match.tag("LockTicket", onLockTicket(wsc)),
+    Match.tag("LockTicket", onTicketDummy(wsc)),
     Match.tag("UpdateTicket", onUpdateTicket(wsc)),
     Match.exhaustive,
   );
@@ -35,7 +57,7 @@ export class MessageProcessorService extends Context.Tag(
   MessageProcessorService,
   {
     process: (socket: WebSocketConnection) => (msg: string) =>
-      Effect.Effect<void, never, never>;
+      Effect.Effect<void, never, SqlClient | DataStorageService>;
   }
 >() {
   public static live = Layer.succeed(
@@ -43,10 +65,12 @@ export class MessageProcessorService extends Context.Tag(
     MessageProcessorService.of({
       process: (wsc: WebSocketConnection) => (msg: string) =>
         pipe(
-          fromJson(msg),
+          clientMessageFromJson(msg),
           Effect.andThen(dispatch(wsc)),
           Effect.catchAll(e => Effect.logError(`Cannot parse ${msg}`)),
         ),
     }),
+  ).pipe(
+    Layer.provide(DataStorageService.live),
   );
 }

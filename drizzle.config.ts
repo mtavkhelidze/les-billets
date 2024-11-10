@@ -1,4 +1,7 @@
+import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+dotenv.config();
 
 export default defineConfig({
 
@@ -9,6 +12,6 @@ export default defineConfig({
   dialect: "sqlite",
   // https://orm.drizzle.team/kit-docs/config-reference#dbcredentials
   dbCredentials: {
-    url: "./drizzle/db.sqlite",
+    url: process.env.DB_FILE || ":memory:",
   },
 });

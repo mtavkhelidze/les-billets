@@ -15,6 +15,13 @@
       "when": 1731144636481,
       "tag": "0001_mighty_switch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1731167900582,
+      "tag": "0002_plain_cloak",
+      "breakpoints": true
     }
   ]
 }

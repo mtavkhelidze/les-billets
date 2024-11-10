@@ -24,9 +24,9 @@ sequenceDiagram
         participant updater as Client Updater
     end
     note over all, updater: Initial load
-    cl --> ws: ClientMessage::GetTickets
+    cl ->> ws: ClientMessage::GetTickets
     db ->> ws: getTickets()
-    ws ->> cl: ServerMessage::Tickets(ts:List[Ticket])
+    ws ->> cl: ServerMessage::AllTickets(tickets:List[Ticket])
     note over all, updater: Lock ticket
     cl ->> ws: ClientMessage::LockTicket(ticketId:UUID)
     ws ->> db: lock(ticketId:UUID)
@@ -37,19 +37,19 @@ sequenceDiagram
         updater ->> all: ServerMessage::TicketLocked(ticketId:UUID)
     end
     note over all, updater: Update ticket
-    cl ->> ws: UpdateTicket(ticket=Ticket)
+    cl ->> ws: ClientMessage::UpdateTicket(ticket=Ticket)
     ws ->> db: update(ticket=Ticket)
     ws ->> pubSub: TicketUpdated(ticket=Ticket)
     pubSub ->> updater: TicketUpdated(ticket=Ticket)
     updater ->> all: TicketUpdated(ticket=Ticket)
     note over all, updater: Create ticket
-    cl ->> ws: CreateTicket(ticket=Ticket)
+    cl ->> ws: ClientMessage::CreateTicket(ticket=Ticket)
     ws ->> db: create(ticket=Ticket)
     ws ->> pubSub: TicketCreated(ticket=Ticket)
     pubSub ->> updater: TicketCreated(ticket=Ticket)
     updater ->> all: TicketCreated(ticket=Ticket)
     note over all, updater: Unlock ticket
-    cl ->> ws: UnlockTicket(ticketId:UUID)
+    cl ->> ws: ClientMessage::UnlockTicket(ticketId:UUID)
     ws ->> db: unlock(ticketId:UUID)
     ws ->> pubSub: TicketUnlocked(ticketId:UUID)
     pubSub ->> updater: TicketUnlocked(ticketId:UUID)

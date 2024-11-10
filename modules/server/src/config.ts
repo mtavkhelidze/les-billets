@@ -11,11 +11,15 @@ export const serverPort =
     .number("SERVER_PORT")
     .pipe(Config.withDefault(9090));
 
-export const logLevel =
-  Config.logLevel("LOG_LEVEL");
+export const keepAliveInterval =
+  Config.duration("KEEP_ALIVE_INTERVAL").pipe(
+    Config.withDefault("3 seconds"),
+  );
 
-export const logLevelLayer = Layer.unwrapEffect(
-  logLevel.pipe(
-    Effect.andThen(level => Logger.minimumLogLevel(level)),
+export const AppLogLevel = {
+  layer: Layer.unwrapEffect(
+    Config.logLevel("LOG_LEVEL").pipe(
+      Effect.andThen(level => Logger.minimumLogLevel(level)),
+    ),
   ),
-);
+};
