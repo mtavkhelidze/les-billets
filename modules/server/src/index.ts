@@ -9,7 +9,7 @@ import { ClientRegistry } from "./dispatcher/ClientRegistry.ts";
 import { bunRunProgram } from "./runtime.ts";
 import {
   ConnectionsStream,
-  keepAliveProcess,
+  keepAlivePinger,
 } from "./services/ConnectionsStream.ts";
 import {
   DatabaseDriver,
@@ -18,7 +18,7 @@ import {
 import { MessageProcessorService } from "./services/MessageProcessorService.ts";
 import { MessageStreamService } from "./services/MessageStreamService.ts";
 
-const acceptConnections =
+const serviceConnections =
   pipe(
     Effect.all([
       ConnectionsStream,
@@ -41,13 +41,14 @@ const acceptConnections =
 
 bunRunProgram(
   Effect.raceAll([
-    acceptConnections,
-    keepAliveProcess,
+    keepAlivePinger,
+    serviceConnections,
   ])
     .pipe(
       Effect.provide(
         Layer.mergeAll(
           AppLogLevel.layer,
+          ClientRegistry.live,
           ConnectionsStream.live,
           DataStorageService.live,
           DatabaseDriver.live,
@@ -55,6 +56,5 @@ bunRunProgram(
           MessageStreamService.live,
         ),
       ),
-      Effect.provideService(ClientRegistry, ClientRegistry.live),
     ),
 );

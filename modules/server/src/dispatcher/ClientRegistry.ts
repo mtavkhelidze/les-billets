@@ -1,5 +1,6 @@
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as  Layer from "effect/Layer";
 import * as  List from "effect/List";
 import * as SynchronizedRef from "effect/SynchronizedRef";
 import type { WebSocketConnection } from "../services/ConnectionsStream.ts";
@@ -36,7 +37,10 @@ class ClientSyncRegistry {
 export class ClientRegistry extends Context.Tag("ClientRegistry")<
   ClientRegistry, ClientSyncRegistry
 >() {
-  public static live = new ClientSyncRegistry(
-    SynchronizedRef.unsafeMake(List.empty<WebSocketConnection>()),
+  public static live = Layer.effect(
+    ClientRegistry,
+    SynchronizedRef.make(List.empty<WebSocketConnection>()).pipe(
+      Effect.andThen(ref => new ClientSyncRegistry(ref)),
+    ),
   );
 }

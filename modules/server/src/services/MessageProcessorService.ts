@@ -15,6 +15,7 @@ import {
   serverMessageToJson,
   UpdateTicket,
 } from "model";
+import type { UnlockTicket } from "model/src/ClientMessage.ts";
 import type { WebSocketConnection } from "./ConnectionsStream.ts";
 import { DataStorageService } from "./DataStorageService.ts";
 
@@ -37,8 +38,11 @@ const onGetTickets = (wsc: WebSocketConnection) => (m: GetTickets) =>
     Effect.provide(SqliteDrizzle.layer),
   );
 
-const onTicketDummy = (wsc: WebSocketConnection) => (m: LockTicket) =>
+const onLockTicket = (wsc: WebSocketConnection) => (m: LockTicket) =>
   Effect.logInfo(`>>>>>>> LockTicket: ${wsc.id}`);
+
+const onUnlockTicket = (wsc: WebSocketConnection) => (m: UnlockTicket) =>
+  Effect.logInfo(`>>>>>>> UnlockTicket: ${wsc.id}`);
 
 const onUpdateTicket = (wsc: WebSocketConnection) => (m: UpdateTicket) =>
   Effect.logInfo(`>>>>>>> UpdateTicket: ${wsc.id}`);
@@ -46,7 +50,8 @@ const onUpdateTicket = (wsc: WebSocketConnection) => (m: UpdateTicket) =>
 const dispatch = (wsc: WebSocketConnection) =>
   Match.type<ClientMessage>().pipe(
     Match.tag("GetTickets", onGetTickets(wsc)),
-    Match.tag("LockTicket", onTicketDummy(wsc)),
+    Match.tag("LockTicket", onLockTicket(wsc)),
+    Match.tag("UnlockTicket", onUnlockTicket(wsc)),
     Match.tag("UpdateTicket", onUpdateTicket(wsc)),
     Match.exhaustive,
   );

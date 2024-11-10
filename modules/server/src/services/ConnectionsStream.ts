@@ -128,7 +128,7 @@ const sendPing = (wsc: WebSocketConnection) =>
     Effect.catchAll(error => Effect.fail(error)),
   );
 
-export const keepAliveProcess =
+export const keepAlivePinger =
   keepAliveInterval.pipe(
     Effect.tap(interval => Effect.logDebug(`Keep-Alive: ${interval}`)),
     Effect.andThen(interval =>

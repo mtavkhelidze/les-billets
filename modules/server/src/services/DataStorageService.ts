@@ -11,6 +11,8 @@ import { stringToUtc, Ticket, type TicketsRow, ticketsTable } from "model";
 import { dbFile } from "../config.ts";
 
 // region Database Driver
+
+// @misha: this needs to be made into service
 const SqlLive = dbFile.pipe(
   Effect.andThen(
     filename => SqliteClient.layer({
