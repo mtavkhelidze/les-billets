@@ -29,16 +29,24 @@ export interface WebSocketConnection {
 }
 
 class ConnectionMapRegistry {
-  public pingOrForget = (cid: CID) =>
+  /**
+   * Try  a ping. Remove from registry if there happens to be an error.
+   */
+  public pingOrForget = (cid: CID): Effect.Effect<void, never, MessageDeliveryService> =>
     pipe(
       DateTime.now,
       Effect.map(utc => ServerPing.make({ utc })),
       Effect.andThen(this.sendOrForget(cid, true)),
     );
+
+  /**
+   * Try to send a message or a ping. Remove from
+   * registry if there happens to be an error.
+   */
   public sendOrForget = (
     cid: CID,
     ping: boolean = false,
-  ) => (message: ServerMessage) =>
+  ) => (message: ServerMessage): Effect.Effect<void, never, MessageDeliveryService> =>
     pipe(
       Effect.zip(
         this.clients.pipe(

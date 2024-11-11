@@ -27,7 +27,7 @@ const acceptConnections =
     ),
   );
 
-export const keepAlivePinger =
+export const keepThingsAlive =
   keepAliveInterval.pipe(
     Effect.tap(interval => Effect.logDebug(`Keep-Alive: ${interval}`)),
     Effect.andThen(interval => pipe(
@@ -48,7 +48,7 @@ export const keepAlivePinger =
 bunRunProgram(
   Effect.raceAll([
     acceptConnections,
-    keepAlivePinger,
+    keepThingsAlive,
   ])
     .pipe(
       Effect.provide(
