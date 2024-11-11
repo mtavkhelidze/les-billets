@@ -16,7 +16,7 @@ import {
   UpdateTicket,
 } from "model";
 import type { UnlockTicket } from "model/src/ClientMessage.ts";
-import type { WebSocketConnection } from "./ConnectionsStream.ts";
+import type { WebSocketConnection } from "./ConnectionRegistry.ts";
 import { DataStorageService } from "./DataStorageService.ts";
 
 class ProcessorError extends Data.TaggedError("ProcessorError")<{

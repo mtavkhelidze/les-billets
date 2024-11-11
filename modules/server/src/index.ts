@@ -1,59 +1,62 @@
-import { pipe } from "effect";
+import { flow, pipe, Schedule } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-// noinspection ES6UnusedImports
-import * as  List from "effect/List";
 import * as Stream from "effect/Stream";
-import { AppLogLevel } from "./config.ts";
-import { ClientRegistry } from "./dispatcher/ClientRegistry.ts";
+import { AppLogLevel, keepAliveInterval } from "./config.ts";
 import { bunRunProgram } from "./runtime.ts";
-import {
-  ConnectionsStream,
-  keepAlivePinger,
-} from "./services/ConnectionsStream.ts";
-import {
-  DatabaseDriver,
-  DataStorageService,
-} from "./services/DataStorageService.ts";
-import { MessageProcessorService } from "./services/MessageProcessorService.ts";
-import { MessageStreamService } from "./services/MessageStreamService.ts";
+import { ConnectionRegistry } from "./services/ConnectionRegistry.ts";
+import { ConnectionsStream } from "./services/ConnectionsStream.ts";
+import { MessageDeliveryService } from "./services/MessageDeliveryService.ts";
 
-const serviceConnections =
-  pipe(
-    Effect.all([
-      ConnectionsStream,
-      ClientRegistry,
-      MessageStreamService,
-      MessageProcessorService,
-    ]),
-    Effect.andThen(([connections, registry, messageStream, processor]) =>
-      connections.pipe(
-        Stream.tap(registry.add),
-        Stream.flatMap(wsc => messageStream.create(wsc).pipe(
-            Stream.runForEach(processor.process(wsc)),
+const acceptConnections =
+  Effect.scoped(pipe(
+      Effect.all([ConnectionsStream, ConnectionRegistry]),
+      Effect.andThen(([stream, registry]) =>
+        stream.pipe(
+          Stream.runForEachScoped(
+            flow(
+              registry.add,
+              Effect.andThen(id => Effect.logDebug(`${id}: connected`)),
+              Effect.andThen(registry.size),
+              Effect.andThen(size => Effect.logDebug(`Total connections: ${size}`)),
+            ),
           ),
         ),
-        Stream.runCollect,
+      ),
+      Effect.catchAll(e => Effect.logDebug(`Error accepting connections: ${e}`)),
+    ),
+  );
+
+export const keepAlivePinger =
+  keepAliveInterval.pipe(
+    Effect.tap(interval => Effect.logDebug(`Keep-Alive: ${interval}`)),
+    Effect.andThen(interval => pipe(
+        Effect.all([ConnectionRegistry]),
+        Effect.andThen(([registry]) =>
+          Effect.repeat(
+            registry.allIds.pipe(
+              Stream.fromIterableEffect,
+              Stream.runForEach(cid => registry.pingOrForget(cid)),
+            ),
+            Schedule.spaced(interval),
+          ),
+        ),
       ),
     ),
-    Effect.catchAll(e => Effect.logDebug(`Error accepting connections: ${e}`)),
   );
 
 bunRunProgram(
   Effect.raceAll([
+    acceptConnections,
     keepAlivePinger,
-    serviceConnections,
   ])
     .pipe(
       Effect.provide(
         Layer.mergeAll(
           AppLogLevel.layer,
-          ClientRegistry.live,
+          ConnectionRegistry.live,
           ConnectionsStream.live,
-          DataStorageService.live,
-          DatabaseDriver.live,
-          MessageProcessorService.live,
-          MessageStreamService.live,
+          MessageDeliveryService.live,
         ),
       ),
     ),

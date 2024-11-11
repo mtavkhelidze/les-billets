@@ -3,16 +3,12 @@ import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as List from "effect/List";
 import * as O from "effect/Option";
-import * as Schedule from "effect/Schedule";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import * as uuid from "uuid";
 
 import { type AddressInfo, WebSocketServer } from "ws";
-import { AppLogLevel, keepAliveInterval, serverPort } from "../config.ts";
-import { ClientRegistry } from "../dispatcher/ClientRegistry.ts";
+import { AppLogLevel, serverPort } from "../config.ts";
 
 class WebSocketError extends Data.TaggedError("ServerSocketError")<{
   error: Error
@@ -57,95 +53,49 @@ const mkServer = (port: number): Effect.Effect<WebSocketServer, WebSocketError, 
   );
 };
 
-export interface WebSocketConnection {
-  id: string;
-  ws: WebSocket;
-}
-
-export const mkStream = (wss: WebSocketServer): Stream.Stream<WebSocketConnection, WebSocketError> => {
-  return Stream.async<WebSocketConnection, WebSocketError>(
+export const mkStream = (wss: WebSocketServer): Stream.Stream<WebSocket, WebSocketError> =>
+  Stream.async<WebSocket, WebSocketError>(
     emit => {
-      // @misha: change that when authorization will be implemented
-      let id: string;
       wss.on("connection", (ws: WebSocket, req) => {
-        id = uuid.v4();
         void emit(
-          Effect.zipLeft(
-            Effect.succeed(Chunk.of({ id, ws })),
-            Effect.logDebug(`${id}: connected`),
+          Effect.succeed(
+            Chunk.of(ws),
           ),
         );
       });
       wss.on("close", () => {
         void emit(
-          Effect.zipLeft(
-            Effect.fail(O.none()),
-            Effect.logDebug(`${id}: closed`),
-          ));
+          Effect.fail(
+            O.none(),
+          ),
+        );
       });
       wss.on("error", error => {
         void emit(
-          Effect.zipLeft(
-            Effect.fail(O.some(new WebSocketError({ error }))),
-            Effect.logWarning(`${id}: error`, { error }),
-          ));
+          Effect.fail(
+            O.some(
+              new WebSocketError({ error }),
+            ),
+          ),
+        );
       });
-    },
-  );
-};
+    });
 
 
 export class ConnectionsStream extends Context.Tag(
   "ConnectionsStream")<
   ConnectionsStream,
-  Stream.Stream<WebSocketConnection, WebSocketError>
+  Stream.Stream<WebSocket, WebSocketError>
 >() {
   public static live = Layer.scoped(
     ConnectionsStream,
     serverPort.pipe(
       Effect.andThen(mkServer),
-      Effect.tap(server => Effect.logDebug(`Server: ${addressString(server.address())}`)),
+      Effect.tap(server => Effect.logInfo(`Server started: ${addressString(
+        server.address())}`)),
       Effect.andThen(mkStream),
       Effect.provide(AppLogLevel.layer),
     ),
   );
 }
 
-const sendPing = (wsc: WebSocketConnection) =>
-  Effect.async<void, WebSocketConnection>(resume => {
-    wsc.ws.ping("", undefined, error => {
-      if (error) {
-        wsc.ws.close();
-        return resume(
-          Effect.logDebug(`${wsc.id} gone`).pipe(
-            Effect.andThen(Effect.fail(wsc)),
-          ),
-        );
-      }
-    });
-    resume(Effect.void);
-  }).pipe(
-    Effect.catchAll(error => Effect.fail(error)),
-  );
-
-export const keepAlivePinger =
-  keepAliveInterval.pipe(
-    Effect.tap(interval => Effect.logDebug(`Keep-Alive: ${interval}`)),
-    Effect.andThen(interval =>
-      ClientRegistry.pipe(
-        Effect.andThen(registry =>
-          registry.all.pipe(
-            Effect.andThen(List.toArray),
-            Effect.andThen(list =>
-              Stream.fromIterable(list).pipe(
-                Stream.tap(sendPing),
-                Stream.catchAll(registry.remove),
-                Stream.runCollect,
-              ),
-            ),
-            Effect.repeat(Schedule.spaced(interval)),
-          ),
-        ),
-      ),
-    ),
-  );

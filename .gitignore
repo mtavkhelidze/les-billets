@@ -176,4 +176,4 @@ dist
 *.bun-build
 *.ignore/
 drizzle/db.sqlite
-server
+

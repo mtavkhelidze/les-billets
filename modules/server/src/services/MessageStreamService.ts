@@ -6,7 +6,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import type { RawData } from "ws";
-import type { WebSocketConnection } from "./ConnectionsStream.ts";
+import type { WebSocketConnection } from "./ConnectionRegistry.ts";
 
 class MessageStreamError extends Data.TaggedError("MessageStreamError")<{
   error: Error
