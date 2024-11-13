@@ -1,0 +1,23 @@
+{
+    "extends": [
+        "../../tsconfig.json"
+    ],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@blocks/*": [
+                "src/blocks/*"
+            ],
+            "@lib/*": [
+                "src/lib/*"
+            ],
+            "@state/*": [
+                "src/state/*"
+            ]
+        }
+    },
+    "include": [
+        "src",
+        "vite.config.ts"
+    ]
+}

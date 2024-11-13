@@ -1,0 +1,16 @@
+.table-row {
+    @apply cursor-default;
+    td {
+        @apply
+        pl-2
+        py-2
+        ;
+
+        &:hover {
+            @apply
+            bg-orange-500
+            text-white
+            ;
+        }
+    }
+}

@@ -3,11 +3,19 @@
     "packageManager": "pnpm@8.5.1+sha1.97019f5a8ec2416123506419ab36dd558e4c72eb",
     "private": true,
     "scripts": {
+        "dev": "cd packages/client && bunx --bun vite",
         "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
         "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts"
     },
     "version": "1.0.0",
     "workspaces": [
-        "modules/*"
-    ]
+        "packages/*"
+    ],
+    "type": "module",
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.6.3"
+    }
 }

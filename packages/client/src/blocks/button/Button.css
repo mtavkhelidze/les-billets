@@ -1,0 +1,55 @@
+.button-primary {
+    @apply
+    bg-orange-500
+    border
+    border-orange-500
+    cursor-pointer
+    font-medium
+    px-4
+    py-1
+    rounded-md
+    select-none
+    text-white
+    ;
+
+    &:active {
+        @apply
+        bg-orange-700
+        scale-95
+        ;
+    }
+
+    &:hover {
+        @apply
+        bg-orange-600
+        drop-shadow-md
+        shadow-orange-600
+        ;
+    }
+
+}
+
+.button-secondary {
+    @apply button-primary;
+    @apply
+    bg-gray-500
+    border
+    border-gray-500
+    text-white
+    ;
+
+    &:active {
+        @apply
+        bg-gray-700
+        scale-95
+        ;
+    }
+
+    &:hover {
+        @apply
+        bg-gray-600
+        drop-shadow-md
+        shadow-gray-600
+        ;
+    }
+}
