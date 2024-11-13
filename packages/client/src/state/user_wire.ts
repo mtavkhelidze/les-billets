@@ -3,12 +3,12 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
-import type { User } from "model";
 import { useEffect, useState } from "react";
+import type { WebUser } from "../model/WebUser.ts";
 
 
 class UserWireImpl {
-  constructor(private wire: PubSub.PubSub<O.Option<User>>) {}
+  constructor(private wire: PubSub.PubSub<O.Option<WebUser>>) {}
 
   /**
    * Returns (scoped) stream of updates for your enjoyment.
@@ -18,11 +18,11 @@ class UserWireImpl {
   public get stream() {
     return pipe(
       this.wire,
-      Stream.fromPubSub<O.Option<User>>,
+      Stream.fromPubSub<O.Option<WebUser>>,
     );
   }
 
-  public update(ou: O.Option<User>) {
+  public update(ou: O.Option<WebUser>) {
     return pipe(
       this.wire,
       PubSub.publish(ou),
@@ -43,7 +43,7 @@ export class UserWire extends Context.Tag("UserWire")<
 >() {
   public static live = Layer.effect(
     UserWire,
-    PubSub.bounded<O.Option<User>>(1).pipe(
+    PubSub.bounded<O.Option<WebUser>>(1).pipe(
       Effect.andThen(ps => new UserWireImpl(ps)),
     ),
   );
@@ -58,7 +58,7 @@ export class UserWire extends Context.Tag("UserWire")<
     );
   };
 
-  public static setUser = (user: User): void => {
+  public static setUser = (user: WebUser): void => {
     UserWire.runtime.runPromise(
       UserWire.pipe(
         Effect.andThen(uw => uw.update(O.some(user))),
@@ -68,7 +68,7 @@ export class UserWire extends Context.Tag("UserWire")<
 }
 
 export const useUserWire = () => {
-  const [user, setUser] = useState<O.Option<User>>(O.none());
+  const [user, setUser] = useState<O.Option<WebUser>>(O.none());
 
   // @misha: this can be moved into a static method of UserWire
   // so the runtime is completely hidden from the user.

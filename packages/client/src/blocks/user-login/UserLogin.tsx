@@ -1,12 +1,13 @@
 import { Button } from "@blocks/button";
 import * as S from "@effect/schema/Schema";
 import { useUserWire } from "@state/user_wire.ts";
-import { User } from "model";
+import { UserRecord } from "model";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
+import { WebUser } from "../../model/WebUser.ts";
 
-const FormUser = User.pipe(S.omit("id"));
+const FormUser = UserRecord.pipe(S.omit("id"));
 type FormData = S.Schema.Type<typeof FormUser>
 
 export const UserLogin = () => {
@@ -17,14 +18,11 @@ export const UserLogin = () => {
   const { user, setUser } = useUserWire();
 
   const onSubmit = (data: FormData) => {
-    setUser(
-      User.make({
-        id: "92dbbee8-b902-413d-81c7-f9b25aaff857",
-        fullName: "Misha Tavkhelidze",
-        email: "misha@zgharbi.ge",
-        password: "pass",
-      }),
-    );
+    setUser(WebUser.make({
+      id: "92dbbee8-b902-413d-81c7-f9b25aaff857",
+      fullName: "Misha Tavkhelidze",
+      email: "misha@zgharbi.ge",
+    }));
   };
   return (
     <div className="flex flex-col items-center gap-4">

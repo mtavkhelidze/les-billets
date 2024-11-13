@@ -18,4 +18,4 @@ export { ticketsTable, usersTable, type TicketsRow } from "./schema.ts";
 
 export { stringToUtc } from "./util.ts";
 
-export { User } from "./User.ts";
+export { UserRecord } from "./UserRecord.ts";
