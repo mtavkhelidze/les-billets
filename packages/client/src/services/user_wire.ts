@@ -3,8 +3,8 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
+import { WebUser } from "model";
 import { useEffect, useState } from "react";
-import type { WebUser } from "../model/WebUser.ts";
 
 
 class UserWireImpl {

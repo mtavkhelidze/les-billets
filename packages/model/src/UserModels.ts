@@ -1,12 +1,18 @@
 import * as S from "@effect/schema/Schema";
-import * as O from "effect/Option";
-import { BaseUser } from "model/src/UserRecord.ts";
+
+export class BaseUser extends S.Class<BaseUser>("BaseUser")({
+  email: S.NonEmptyString,
+  fullName: S.NonEmptyString,
+  id: S.UUID,
+}) {}
+
+export class UserWithPassword extends BaseUser.extend<UserWithPassword>("UserWithPassword")({
+    password: S.NonEmptyString,
+  },
+) {};
 
 export class WebUser extends BaseUser.extend<WebUser>("WebUser")({
-  jwtToken: S.String.pipe(
-    S.Option,
-    S.optionalWith({ default: () => O.none(), exact: true }),
-  ),
+  jwtToken: S.String.pipe(S.Option),
 }) {
   // @misha: directly from Scala
   public copy = (obj: Partial<WebUser>): WebUser =>
@@ -17,4 +23,3 @@ export class WebUser extends BaseUser.extend<WebUser>("WebUser")({
       jwtToken: obj.jwtToken ?? this.jwtToken,
     });
 }
-

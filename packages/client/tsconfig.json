@@ -1,7 +1,4 @@
 {
-    "extends": [
-        "../../tsconfig.json"
-    ],
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
@@ -11,11 +8,14 @@
             "@lib/*": [
                 "src/lib/*"
             ],
-            "@state/*": [
-                "src/state/*"
+            "@services/*": [
+                "src/services/*"
             ]
         }
     },
+    "extends": [
+        "../../tsconfig.json"
+    ],
     "include": [
         "src",
         "vite.config.ts"
