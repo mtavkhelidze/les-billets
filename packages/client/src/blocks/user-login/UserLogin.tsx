@@ -1,6 +1,6 @@
 import { Button } from "@blocks/button";
 import * as S from "@effect/schema/Schema";
-import { useUserWire } from "@state/user_wire.ts";
+import { useUserWire } from "../../services/user_wire.ts";
 import { UserRecord } from "model";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

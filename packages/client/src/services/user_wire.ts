@@ -37,30 +37,30 @@ class UserWireImpl {
  because, say in React, default runtime is not good enough.
 
  */
-export class UserWire extends Context.Tag("UserWire")<
-  UserWire,
+export class UserWireService extends Context.Tag("UserWireService")<
+  UserWireService,
   UserWireImpl
 >() {
   public static live = Layer.effect(
-    UserWire,
+    UserWireService,
     PubSub.bounded<O.Option<WebUser>>(1).pipe(
       Effect.andThen(ps => new UserWireImpl(ps)),
     ),
   );
 
-  public static runtime = ManagedRuntime.make(UserWire.live);
+  public static runtime = ManagedRuntime.make(UserWireService.live);
 
   public static resetUser = () => {
-    UserWire.runtime.runPromise(
-      UserWire.pipe(
+    UserWireService.runtime.runPromise(
+      UserWireService.pipe(
         Effect.andThen(uw => uw.update(O.none())),
       ),
     );
   };
 
   public static setUser = (user: WebUser): void => {
-    UserWire.runtime.runPromise(
-      UserWire.pipe(
+    UserWireService.runtime.runPromise(
+      UserWireService.pipe(
         Effect.andThen(uw => uw.update(O.some(user))),
       ),
     );
@@ -70,10 +70,10 @@ export class UserWire extends Context.Tag("UserWire")<
 export const useUserWire = () => {
   const [user, setUser] = useState<O.Option<WebUser>>(O.none());
 
-  // @misha: this can be moved into a static method of UserWire
+  // @misha: this can be moved into a static method of UserWireService
   // so the runtime is completely hidden from the user.
   const program = pipe(
-    UserWire,
+    UserWireService,
     Effect.andThen(ch => ch.stream),
     Effect.andThen(
       Stream.runForEach(uo => {
@@ -86,7 +86,7 @@ export const useUserWire = () => {
   );
 
   useEffect(() => {
-    UserWire
+    UserWireService
       .runtime
       .runPromise(program)
       .then(console.log)
@@ -95,6 +95,6 @@ export const useUserWire = () => {
 
   return {
     user,
-    setUser: UserWire.setUser,
+    setUser: UserWireService.setUser,
   };
 };
