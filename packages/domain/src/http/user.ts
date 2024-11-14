@@ -1,3 +1,4 @@
+import { Schema } from "@effect/schema";
 import * as S from "effect/Schema";
 import { UserProfile } from "../UserProfile.ts";
 

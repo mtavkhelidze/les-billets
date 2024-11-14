@@ -8,7 +8,7 @@
         "drizzle-orm": "^0.36.1",
         "ws": "latest"
     },
-    "module": "src/index.ts",
+    "module": "./server.ts",
     "name": "server",
     "peerDependencies": {
         "@domain/model": "workspace:*",

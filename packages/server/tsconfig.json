@@ -1,7 +1,18 @@
 {
     "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "paths": {
+            "@api": [
+                "./src/api/index.ts"
+            ],
+            "@http": [
+                "./src/http/index.ts"
+            ],
+            "@api/error": [
+                "./src/api/error.ts"
+            ]
+        }
     },
     "include": [
         "./src"

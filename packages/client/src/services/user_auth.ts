@@ -16,15 +16,6 @@ export interface UserAuthError {
   readonly message: string;
 }
 
-class InvalidCredentialsError
-  extends Data.TaggedError("InvalidCredentialsError")<UserAuthError> {
-  constructor() {
-    super({
-      message: "Invalid credentials.",
-    });
-  }
-}
-
 class UserAuthClient {
   // @misha: the other, hopefully proper way of doing what's in
   // UserChannelService
