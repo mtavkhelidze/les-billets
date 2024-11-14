@@ -6,11 +6,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import type { RawData } from "ws";
-import {
-  type CID,
-  ConnectionRegistry,
-  type WebSocketConnection,
-} from "./ConnectionRegistry.ts";
+import { type CID, type WebSocketConnection } from "./ConnectionRegistry.ts";
 
 class MessageStreamError extends Data.TaggedError("MessageStreamError")<{
   error: Error
@@ -43,7 +39,10 @@ const rawDataToString = (rd: RawData): Effect.Effect<string, RawDataDecodeError>
     Effect.andThen(s => s),
   );
 
-const createStringStream = (cid: CID, ws: WebSocket): Stream.Stream<string, MessageStreamError> => {
+const createStringStream = (
+  cid: CID,
+  ws: WebSocket,
+): Stream.Stream<string, MessageStreamError> => {
   return Stream.async(emit => {
     ws.on("message", (data: RawData) => {
       void emit(
@@ -59,13 +58,9 @@ const createStringStream = (cid: CID, ws: WebSocket): Stream.Stream<string, Mess
     ws.on("close", () => {
       void emit(
         Effect.zipRight(
-          Effect.logDebug(`${wsc.id} message stream closed`),
+          Effect.logDebug(`${cid} message stream closed`),
           Effect.fail(O.none()),
-        ).pipe(
-          ConnectionRegistry.pipe(
-            Effect.andThen(registry => registry.remove(cid)),
-          )
-        )
+        ),
       );
     });
   });
@@ -75,7 +70,7 @@ export class MessageStreamService
   extends Context.Tag("MessageStreamService")<
     MessageStreamService,
     {
-      create: (ws: WebSocketConnection) => Stream.Stream<string, MessageStreamError>
+      create: (cid: CID, ws: WebSocket) => Stream.Stream<string, MessageStreamError>
     }
   >() {
   public static live = Layer.succeed(

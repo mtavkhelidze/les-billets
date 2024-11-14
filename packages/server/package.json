@@ -1,4 +1,7 @@
 {
+    "scripts": {
+        "typecheck": "tsc --noEmit"
+    },
     "dependencies": {
         "@effect/platform": "^0.69.21",
         "@effect/platform-bun": "^0.49.23",

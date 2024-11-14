@@ -6,11 +6,14 @@
             "@api": [
                 "./src/api/index.ts"
             ],
+            "@api/error": [
+                "./src/api/error.ts"
+            ],
             "@http": [
                 "./src/http/index.ts"
             ],
-            "@api/error": [
-                "./src/api/error.ts"
+            "@storage": [
+                "./src/storage/index.ts"
             ]
         }
     },
