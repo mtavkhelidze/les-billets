@@ -1,15 +1,16 @@
+import { UserProfile } from "@domain/model";
+import { LoginRequest, LoginResponse } from "@domain/model/http";
 import {
+  FetchHttpClient,
   HttpClient,
   HttpClientRequest,
   HttpClientResponse,
 } from "@effect/platform";
-import { Context, ManagedRuntime } from "effect";
+import { ManagedRuntime, pipe } from "effect";
+import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
-import * as Record from "effect/Record";
-import { UserWithPassword } from "model";
-import { LoginResponse } from "model/http";
+import * as Layer from "effect/Layer";
 
 class InvalidCredentialsError
   extends Data.TaggedError("InvalidCredentialsError")<{}> {
@@ -18,35 +19,45 @@ class InvalidCredentialsError
 
 type UserAuthError = InvalidCredentialsError;
 
-interface UserAuthClient {
-  readonly login: (
-    email: UserWithPassword["email"],
-    password: UserWithPassword["password"],
-  ) => Effect.Effect<O.Option<string>, UserAuthError>;
-}
-
-class UserAuthClientImpl implements UserAuthClient {
+class UserAuthClient {
   // @misha: the other, hopefully proper way of doing what's in
   // UserChannelService
-  constructor(
-    private runtime: ManagedRuntime.ManagedRuntime<UserAuthService, never>,
-    private client: HttpClient.HttpClient,
-  ) {}
+  constructor(private client: HttpClient.HttpClient) {}
 
-  public login = (
-    email: UserWithPassword["email"],
-    password: UserWithPassword["password"],
-  ) =>
-    HttpClientRequest.get("/user/login").pipe(
-      this.client.execute,
+  public login = (email: string, password: string) =>
+    HttpClientRequest.schemaBodyJson(LoginRequest)(
+      HttpClientRequest.post("/user/login"),
+      { email, password },
+    ).pipe(
+      Effect.andThen(this.client.execute),
       Effect.flatMap(HttpClientResponse.schemaBodyJson(LoginResponse)),
-      Effect.map(Record.get("jwtToken")),
+      Effect.map(res => UserProfile.make(res)),
       Effect.catchAll(() => Effect.fail(new InvalidCredentialsError())),
       Effect.scoped,
     );
 }
 
 export class UserAuthService extends Context.Tag("UserAuthService")<
-  UserAuthClient,
-  UserAuthClientImpl
->() {}
+  UserAuthService,
+  UserAuthClient
+>() {
+  public static live = pipe(
+    HttpClient.HttpClient,
+    Effect.map(HttpClient.filterStatusOk),
+    Effect.map(
+      HttpClient.mapRequest(
+        HttpClientRequest
+          .prependUrl("https://example.com"),
+      ),
+    ),
+    Effect.map(client => new UserAuthClient(client)),
+    Layer.effect(UserAuthService),
+  );
+
+  public static runtime = ManagedRuntime.make(
+    UserAuthService.live.pipe(
+      Layer.provide(FetchHttpClient.layer),
+    ),
+  );
+};
+

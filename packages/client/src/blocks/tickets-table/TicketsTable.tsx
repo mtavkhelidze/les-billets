@@ -1,6 +1,6 @@
 import { TicketRow } from "@blocks/tickets-table/TicketRow.tsx";
 import * as Array from "effect/Array";
-import { Ticket } from "model";
+import { Ticket } from "../../../../domain";
 import * as React from "react";
 import { type ChangeEventHandler, useEffect, useState } from "react";
 

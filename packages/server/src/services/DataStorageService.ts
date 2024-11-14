@@ -7,7 +7,7 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { stringToUtc, Ticket, type TicketsRow, ticketsTable } from "../../../model";
+import { stringToUtc, Ticket, type TicketsRow, ticketsTable } from "../../../domain";
 import { dbFile } from "../config.ts";
 
 // region Database Driver

@@ -14,7 +14,7 @@ import {
   LockTicket,
   serverMessageToJson,
   UpdateTicket,
-} from "../../../model";
+} from "../../../domain";
 import type { UnlockTicket } from "model/src/ClientMessage.ts";
 import type { WebSocketConnection } from "./ConnectionRegistry.ts";
 import { DataStorageService } from "./DataStorageService.ts";

@@ -1,4 +1,4 @@
-import { Ticket } from "model";
+import { Ticket } from "../../../../domain";
 
 /**
  * Schema to generate mock tickets on https://json-generator.com/

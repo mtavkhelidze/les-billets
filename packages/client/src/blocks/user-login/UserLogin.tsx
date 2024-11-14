@@ -1,61 +1,59 @@
 import { Button } from "@blocks/button";
-import * as S from "effect/Schema";
-import { useUserWire } from "@services/user_wire.ts";
+import { useUserLogin } from "@blocks/user-login/UserLogin.hooks.ts";
+import { UserProfile } from "@domain/model";
+import { useUserProfile } from "@services/user_wire.ts";
 import * as O from "effect/Option";
-import { UserWithPassword, WebUser } from "model";
-import { useState } from "react";
+import * as S from "effect/Schema";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 
-const FormUser = UserWithPassword.pipe(S.omit("id"));
+const FormUser = UserProfile.pipe(
+  S.pick("email"),
+  S.extend(
+    S.Struct({
+      password: S.String,
+    }),
+  ),
+);
+
 type FormData = S.Schema.Type<typeof FormUser>
 
 export const UserLogin = () => {
   const { handleSubmit, register, reset } = useForm<FormData>();
-  const [error, setError] = useState<string>();
   const [_, navigate] = useLocation();
 
-  const { user, setUser } = useUserWire();
+  const { profile } = useUserProfile();
+  const { loading, error, login } = useUserLogin();
 
   const onSubmit = (data: FormData) => {
-    setUser(
-      WebUser.make({
-        id: "92dbbee8-b902-413d-81c7-f9b25aaff857",
-        fullName: "Misha Tavkhelidze",
-        email: "misha@zgharbi.ge",
-        jwtToken: O.some("nothing"),
-      }),
-    );
+
   };
   return (
-    <div className="flex flex-col items-center gap-4">
-      <h1 className="m-2 text-xl">Login</h1>
-      <h1 className="m-2 text-xs">
-        <pre>
-          {JSON.stringify(user)}<br />
+    <div className="flex flex-col w-full justify-center items-center gap-4">
+      <h1 className="m-2 text-xl text-orange-600 font-bold">Login</h1>
+      <h1 className="m-2 text-xs md:w-56 w-full font-extralight">
+        <code>
           use:
-          <br />| user@one.example:passOne
-          <br />| user@two.example:passTwo
-          <br />| user@three.example:passThree
-        </pre>
+          <br />| user@one.com:pass!Un
+          <br />| user@two.com:pass@Deux
+          <br />| user@three.com:pass#Trois
+        </code>
       </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
         onReset={
           () => {
-            setError("");
             reset({
-              email: "misha@zgharbi.ge",
-              fullName: "Misha",
-              password: "pass",
+              email: "",
+              password: "",
             }, { keepErrors: false, keepDirty: false });
           }
         }
-        className="flex gap-3 flex-col w-1/3"
+        className="flex gap-3 flex-col w-full md:w-56"
       >
         <div className="mb-3 flex flex-col gap-2">
           <label
-            className="text-primary-600 text-sm"
+            className="text-orange-600 text-sm font-medium"
             htmlFor="email"
             role="label"
           >Email</label>
@@ -65,19 +63,19 @@ export const UserLogin = () => {
             placeholder="name@example.com"
             type="email"
             {...register("email")}
-            className="p-2 rounded"
+            className="p-2 rounded flex-1"
           />
         </div>
         <div className="mb-3 flex flex-col gap-2">
           <label
             htmlFor="password"
-            className="text-primary-600 text-sm"
+            className="text-orange-600 text-sm font-medium"
           >Password</label>
           <input
             autoComplete="current-password"
             id="password"
             type="password"
-            placeholder="password"
+            placeholder="Xa#i1joj"
             {...register("password")}
             className="p-2 rounded"
           />
@@ -85,6 +83,9 @@ export const UserLogin = () => {
         <div className="flex flex-row justify-end gap-2">
           <Button type="reset" style="secondary">Reset</Button>
           <Button type="submit">Login</Button>
+        </div>
+        <div className="flex flex-row justify-end gap-2">
+          {O.getOrNull(error)}
         </div>
       </form>
     </div>

@@ -5,17 +5,11 @@ export class ModelError extends Data.TaggedError("ModelError")<{
 }> {}
 
 export { AllTickets, ServerMessage } from "./ServerMessage.ts";
-
 export {
   ClientMessage, GetTickets, LockTicket, UpdateTicket,
 } from "./ClientMessage.ts";
-
-export { clientMessageFromJson, serverMessageToJson } from "./util.ts";
-
 export { Ticket } from "./Ticket.ts";
-
-export { ticketsTable, usersTable, type TicketsRow } from "./schema.ts";
-
+export { UserProfile } from "./UserProfile.ts";
+export { clientMessageFromJson, serverMessageToJson } from "./util.ts";
 export { stringToUtc } from "./util.ts";
-
-export { UserRecord } from "./UserRecord.ts";
+export { ticketsTable, usersTable, type TicketsRow } from "./schema.ts";

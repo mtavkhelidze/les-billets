@@ -1,5 +1,5 @@
 import * as DateTime from "effect/DateTime";
-import type { Ticket } from "model";
+import type { Ticket } from "../../../../domain";
 import React from "react";
 
 import "./TableRow.css";

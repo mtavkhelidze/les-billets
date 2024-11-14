@@ -1,14 +1,16 @@
-import { Context, ManagedRuntime, pipe, PubSub } from "effect";
+import { UserProfile } from "@domain/model";
+import { Context, ManagedRuntime, pipe } from "effect";
 import * as Effect from "effect/Effect";
+import { constVoid } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
-import { WebUser } from "model";
+import * as SRef from "effect/SubscriptionRef";
+
 import { useEffect, useState } from "react";
 
-
 class UserWireImpl {
-  constructor(private wire: PubSub.PubSub<O.Option<WebUser>>) {}
+  constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {}
 
   /**
    * Returns (scoped) stream of updates for your enjoyment.
@@ -16,16 +18,13 @@ class UserWireImpl {
    * @note: this is exactly what SubscriptionRef is dooing under the hood.
    */
   public get stream() {
-    return pipe(
-      this.wire,
-      Stream.fromPubSub<O.Option<WebUser>>,
-    );
+    return this.wire.changes;
   }
 
-  public update(ou: O.Option<WebUser>) {
+  public set(profile: O.Option<UserProfile>) {
     return pipe(
       this.wire,
-      PubSub.publish(ou),
+      SRef.set(profile),
     );
   }
 }
@@ -43,43 +42,40 @@ export class UserWireService extends Context.Tag("UserWireService")<
 >() {
   public static live = Layer.effect(
     UserWireService,
-    PubSub.bounded<O.Option<WebUser>>(1).pipe(
-      Effect.andThen(ps => new UserWireImpl(ps)),
-    ),
+    SRef.make<O.Option<UserProfile>>(O.none())
+      .pipe(
+        Effect.map(ref => new UserWireImpl(ref)),
+      ),
   );
 
   public static runtime = ManagedRuntime.make(UserWireService.live);
 
-  public static resetUser = () => {
-    UserWireService.runtime.runPromise(
-      UserWireService.pipe(
-        Effect.andThen(uw => uw.update(O.none())),
-      ),
-    );
-  };
-
-  public static setUser = (user: WebUser): void => {
-    UserWireService.runtime.runPromise(
-      UserWireService.pipe(
-        Effect.andThen(uw => uw.update(O.some(user))),
-      ),
-    );
+  public static setProfile = (profile: O.Option<UserProfile>): void => {
+    UserWireService
+      .runtime
+      .runPromise(
+        pipe(
+          UserWireService,
+          Effect.andThen(service => service.set(profile)),
+        ),
+      )
+      .then(constVoid)
+      .catch(console.error);
   };
 }
 
-export const useUserWire = () => {
-  const [user, setUser] = useState<O.Option<WebUser>>(O.none());
+export const useUserProfile = () => {
+  const [profileState, setProfileState] = useState<O.Option<UserProfile>>(O.none());
 
   // @misha: this can be moved into a static method of UserWireService
   // so the runtime is completely hidden from the user.
-  const program = pipe(
+  const monitorPofileStream = pipe(
     UserWireService,
-    Effect.andThen(ch => ch.stream),
+    Effect.andThen(wire => wire.stream),
     Effect.andThen(
-      Stream.runForEach(uo => {
-        setUser(uo);
-        return Effect.void;
-      }),
+      Stream.runForEach(
+        profile => Effect.succeed(void setProfileState(profile)),
+      ),
     ),
     Effect.forever,
     Effect.ignore,
@@ -88,13 +84,12 @@ export const useUserWire = () => {
   useEffect(() => {
     UserWireService
       .runtime
-      .runPromise(program)
+      .runPromise(monitorPofileStream)
       .then(console.log)
       .catch(console.error);
   }, []);
 
   return {
-    user,
-    setUser: UserWireService.setUser,
+    profile: profileState,
   };
 };

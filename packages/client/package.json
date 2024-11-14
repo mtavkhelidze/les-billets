@@ -1,22 +1,11 @@
 {
-    "name": "client",
-    "private": true,
-    "version": "0.0.0",
-    "type": "module",
-    "scripts": {
-        "dev": "bunx --bun vite",
-        "build": "tsc -b && vite build",
-        "lint": "eslint ",
-        "preview": "vite preview",
-        "typecheck": "tsc --noEmit"
-    },
     "dependencies": {
+        "@domain/model": "workspace:*",
         "@effect/platform": "^0.69.21",
         "@effect/platform-browser": "^0.48.21",
         "@effect/schema": "^0.75.5",
         "@hookform/resolvers": "^3.9.1",
         "effect": "^3.10.14",
-        "model": "workspace:*",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-hook-form": "^7.53.2",
@@ -40,5 +29,16 @@
         "vite": "^5.4.11",
         "vite-svg-loader": "^5.1.0",
         "vite-tsconfig-paths": "^5.1.2"
-    }
+    },
+    "name": "client",
+    "private": true,
+    "scripts": {
+        "dev": "bunx --bun vite",
+        "build": "tsc -b && vite build",
+        "lint": "eslint ",
+        "preview": "vite preview",
+        "typecheck": "tsc --noEmit"
+    },
+    "type": "module",
+    "version": "0.0.0"
 }
