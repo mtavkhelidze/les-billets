@@ -4,22 +4,36 @@
     border
     border-orange-500
     cursor-pointer
+    flex
     font-medium
-    px-4
+    items-center
+    justify-center
+    px-2
     py-1
     rounded-md
     select-none
     text-white
+    w-[4rem]
     ;
 
-    &:active {
+
+    &:disabled {
+        @apply
+        bg-gray-400
+        border
+        border-gray-500
+        cursor-not-allowed
+        ;
+    }
+
+    &:enabled:active {
         @apply
         bg-orange-700
         scale-95
         ;
     }
 
-    &:hover {
+    &:enabled:hover {
         @apply
         bg-orange-600
         drop-shadow-md

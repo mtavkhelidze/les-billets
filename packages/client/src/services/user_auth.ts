@@ -12,12 +12,18 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
-class InvalidCredentialsError
-  extends Data.TaggedError("InvalidCredentialsError")<{}> {
-  override readonly message = "Invalid credentials.";
+export interface UserAuthError {
+  readonly message: string;
 }
 
-type UserAuthError = InvalidCredentialsError;
+class InvalidCredentialsError
+  extends Data.TaggedError("InvalidCredentialsError")<UserAuthError> {
+  constructor() {
+    super({
+      message: "Invalid credentials.",
+    });
+  }
+}
 
 class UserAuthClient {
   // @misha: the other, hopefully proper way of doing what's in
@@ -32,7 +38,7 @@ class UserAuthClient {
       Effect.andThen(this.client.execute),
       Effect.flatMap(HttpClientResponse.schemaBodyJson(LoginResponse)),
       Effect.map(res => UserProfile.make(res)),
-      Effect.catchAll(() => Effect.fail(new InvalidCredentialsError())),
+      Effect.catchAll(_ => Effect.fail(new InvalidCredentialsError())),
       Effect.scoped,
     );
 }

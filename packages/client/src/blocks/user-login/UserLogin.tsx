@@ -1,31 +1,33 @@
 import { Button } from "@blocks/button";
 import { useUserLogin } from "@blocks/user-login/UserLogin.hooks.ts";
-import { UserProfile } from "@domain/model";
+import { Schema as S } from "@effect/schema";
+import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import { useUserProfile } from "@services/user_wire.ts";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 
-const FormUser = UserProfile.pipe(
-  S.pick("email"),
-  S.extend(
-    S.Struct({
-      password: S.String,
-    }),
-  ),
-);
-
-type FormData = S.Schema.Type<typeof FormUser>
+const FormData = S.Struct({
+  email: S.String.pipe(S.nonEmptyString({ message: () => "Email is required" })),
+  password: S.String.pipe(S.nonEmptyString({ message: () => "Password is required" })),
+});
+type FormData = S.Schema.Type<typeof FormData>
 
 export const UserLogin = () => {
-  const { handleSubmit, register, reset } = useForm<FormData>();
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: effectTsResolver(FormData),
+  });
   const [_, navigate] = useLocation();
-
-  const { profile } = useUserProfile();
-  const { loading, error, login } = useUserLogin();
+  const { loading, error, login, resetError } = useUserLogin();
 
   const onSubmit = (data: FormData) => {
+    void login(data.email, data.password)
+      .then(() => navigate("/"));
 
   };
   return (
@@ -43,46 +45,71 @@ export const UserLogin = () => {
         onSubmit={handleSubmit(onSubmit)}
         onReset={
           () => {
+            resetError();
             reset({
               email: "",
               password: "",
             }, { keepErrors: false, keepDirty: false });
           }
         }
-        className="flex gap-3 flex-col w-full md:w-56"
+        className="flex flex-col w-full md:w-56"
       >
-        <div className="mb-3 flex flex-col gap-2">
+        <div className="mb-2 flex flex-col pb-2">
           <label
-            className="text-orange-600 text-sm font-medium"
+            className="text-orange-600 text-sm font-medium pb-2"
             htmlFor="email"
             role="label"
-          >Email</label>
+          >
+            Email
+          </label>
           <input
             autoComplete="username"
+            className="p-2 rounded flex-1"
+            disabled={loading}
             id="email"
             placeholder="name@example.com"
             type="email"
             {...register("email")}
-            className="p-2 rounded flex-1"
           />
+          <div
+            className="text-xs italic h-[1.2rem] text-red-600"
+            role="alert"
+          >
+            {errors.email?.message ?? ""}
+          </div>
         </div>
-        <div className="mb-3 flex flex-col gap-2">
+        <div className="mb-3 flex flex-col gap-0">
           <label
             htmlFor="password"
-            className="text-orange-600 text-sm font-medium"
+            className="text-orange-600 text-sm font-medium pb-2"
           >Password</label>
           <input
             autoComplete="current-password"
-            id="password"
-            type="password"
-            placeholder="Xa#i1joj"
-            {...register("password")}
             className="p-2 rounded"
+            disabled={loading}
+            id="password"
+            placeholder="Xa#i1joj"
+            type="password"
+            {...register("password")}
           />
+          <div
+            className="text-xs italic h-[1.2rem] text-red-600"
+            role="alert"
+          >
+            {errors.password?.message ?? ""}
+          </div>
         </div>
         <div className="flex flex-row justify-end gap-2">
-          <Button type="reset" style="secondary">Reset</Button>
-          <Button type="submit">Login</Button>
+          <Button
+            type="reset"
+            disabled={loading}
+            style="secondary"
+          >Reset</Button>
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={loading}
+          >Login</Button>
         </div>
         <div className="flex flex-row justify-end gap-2">
           {O.getOrNull(error)}

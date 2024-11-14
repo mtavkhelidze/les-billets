@@ -9,6 +9,13 @@ import * as SRef from "effect/SubscriptionRef";
 
 import { useEffect, useState } from "react";
 
+const dummyUser = UserProfile.make({
+  email: "x@y.com",
+  fullName: "John Doe",
+  id: "23f6be43-4bdd-4116-ae4a-8b1203de1045",
+  jwtToken: O.some("token"),
+});
+
 class UserWireImpl {
   constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {}
 
@@ -42,7 +49,7 @@ export class UserWireService extends Context.Tag("UserWireService")<
 >() {
   public static live = Layer.effect(
     UserWireService,
-    SRef.make<O.Option<UserProfile>>(O.none())
+    SRef.make<O.Option<UserProfile>>(O.some(dummyUser))
       .pipe(
         Effect.map(ref => new UserWireImpl(ref)),
       ),
