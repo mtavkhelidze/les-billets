@@ -10,7 +10,7 @@ import {
 } from "@domain/model";
 import * as SqliteDrizzle from "@effect/sql-drizzle/Sqlite";
 import { SqlClient } from "@effect/sql/SqlClient";
-import { TicketStorageService } from "@storage";
+import { TicketStorage } from "@storage";
 import { pipe } from "effect";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
@@ -25,7 +25,7 @@ class ProcessorError extends Data.TaggedError("ProcessorError")<{
 
 const onGetTickets = (wsc: WebSocketConnection) => (m: GetTickets) =>
   pipe(
-    TicketStorageService,
+    TicketStorage,
     Effect.andThen(service => service.getTickets),
     Effect.andThen(tickets => new AllTickets({ tickets })),
     Effect.andThen(serverMessageToJson),
@@ -61,7 +61,7 @@ export class MessageProcessorService extends Context.Tag(
   MessageProcessorService,
   {
     process: (socket: WebSocketConnection) => (msg: string) =>
-      Effect.Effect<void, never, SqlClient | TicketStorageService>;
+      Effect.Effect<void, never, SqlClient | TicketStorage>;
   }
 >() {
   public static live = Layer.succeed(

@@ -6,6 +6,8 @@ import * as Logger from "effect/Logger";
 export const dbFile = Config.string("DB_FILE")
   .pipe(Config.withDefault(":memory:"));
 
+export const jwtSecret = Config.string("JWT_SECRET");
+
 export const serverPort =
   Config
     .number("SERVER_PORT")

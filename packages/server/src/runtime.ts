@@ -14,7 +14,7 @@ export const bunRunProgram = <A, E>(effect: Effect.Effect<A, E, unknown>) => {
       ),
     ),
     {
-      disablePrettyLogger: true // process.env.NODE_ENV === "production",
+      disablePrettyLogger: process.env.NODE_ENV === "production",
     },
   );
 };

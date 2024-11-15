@@ -1,2 +1,2 @@
-export { TicketStorageService } from "./TicketStorageService.ts";
+export { TicketStorage } from "./TicketStorage.ts";
 export { DatabaseDriver } from "./DataBaseDriver.ts";

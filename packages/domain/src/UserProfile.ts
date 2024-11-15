@@ -2,7 +2,7 @@ import * as S from "effect/Schema";
 
 export class UserProfile extends S.Class<UserProfile>("UserProfile")({
   email: S.NonEmptyString,
-  fullName: S.NonEmptyString,
+  name: S.NonEmptyString,
   id: S.UUID,
   jwtToken: S.String.pipe(S.Option),
 }) {
@@ -10,7 +10,7 @@ export class UserProfile extends S.Class<UserProfile>("UserProfile")({
   public copy = (obj: Partial<UserProfile>): UserProfile =>
     new UserProfile({
       id: obj.id ?? this.id,
-      fullName: obj.fullName ?? this.fullName,
+      name: obj.name ?? this.name,
       email: obj.email ?? this.email,
       jwtToken: obj.jwtToken ?? this.jwtToken,
     });

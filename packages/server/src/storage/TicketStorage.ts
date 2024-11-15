@@ -13,11 +13,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 
-// region Database Driver
-
-// endregion
-
-class StorageError extends Data.TaggedError("StorageError")<{
+class TicketStorageError extends Data.TaggedError("TicketStorageError")<{
   error: Error
 }> {}
 
@@ -32,20 +28,20 @@ const rowToTicket = (row: TicketsRow): Ticket => Ticket.make({
   updatedBy: O.fromNullable(row.updatedBy),
 });
 
-export class TicketStorageService extends Context.Tag("TicketStorageService")<
-  TicketStorageService,
+export class TicketStorage extends Context.Tag("TicketStorage")<
+  TicketStorage,
   {
-    getTickets: Effect.Effect<Ticket[], StorageError | ConfigError, SqliteDrizzle.SqliteDrizzle>;
+    getTickets: Effect.Effect<Ticket[], TicketStorageError | ConfigError, SqliteDrizzle.SqliteDrizzle>;
   }
 >() {
   public static live = Layer.succeed(
-    TicketStorageService,
-    TicketStorageService.of({
+    TicketStorage,
+    TicketStorage.of({
       getTickets: pipe(
         SqliteDrizzle.SqliteDrizzle,
         Effect.andThen(db => db.select().from(ticketsTable).all()),
         Effect.map(rows => rows.map(rowToTicket)),
-        Effect.mapError(e => new StorageError({ error: e })),
+        Effect.mapError(e => new TicketStorageError({ error: e })),
       ),
     }),
   );

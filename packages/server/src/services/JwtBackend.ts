@@ -7,7 +7,7 @@ import * as Schema from "effect/Schema";
 import { KJUR } from "jsrsasign";
 import { jwtSecret } from "../config.ts";
 
-const ALG = "RS256";
+const ALG = "HS512";
 const header = {
   alg: ALG,
   cty: "JWT",
@@ -19,7 +19,9 @@ type Payload = {
 
 export class JwtInvalidSecret extends Schema.TaggedError<JwtInvalidSecret>()(
   "JwtInvalidSecret",
-  {},
+  {
+    message: Schema.String,
+  },
 ) {}
 
 export class JwtInvalidToken extends Schema.TaggedError<JwtInvalidToken>()(
@@ -48,7 +50,7 @@ export type JwtError = Schema.Schema.Type<typeof JwtError>;
 export class JwtBackend extends Context.Tag("JwtBackend")<
   JwtBackend,
   {
-    validate: (token: string) => Effect.Effect<UserProfile["id"], JwtError>;
+    unwrap: (token: string) => Effect.Effect<UserProfile["id"], JwtError>;
     create: (user: UserProfile) => Effect.Effect<string, JwtError>;
   }
 >() {
@@ -57,7 +59,7 @@ export class JwtBackend extends Context.Tag("JwtBackend")<
     JwtBackend.of({
       create: (user: UserProfile) =>
         jwtSecret.pipe(
-          Effect.catchAll(_ => Effect.fail(new JwtInvalidSecret())),
+          Effect.catchAll(e => Effect.fail(new JwtInvalidSecret({ message: e.toString() }))),
           Effect.andThen(secret => DateTime.now.pipe(
               Effect.map(now => (
                   {
@@ -70,17 +72,18 @@ export class JwtBackend extends Context.Tag("JwtBackend")<
                   }
                 ),
               ),
-              Effect.map(payload => KJUR.jws.JWS.sign(
-                ALG,
-                JSON.stringify(header),
-                JSON.stringify(payload),
-                secret,
-              )),
+              Effect.map(payload =>
+                KJUR.jws.JWS.sign(
+                  ALG,
+                  header,
+                  payload,
+                  secret,
+                )),
             ),
           ),
         ),
-      validate: (token: string) => jwtSecret.pipe(
-        Effect.catchAll(_ => new JwtInvalidSecret()),
+      unwrap: (token: string) => jwtSecret.pipe(
+        Effect.catchAll(e => Effect.fail(new JwtInvalidSecret({ message: e.toString() }))),
         Effect.andThen(secret =>
           KJUR.jws.JWS.verify(token, secret)
             ? Effect.void
