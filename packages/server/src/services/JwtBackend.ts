@@ -1,8 +1,10 @@
+import { InvalidCredentials } from "@api/error";
 import { UserProfile } from "@domain/model";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as Schema from "effect/Schema";
 import { KJUR } from "jsrsasign";
 import { jwtSecret } from "../config.ts";
@@ -19,19 +21,27 @@ type Payload = {
 
 export class JwtInvalidSecret extends Schema.TaggedError<JwtInvalidSecret>()(
   "JwtInvalidSecret",
-  {
-    message: Schema.String,
-  },
+  {},
 ) {}
 
 export class JwtInvalidToken extends Schema.TaggedError<JwtInvalidToken>()(
   "JwtInvalidToken",
-  {},
+  {
+    message: Schema.String.pipe(
+      Schema.propertySignature,
+      Schema.withConstructorDefault(() => "Invalid token"),
+    ),
+  },
 ) {}
 
 export class JwtInvalidPayload extends Schema.TaggedError<JwtInvalidPayload>()(
   "JwtInvalidPayload",
-  {},
+  {
+    message: Schema.String.pipe(
+      Schema.propertySignature,
+      Schema.withConstructorDefault(() => "Invalid payload"),
+    ),
+  },
 ) {}
 
 export class JwtTokenExpired extends Schema.TaggedError<JwtTokenExpired>()(
@@ -75,15 +85,14 @@ export class JwtBackend extends Context.Tag("JwtBackend")<
               Effect.map(payload =>
                 KJUR.jws.JWS.sign(
                   ALG,
-                  header,
-                  payload,
+                  JSON.stringify(header),
+                  JSON.stringify(payload),
                   secret,
                 )),
             ),
           ),
         ),
       unwrap: (token: string) => jwtSecret.pipe(
-        Effect.catchAll(e => Effect.fail(new JwtInvalidSecret({ message: e.toString() }))),
         Effect.andThen(secret =>
           KJUR.jws.JWS.verify(token, secret)
             ? Effect.void
@@ -91,8 +100,12 @@ export class JwtBackend extends Context.Tag("JwtBackend")<
         ),
         Effect.andThen(
           Effect.try({
-            try: () => KJUR.jws.JWS.parse(token),
-            catch: _ => new JwtInvalidToken(),
+            try: () => KJUR.jws.JWS.parse(token.replace("a", "")),
+            catch: e => new JwtInvalidToken({
+              message: (
+                e as Error
+              ).message,
+            }),
           }),
         ),
         Effect.flatMap(jws => Effect.fromNullable(jws.payloadObj)),
@@ -101,7 +114,13 @@ export class JwtBackend extends Context.Tag("JwtBackend")<
             x as Payload
           ).sub,
         ),
-        Effect.catchAll(_ => new JwtInvalidPayload()),
+        Effect.mapError(e =>
+          Match.value(e).pipe(
+            Match.tag("NoSuchElementException", () => new JwtInvalidPayload()),
+            Match.tag("ConfigError", () => new JwtInvalidSecret()),
+            Match.orElse(() => new JwtInvalidToken()),
+          ),
+        ),
       ),
     }),
   );

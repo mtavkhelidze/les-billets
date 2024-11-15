@@ -7,26 +7,26 @@ import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import { JwtBackend } from "../../services/JwtBackend.ts";
 
-class UserId
-  extends Context.Tag("UserId")<UserId, UserProfile["id"]>() {}
+export class AuthUserId
+  extends Context.Tag("UserId")<AuthUserId, UserProfile["id"]>() {}
 
-export class Authorization extends HttpApiMiddleware.Tag<Authorization>()(
-  "Authorization",
+export class Authentication extends HttpApiMiddleware.Tag<Authentication>()(
+  "Authentication",
   {
     failure: Unauthorized,
-    provides: UserId,
+    provides: AuthUserId,
     security: {
       deToken: HttpApiSecurity.bearer,
     },
   },
 ) {
   public static middleware = Layer.effect(
-    Authorization,
+    Authentication,
     Effect.succeed(
-      Authorization.of({
-        deToken: (redactedToken: Redacted.Redacted<string>) =>
-          JwtBackend.pipe(
-            Effect.flatMap(jbe => redactedToken.pipe(
+      Authentication.of({
+        deToken: (redactedToken: Redacted.Redacted<string>) => {
+          return JwtBackend.pipe(
+            Effect.andThen(jbe => redactedToken.pipe(
                 Redacted.value,
                 jbe.unwrap,
               ),
@@ -36,8 +36,9 @@ export class Authorization extends HttpApiMiddleware.Tag<Authorization>()(
               ),
             ),
             Effect.provide(JwtBackend.live),
-          ),
-      }),
+          );
+        }
+      })
     ),
   );
 }

@@ -20,7 +20,7 @@ const getJwtToken = (user: UserProfile) => pipe(
   Effect.tapErrorTag("JwtInvalidSecret", Effect.logError),
 );
 
-export const UserLive = HttpApiBuilder.group(
+export const UserController = HttpApiBuilder.group(
   API,
   "user",
   handlers => handlers
