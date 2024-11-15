@@ -9,6 +9,13 @@ const WithMessage = (message: string) => Schema.Struct({
   ),
 });
 
+export class Conflict
+  extends Schema.TaggedError<Conflict>()(
+    "Conflict",
+    WithMessage(RP.CONFLICT),
+    HttpApiSchema.annotations({ status: Code.CONFLICT }),
+  ) {}
+
 export class InternalServerError
   extends Schema.TaggedError<InternalServerError>()(
     "InternalServerError",
@@ -22,8 +29,8 @@ export class Unauthorized extends Schema.TaggedError<Unauthorized>()(
   HttpApiSchema.annotations({ status: Code.UNAUTHORIZED }),
 ) {}
 
-export class UserNotFound extends Schema.TaggedError<UserNotFound>()(
-  "UserNotFound",
+export class NotFound extends Schema.TaggedError<NotFound>()(
+  "NotFound",
   WithMessage(RP.NOT_FOUND),
   HttpApiSchema.annotations({ status: Code.NOT_FOUND }),
 ) {}

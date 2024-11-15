@@ -12,12 +12,16 @@
             "@http": [
                 "./src/http/index.ts"
             ],
+            "@services/*": [
+                "./src/services/*"
+            ],
             "@storage": [
                 "./src/storage/index.ts"
             ]
         }
     },
     "include": [
+        "./server.ts",
         "./src"
     ]
 }

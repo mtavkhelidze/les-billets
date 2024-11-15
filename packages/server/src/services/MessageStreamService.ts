@@ -6,7 +6,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import type { RawData } from "ws";
-import { type CID, type WebSocketConnection } from "./ConnectionRegistry.ts";
+import { type CID } from "./ConnectionRegistry.ts";
 
 class MessageStreamError extends Data.TaggedError("MessageStreamError")<{
   error: Error
@@ -70,7 +70,10 @@ export class MessageStreamService
   extends Context.Tag("MessageStreamService")<
     MessageStreamService,
     {
-      create: (cid: CID, ws: WebSocket) => Stream.Stream<string, MessageStreamError>
+      create: (
+        cid: CID,
+        ws: WebSocket,
+      ) => Stream.Stream<string, MessageStreamError>
     }
   >() {
   public static live = Layer.succeed(

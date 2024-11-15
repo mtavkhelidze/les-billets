@@ -1,4 +1,3 @@
-import { Schema } from "@effect/schema";
 import * as S from "effect/Schema";
 import { UserProfile } from "../UserProfile.ts";
 
@@ -7,8 +6,8 @@ export class LoginRequest extends S.Class<LoginRequest>("LoginRequest")(
     email: S.NonEmptyString,
     password: S.NonEmptyString,
   },
-) {};
+) {}
 
 export class LoginResponse
-  extends UserProfile.extend<LoginResponse>("LoginResponse")({}) {};
+  extends UserProfile.extend<LoginResponse>("LoginResponse")({}) {}
 

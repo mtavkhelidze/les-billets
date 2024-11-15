@@ -8,7 +8,6 @@ import {
 } from "@effect/platform";
 import { ManagedRuntime, pipe } from "effect";
 import * as Context from "effect/Context";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
@@ -18,9 +17,6 @@ export interface UserAuthError {
 
 class UserAuthClient {
   // @misha: the other, hopefully proper way of doing what's in
-  // UserChannelService
-  constructor(private client: HttpClient.HttpClient) {}
-
   public login = (email: string, password: string) =>
     HttpClientRequest.schemaBodyJson(LoginRequest)(
       HttpClientRequest.post("/user/login"),
@@ -32,6 +28,9 @@ class UserAuthClient {
       Effect.catchAll(_ => Effect.fail(new InvalidCredentialsError())),
       Effect.scoped,
     );
+
+  // UserChannelService
+  constructor(private client: HttpClient.HttpClient) {}
 }
 
 export class UserAuthService extends Context.Tag("UserAuthService")<
@@ -56,5 +55,5 @@ export class UserAuthService extends Context.Tag("UserAuthService")<
       Layer.provide(FetchHttpClient.layer),
     ),
   );
-};
+}
 

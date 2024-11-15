@@ -1,8 +1,8 @@
 import { TicketRow } from "@blocks/tickets-table/TicketRow.tsx";
 import * as Array from "effect/Array";
-import { Ticket } from "../../../../domain";
 import * as React from "react";
 import { type ChangeEventHandler, useEffect, useState } from "react";
+import { Ticket } from "../../../../domain";
 
 type Props = {
   tickets: readonly Ticket[];

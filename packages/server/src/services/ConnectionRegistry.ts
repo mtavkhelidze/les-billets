@@ -7,12 +7,12 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Ref from "effect/Ref";
 import * as Tuple from "effect/Tuple";
+import * as uuid from "uuid";
 import {
   type ServerMessage,
   serverMessageToJson,
   ServerPing,
 } from "../../../domain/src";
-import * as uuid from "uuid";
 import { MessageDeliveryService } from "./MessageDeliveryService.ts";
 
 

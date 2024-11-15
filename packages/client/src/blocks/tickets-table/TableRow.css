@@ -1,5 +1,6 @@
 .table-row {
     @apply cursor-default;
+
     td {
         @apply
         pl-2

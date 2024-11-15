@@ -1,6 +1,6 @@
 import * as DateTime from "effect/DateTime";
-import type { Ticket } from "../../../../domain";
 import React from "react";
+import type { Ticket } from "../../../../domain";
 
 import "./TableRow.css";
 

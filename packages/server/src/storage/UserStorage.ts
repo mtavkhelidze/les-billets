@@ -19,7 +19,10 @@ export type UserStorageError = Schema.Schema.Type<typeof UserStorageError>;
 export class UserStorage extends Context.Tag("UserStorage")<
   UserStorage,
   {
-    findByCreds: (email: string, password: string) => Effect.Effect<UserProfile, UserStorageError>
+    findByCreds: (
+      email: string,
+      password: string,
+    ) => Effect.Effect<UserProfile, UserStorageError>
   }
 >() {
   public static live = Layer.succeed(

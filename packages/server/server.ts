@@ -5,13 +5,14 @@ import {
   HttpServer,
 } from "@effect/platform";
 import { BunHttpServer } from "@effect/platform-bun";
+import { ApiLive } from "@http";
+import { JwtBackend } from "@services/JwtBackend.ts";
+import { UserStorage } from "@storage";
+
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { serverPort } from "./src/config.ts";
-import { ApiLive } from "./src/http";
 import { bunRunProgram } from "./src/runtime.ts";
-import { JwtBackend } from "./src/services/JwtBackend.ts";
-import { UserStorage } from "./src/storage/UserStorage.ts";
 
 const program = serverPort.pipe(
   Effect.andThen(port =>

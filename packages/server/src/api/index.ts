@@ -1,7 +1,10 @@
 import { HttpApi, OpenApi } from "@effect/platform";
-import { User } from "./user.ts";
+import { TicketsEndpoints } from "./tickets.ts";
+import { UserEndpoints } from "./user.ts";
 
-export class API extends HttpApi.empty.add(User)
+export class API extends HttpApi.empty
+  .add(TicketsEndpoints)
+  .add(UserEndpoints)
   .annotateContext(
     OpenApi.annotations({
       title: "Les Billets API",

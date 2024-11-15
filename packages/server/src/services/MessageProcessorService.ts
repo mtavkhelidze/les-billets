@@ -26,7 +26,7 @@ class ProcessorError extends Data.TaggedError("ProcessorError")<{
 const onGetTickets = (wsc: WebSocketConnection) => (m: GetTickets) =>
   pipe(
     TicketStorage,
-    Effect.andThen(service => service.getTickets),
+    Effect.andThen(service => service.getTickets()),
     Effect.andThen(tickets => new AllTickets({ tickets })),
     Effect.andThen(serverMessageToJson),
     Effect.flatMap(
