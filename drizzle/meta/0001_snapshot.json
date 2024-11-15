@@ -1,6 +1,6 @@
 {
-  "id": "72e20c15-c387-4103-8e0a-69c03e1a5345",
-  "prevId": "849e7772-da4a-4baf-8929-f5ee836a4af1",
+  "id": "6a2adfbd-c94e-4f82-8f38-05026c7c4916",
+  "prevId": "5927a6f1-e8aa-4b5b-8ca7-45174c5c9e39",
   "version": "6",
   "dialect": "sqlite",
   "tables": {
@@ -55,7 +55,7 @@
           "name": "updated_at",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false,
           "default": "(current_timestamp)"
         },

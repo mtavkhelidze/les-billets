@@ -1,8 +1,8 @@
 {
+  "id": "1ca23b42-3de1-438c-b88d-bdbac749efbd",
+  "prevId": "484a8a62-010d-445f-a5a8-95129af41294",
   "version": "6",
   "dialect": "sqlite",
-  "id": "5927a6f1-e8aa-4b5b-8ca7-45174c5c9e39",
-  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tickets": {
       "name": "tickets",
@@ -72,28 +72,28 @@
         "tickets_created_by_users_id_fk": {
           "name": "tickets_created_by_users_id_fk",
           "tableFrom": "tickets",
-          "tableTo": "users",
           "columnsFrom": [
             "created_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "tickets_updated_by_users_id_fk": {
           "name": "tickets_updated_by_users_id_fk",
           "tableFrom": "tickets",
-          "tableTo": "users",
           "columnsFrom": [
             "updated_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -142,9 +142,9 @@
   "views": {},
   "enums": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   },
   "internal": {
     "indexes": {}

@@ -1,8 +1,8 @@
 import {
   stringToUtc,
   Ticket,
-  type TicketsRow,
-  ticketsTable,
+  type RowTicket,
+  TableTickets,
 } from "@domain/model";
 
 import * as SqliteDrizzle from "@effect/sql-drizzle/Sqlite";
@@ -17,7 +17,7 @@ class TicketStorageError extends Data.TaggedError("TicketStorageError")<{
   error: Error
 }> {}
 
-const rowsToTickets = (rows: TicketsRow[]): Ticket[] => rows.map(row =>
+const rowsToTickets = (rows: RowTicket[]): Ticket[] => rows.map(row =>
   Ticket.make(
     {
       createdAt: stringToUtc(row.createdAt).pipe(O.getOrElse(() => 0)),
@@ -35,18 +35,18 @@ export class TicketStorage extends Context.Tag("TicketStorage")<
   TicketStorage,
   {
     getTickets: () => Effect.Effect<Ticket[], TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
-    lockTicket: (ticketId: string) => Effect.Effect<void, TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
+    lockTicket: (userId: string, ticketId: string) => Effect.Effect<void, TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
   }
 >() {
   public static live = Layer.succeed(
     TicketStorage,
     TicketStorage.of({
-      lockTicket: (ticketId: string) =>
+      lockTicket: (userId: string, ticketId: string) =>
         SqliteDrizzle.SqliteDrizzle.pipe(
           Effect.andThen(
-            db => db.update(ticketsTable)
+            db => db.update(TableTickets)
               .set({ status: "locked" })
-              .where(eq(ticketsTable.id, ticketId)),
+              .where(eq(TableTickets.id, ticketId)),
           ),
           Effect.flatMap(_ => Effect.void),
           Effect.catchAll(e => Effect.fail(new TicketStorageError({ error: e }))),
@@ -56,7 +56,7 @@ export class TicketStorage extends Context.Tag("TicketStorage")<
         SqliteDrizzle.SqliteDrizzle.pipe(
           Effect.andThen(
             db => db.select()
-              .from(ticketsTable)
+              .from(TableTickets)
               .all(),
           ),
           Effect.map(rowsToTickets),

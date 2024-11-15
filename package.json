@@ -6,8 +6,8 @@
         "server": "bun run packages/server/server.ts",
         "watch:server": "bun run --watch packages/server/server.ts",
         "dev": "cd packages/client && bunx --bun vite",
-        "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
-        "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts"
+        "db-generate": "drizzle-kit generate --config=drizzle.config.ts",
+        "db-migrate": "drizzle-kit migrate --config=drizzle.config.ts"
     },
     "version": "1.0.0",
     "workspaces": [
@@ -15,7 +15,10 @@
     ],
     "type": "module",
     "devDependencies": {
-        "@types/bun": "latest"
+        "@libsql/client": "^0.14.0",
+        "@types/bun": "latest",
+        "dotenv": "^16.4.5",
+        "drizzle-kit": "^0.28.1"
     },
     "peerDependencies": {
         "typescript": "^5.6.3"

@@ -5,7 +5,7 @@ CREATE TABLE `tickets` (
 	`id` text(36) PRIMARY KEY NOT NULL,
 	`status` text DEFAULT 'open' NOT NULL,
 	`title` text NOT NULL,
-	`updated_at` text DEFAULT (current_timestamp) NOT NULL,
+	`updated_at` text DEFAULT (current_timestamp),
 	`updated_by` text,
 	FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`updated_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action

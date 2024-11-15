@@ -9,7 +9,7 @@ export { Ticket } from "./Ticket.ts";
 export { UserProfile } from "./UserProfile.ts";
 
 
-export { ticketsTable, usersTable, type TicketsRow } from "./schema.ts";
+export { TableTickets, TableUsers, type RowTicket } from "./DBSchema.ts";
 export { AllTickets, ServerMessage } from "./ServerMessage.ts";
 
 export {

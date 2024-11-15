@@ -2,11 +2,11 @@ import { sql } from "drizzle-orm";
 import * as D from "drizzle-orm/sqlite-core";
 import * as uuid from "uuid";
 
-export const ticketsTable = D.sqliteTable("tickets", {
+export const TableTickets = D.sqliteTable("tickets", {
   createdAt: D.text("created_at")
     .notNull()
     .default(sql`(current_timestamp)`),
-  createdBy: D.text("created_by").notNull().references(() => usersTable.id),
+  createdBy: D.text("created_by").notNull().references(() => TableUsers.id),
   description: D.text("description").notNull(),
   id: D.text("id", { length: 36 })
     .primaryKey()
@@ -17,18 +17,17 @@ export const ticketsTable = D.sqliteTable("tickets", {
     .default("open"),
   title: D.text("title").notNull(),
   updatedAt: D.text("updated_at")
-    .notNull()
     .default(sql`(current_timestamp)`)
     .$onUpdate(() => sql`(current_timestamp)`),
   updatedBy: D.text("updated_by")
-    .references(() => usersTable.id),
+    .references(() => TableUsers.id),
 });
 
 
-export type TicketsRow = typeof ticketsTable.$inferSelect;
+export type RowTicket = typeof TableTickets.$inferSelect;
 
 
-export const usersTable = D.sqliteTable("users", {
+export const TableUsers = D.sqliteTable("users", {
   email: D.text("email").notNull(),
   fullName: D.text("full_name").notNull(),
   id: D.text("id", { length: 36 })

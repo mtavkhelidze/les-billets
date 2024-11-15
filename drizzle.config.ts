@@ -4,8 +4,7 @@ import { defineConfig } from "drizzle-kit";
 dotenv.config();
 
 export default defineConfig({
-
-  schema: "./modules/model/src/schema.ts",
+  schema: "./packages/domain/src/DBSchema.ts",
   verbose: true,
   strict: true,
   out: "./drizzle",
