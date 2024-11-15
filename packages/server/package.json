@@ -9,6 +9,8 @@
         "@effect/sql-drizzle": "^0.19.5",
         "@effect/sql-sqlite-bun": "^0.21.5",
         "drizzle-orm": "^0.36.1",
+        "jsrsasign": "^11.1.0",
+        "jsrsasign-util": "^1.0.5",
         "ws": "latest"
     },
     "module": "./server.ts",
@@ -17,5 +19,8 @@
         "@domain/model": "workspace:*",
         "typescript": "^5.6.3"
     },
-    "type": "module"
+    "type": "module",
+    "devDependencies": {
+        "@types/jsrsasign": "^10.5.14"
+    }
 }
