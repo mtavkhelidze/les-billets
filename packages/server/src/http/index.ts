@@ -3,8 +3,8 @@ import { LesBilletsAPI } from "@my/domain/api";
 import { DatabaseDriver, TicketStorage } from "@storage";
 import * as Layer from "effect/Layer";
 import { AuthMiddlewareLive } from "./middleware/AuthMiddlewareLive.ts";
-import { TicketController } from "./tickets_controller.ts";
-import { UserController } from "./user_controller.ts";
+import { TicketController } from "./TicketsController.ts";
+import { UserController } from "./UserController.ts";
 
 export const ApiLive =
   HttpApiBuilder
