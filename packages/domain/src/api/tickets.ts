@@ -5,7 +5,7 @@ import {
   NotFound,
   Unauthorized,
 } from "@my/domain/http/errors";
-import { Authentication } from "../http/middleware/authentication.ts";
+import { AuthMiddleware } from "./middleware/authMiddleware.ts";
 
 export class TicketsEndpoints extends HttpApiGroup
   .make("tickets")
@@ -28,7 +28,7 @@ export class TicketsEndpoints extends HttpApiGroup
       .addSuccess(TickersResponse),
   )
   .prefix("/tickets")
-  .middleware(Authentication)
+  .middleware(AuthMiddleware)
   .annotateContext(
     OpenApi.annotations({
       title: "Ticket Endpoints",

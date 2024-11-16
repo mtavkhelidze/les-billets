@@ -1,10 +1,9 @@
-import { API } from "@api";
 import { HttpApiBuilder } from "@effect/platform";
+import { AuthUserId, LesBilletsAPI } from "@my/domain/api";
 import { TickersResponse } from "@my/domain/http";
 import { InternalServerError } from "@my/domain/http/errors";
 import { TicketStorage } from "@storage";
 import * as Effect from "effect/Effect";
-import { AuthUserId } from "./middleware/authentication.ts";
 
 const getAllTickets = () =>
   AuthUserId.pipe(
@@ -20,7 +19,7 @@ const getAllTickets = () =>
   );
 
 export const TicketController = HttpApiBuilder.group(
-  API,
+  LesBilletsAPI,
   "tickets",
   handlers => handlers
     .handle("getAll", getAllTickets),

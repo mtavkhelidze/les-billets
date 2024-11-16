@@ -2,12 +2,14 @@ import { HttpApi, OpenApi } from "@effect/platform";
 import { TicketsEndpoints } from "./tickets.ts";
 import { UserEndpoints } from "./user.ts";
 
-export class API extends HttpApi.empty
+export { AuthMiddleware, AuthUserId } from "./middleware/authMiddleware.ts";
+
+export class LesBilletsAPI extends HttpApi.empty
   .add(TicketsEndpoints)
   .add(UserEndpoints)
   .annotateContext(
     OpenApi.annotations({
-      title: "Les Billets API",
+      title: "Les Billets LesBilletsAPI",
       version: "1.0.0",
     }),
   ) {}

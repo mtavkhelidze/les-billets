@@ -1,7 +1,7 @@
 import { NotFound } from "@blocks/NotFound.tsx";
 import { TicketsTable } from "@blocks/tickets-table";
 import { UserLogin } from "@blocks/user-login";
-import { useUserProfile } from "@services/user_wire.ts";
+import { useUserProfile } from "@services/UserProfileService.ts";
 import * as O from "effect/Option";
 import React, { Component } from "react";
 import { Redirect, Route, Switch } from "wouter";

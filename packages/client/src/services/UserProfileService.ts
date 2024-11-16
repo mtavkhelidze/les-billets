@@ -43,26 +43,26 @@ class UserWireImpl {
  because, say in React, default runtime is not good enough.
 
  */
-export class UserWireService extends Context.Tag("UserWireService")<
-  UserWireService,
+export class UserProfileService extends Context.Tag("UserProfileService")<
+  UserProfileService,
   UserWireImpl
 >() {
   public static live = Layer.effect(
-    UserWireService,
+    UserProfileService,
     SRef.make<O.Option<UserProfile>>(O.some(dummyUser))
       .pipe(
         Effect.map(ref => new UserWireImpl(ref)),
       ),
   );
 
-  public static runtime = ManagedRuntime.make(UserWireService.live);
+  public static runtime = ManagedRuntime.make(UserProfileService.live);
 
   public static setProfile = (profile: O.Option<UserProfile>): void => {
-    UserWireService
+    UserProfileService
       .runtime
       .runPromise(
         pipe(
-          UserWireService,
+          UserProfileService,
           Effect.andThen(service => service.set(profile)),
         ),
       )
@@ -74,10 +74,10 @@ export class UserWireService extends Context.Tag("UserWireService")<
 export const useUserProfile = () => {
   const [profileState, setProfileState] = useState<O.Option<UserProfile>>(O.none());
 
-  // @misha: this can be moved into a static method of UserWireService
+  // @misha: this can be moved into a static method of UserProfileService
   // so the runtime is completely hidden from the user.
-  const monitorPofileStream = pipe(
-    UserWireService,
+  const monitorProfileStream = pipe(
+    UserProfileService,
     Effect.andThen(wire => wire.stream),
     Effect.andThen(
       Stream.runForEach(
@@ -89,9 +89,9 @@ export const useUserProfile = () => {
   );
 
   useEffect(() => {
-    UserWireService
+    UserProfileService
       .runtime
-      .runPromise(monitorPofileStream)
+      .runPromise(monitorProfileStream)
       .then(console.log)
       .catch(console.error);
   }, []);

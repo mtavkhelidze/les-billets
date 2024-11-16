@@ -1,5 +1,5 @@
-import { UserAuthService } from "@services/user_auth.ts";
-import { UserWireService } from "@services/user_wire.ts";
+import { UserAuthService } from "@services/UserAuthService.ts";
+import { UserProfileService } from "@services/UserProfileService.ts";
 import { pipe } from "effect";
 import * as Effect from "effect/Effect";
 import { constVoid } from "effect/Function";
@@ -24,7 +24,7 @@ export const useUserLogin = () => {
         }),
         Effect.andThen(service => service.login(email, password)),
         Effect.andThen(profile => pipe(
-            UserWireService,
+            UserProfileService,
             service => service.setProfile(O.some(profile)),
           ),
         ),

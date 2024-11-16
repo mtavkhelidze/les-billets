@@ -1,5 +1,5 @@
-import { API } from "@api";
 import { HttpApiBuilder } from "@effect/platform";
+import { LesBilletsAPI } from "@my/domain/api";
 import {
   InternalServerError,
   InvalidCredentials,
@@ -24,7 +24,7 @@ const getJwtToken = (user: UserProfile) => pipe(
 );
 
 export const UserController = HttpApiBuilder.group(
-  API,
+  LesBilletsAPI,
   "user",
   handlers => handlers
     .handle("login", ({ payload }) =>

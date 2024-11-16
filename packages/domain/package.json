@@ -9,6 +9,7 @@
     },
     "exports": {
         ".": "./src/index.ts",
+        "./api": "./src/api/index.ts",
         "./http": "./src/http/index.ts",
         "./http/errors": "./src/http/errors.ts",
         "./model": "./src/model/index.ts",

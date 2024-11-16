@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "start": "bun run server.ts"
     },
     "dependencies": {
         "@my/domain": "workspace:*",
