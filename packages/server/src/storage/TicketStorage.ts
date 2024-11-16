@@ -1,11 +1,7 @@
-import {
-  stringToUtc,
-  Ticket,
-  type RowTicket,
-  TableTickets,
-} from "@domain/model";
-
 import * as SqliteDrizzle from "@effect/sql-drizzle/Sqlite";
+import { Ticket } from "@my/domain/model";
+import { type RowTicket, TableTickets } from "@my/domain/storage";
+import { stringToUtc } from "@my/domain/utils";
 import { eq } from "drizzle-orm";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
@@ -35,7 +31,10 @@ export class TicketStorage extends Context.Tag("TicketStorage")<
   TicketStorage,
   {
     getTickets: () => Effect.Effect<Ticket[], TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
-    lockTicket: (userId: string, ticketId: string) => Effect.Effect<void, TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
+    lockTicket: (
+      userId: string,
+      ticketId: string,
+    ) => Effect.Effect<void, TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
   }
 >() {
   public static live = Layer.succeed(

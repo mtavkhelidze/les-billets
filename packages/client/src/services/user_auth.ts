@@ -1,11 +1,12 @@
-import { UserProfile } from "@domain/model";
-import { LoginRequest, LoginResponse } from "@domain/model/http";
 import {
   FetchHttpClient,
   HttpClient,
   HttpClientRequest,
   HttpClientResponse,
 } from "@effect/platform";
+import { LoginRequest, LoginResponse } from "@my/domain/http";
+import { InvalidCredentials } from "@my/domain/http/errors";
+import { UserProfile } from "@my/domain/model";
 import { ManagedRuntime, pipe } from "effect";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -25,11 +26,10 @@ class UserAuthClient {
       Effect.andThen(this.client.execute),
       Effect.flatMap(HttpClientResponse.schemaBodyJson(LoginResponse)),
       Effect.map(res => UserProfile.make(res)),
-      Effect.catchAll(_ => Effect.fail(new InvalidCredentialsError())),
+      Effect.mapError(e => new InvalidCredentials({ message: e.toString() })),
       Effect.scoped,
     );
 
-  // UserChannelService
   constructor(private client: HttpClient.HttpClient) {}
 }
 

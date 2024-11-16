@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import * as D from "drizzle-orm/sqlite-core";
 import * as uuid from "uuid";
+import { TableUsers } from "./TableUsers.ts";
 
 export const TableTickets = D.sqliteTable("tickets", {
   createdAt: D.text("created_at")
@@ -25,14 +26,3 @@ export const TableTickets = D.sqliteTable("tickets", {
 
 
 export type RowTicket = typeof TableTickets.$inferSelect;
-
-
-export const TableUsers = D.sqliteTable("users", {
-  email: D.text("email").notNull(),
-  fullName: D.text("full_name").notNull(),
-  id: D.text("id", { length: 36 })
-    .primaryKey()
-    .notNull()
-    .$defaultFn(uuid.v4),
-  password: D.text("password").notNull(),
-});

@@ -1,5 +1,4 @@
-import { UserProfile } from "@domain/model";
-
+import { UserProfile } from "@my/domain/model";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { UserProfile } from "../UserProfile.ts";
+import { UserProfile } from "../model";
 
 export class LoginRequest extends S.Class<LoginRequest>("LoginRequest")(
   {

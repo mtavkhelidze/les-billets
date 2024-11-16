@@ -1,7 +1,10 @@
 import { API } from "@api";
-import { InternalServerError, InvalidCredentials } from "@api/error";
-import { UserProfile } from "@domain/model";
 import { HttpApiBuilder } from "@effect/platform";
+import {
+  InternalServerError,
+  InvalidCredentials,
+} from "@my/domain/http/errors";
+import { UserProfile } from "@my/domain/model";
 import { JwtBackend } from "@services/JwtBackend.ts";
 import { UserStorage } from "@storage";
 import { pipe } from "effect";

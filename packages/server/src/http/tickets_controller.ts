@@ -1,10 +1,9 @@
 import { API } from "@api";
-import { InternalServerError } from "@api/error";
-import { TickersResponse } from "@domain/model/http";
 import { HttpApiBuilder } from "@effect/platform";
-import { DatabaseDriver, TicketStorage } from "@storage";
+import { TickersResponse } from "@my/domain/http";
+import { InternalServerError } from "@my/domain/http/errors";
+import { TicketStorage } from "@storage";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import { AuthUserId } from "./middleware/authentication.ts";
 
 const getAllTickets = () =>
@@ -25,4 +24,4 @@ export const TicketController = HttpApiBuilder.group(
   "tickets",
   handlers => handlers
     .handle("getAll", getAllTickets),
-)
+);

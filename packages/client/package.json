@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@domain/model": "workspace:*",
+        "@my/domain": "workspace:*",
         "@effect/platform": "^0.69.21",
         "@effect/platform-browser": "^0.48.21",
         "@effect/schema": "^0.75.5",

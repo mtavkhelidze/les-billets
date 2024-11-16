@@ -1,8 +1,7 @@
+import { Ticket } from "@my/domain/model";
 import { flow } from "effect";
 import * as Array from "effect/Array";
 import * as Order from "effect/Order";
-
-import { Ticket } from "../../../../domain";
 
 type SortOrder = "asc" | "desc" | "none";
 

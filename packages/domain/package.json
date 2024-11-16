@@ -1,12 +1,19 @@
 {
-    "name": "@domain/model",
+    "name": "@my/domain",
     "private": true,
     "version": "1.0.0",
     "type": "module",
     "main": "src/index.ts",
+    "scripts": {
+        "typecheck": "tsc --noEmit"
+    },
     "exports": {
         ".": "./src/index.ts",
-        "./http": "./src/http/index.ts"
+        "./http": "./src/http/index.ts",
+        "./http/errors": "./src/http/errors.ts",
+        "./model": "./src/model/index.ts",
+        "./storage": "./src/storage/index.ts",
+        "./utils": "./src/utils/index.ts"
     },
     "dependencies": {
         "@effect/schema": "^0.75.5",

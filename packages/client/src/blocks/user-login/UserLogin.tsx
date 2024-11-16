@@ -2,7 +2,7 @@ import { Button } from "@blocks/button";
 import { useUserLogin } from "@blocks/user-login/UserLogin.hooks.ts";
 import { effectTsResolver } from "@hookform/resolvers/effect-ts";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import * as S from "@effect/schema/Schema";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 

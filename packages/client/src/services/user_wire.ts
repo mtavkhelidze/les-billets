@@ -1,4 +1,4 @@
-import { UserProfile } from "@domain/model";
+import { UserProfile } from "@my/domain/model";
 import { Context, ManagedRuntime, pipe } from "effect";
 import * as Effect from "effect/Effect";
 import { constVoid } from "effect/Function";
@@ -11,9 +11,9 @@ import { useEffect, useState } from "react";
 
 const dummyUser = UserProfile.make({
   email: "x@y.com",
-  fullName: "John Doe",
   id: "23f6be43-4bdd-4116-ae4a-8b1203de1045",
   jwtToken: O.some("token"),
+  name: "John Doe",
 });
 
 class UserWireImpl {

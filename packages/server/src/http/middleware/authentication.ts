@@ -1,11 +1,11 @@
-import { Unauthorized } from "@api/error";
-import { UserProfile } from "@domain/model";
 import { HttpApiMiddleware, HttpApiSecurity } from "@effect/platform";
+import { Unauthorized } from "@my/domain/http/errors";
+import { UserProfile } from "@my/domain/model";
+import { JwtBackend } from "@services/JwtBackend.ts";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
-import { JwtBackend } from "../../services/JwtBackend.ts";
 
 export class AuthUserId
   extends Context.Tag("UserId")<AuthUserId, UserProfile["id"]>() {}
@@ -37,8 +37,8 @@ export class Authentication extends HttpApiMiddleware.Tag<Authentication>()(
             ),
             Effect.provide(JwtBackend.live),
           );
-        }
-      })
+        },
+      }),
     ),
   );
 }

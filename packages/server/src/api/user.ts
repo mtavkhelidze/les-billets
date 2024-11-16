@@ -1,13 +1,16 @@
-import { InternalServerError, InvalidCredentials } from "@api/error";
-import { LoginRequest, LoginResponse } from "@domain/model/http";
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "@effect/platform";
+import { LoginRequest, LoginResponse } from "@my/domain/http";
+import {
+  InternalServerError,
+  InvalidCredentials,
+} from "@my/domain/http/errors";
 
 export class UserEndpoints extends HttpApiGroup
   .make("user")
   .add(
     HttpApiEndpoint.post("login", "/login")
-      .addError(InvalidCredentials)
       .addError(InternalServerError)
+      .addError(InvalidCredentials)
       .addSuccess(LoginResponse)
       .setPayload(LoginRequest),
   )

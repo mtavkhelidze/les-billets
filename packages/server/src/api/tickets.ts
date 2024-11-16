@@ -1,8 +1,10 @@
-import { InternalServerError, NotFound, Unauthorized } from "@api/error";
-import { TickersResponse } from "@domain/model/http";
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "@effect/platform";
-
-import * as Schema from "effect/Schema";
+import { TickersResponse } from "@my/domain/http";
+import {
+  InternalServerError,
+  NotFound,
+  Unauthorized,
+} from "@my/domain/http/errors";
 import { Authentication } from "../http/middleware/authentication.ts";
 
 export class TicketsEndpoints extends HttpApiGroup
@@ -20,10 +22,10 @@ export class TicketsEndpoints extends HttpApiGroup
   // )
   .add(
     HttpApiEndpoint.get("getAll", "/")
-      .addSuccess(TickersResponse)
       .addError(InternalServerError)
       .addError(NotFound)
-      .addError(Unauthorized),
+      .addError(Unauthorized)
+      .addSuccess(TickersResponse),
   )
   .prefix("/tickets")
   .middleware(Authentication)
