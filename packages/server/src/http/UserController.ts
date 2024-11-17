@@ -33,10 +33,12 @@ export const UserController = HttpApiBuilder.group(
           payload.email,
           payload.password,
         )),
+        Effect.tap(Effect.log),
         Effect.flatMap(getJwtToken),
         Effect.mapError(e =>
           Match.value(e).pipe(
             Match.tag("JwtInvalidSecret", () => new InternalServerError()),
+            Match.tag("InternalError", () => new InternalServerError()),
             Match.orElse(() => new InvalidCredentials()),
           ),
         ),

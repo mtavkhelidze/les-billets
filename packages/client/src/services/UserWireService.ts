@@ -68,8 +68,8 @@ export class UserWireService extends Context.Tag("UserWireService")<
           Effect.andThen(service => service.set(profile)),
         ),
       )
-      .then(console.log)
-      .catch(console.error);
+      .then(constVoid)
+      .catch(constVoid);
   };
 }
 

@@ -1,7 +1,8 @@
 {
     "scripts": {
         "typecheck": "tsc --noEmit",
-        "start": "bun run server.ts"
+        "start": "bun run server.ts",
+        "watch:start": "bun run --watch server.ts"
     },
     "dependencies": {
         "@my/domain": "workspace:*",

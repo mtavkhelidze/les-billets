@@ -4,7 +4,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 export const apiBase = Config.string("API_BASE").pipe(
   Config.mapAttempt((_) => new URL(_)),
   Config.map((url) => url.href.replace(/\/$/, "")),
-  Config.withDefault("http://localhost:9092"),
+  Config.withDefault("http://localhost:9091"),
 );
 
 export const logLevel = Config.logLevel("LOG_LEVEL");

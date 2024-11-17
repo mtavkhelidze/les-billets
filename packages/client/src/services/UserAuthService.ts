@@ -1,21 +1,20 @@
-import { FetchHttpClient } from "@effect/platform";
 import { LoginRequest } from "@my/domain/http";
 import type { InvalidCredentials } from "@my/domain/http/errors";
 import { UserProfile } from "@my/domain/model";
 import { ApiClient } from "@services/LesBilletsApiClient.ts";
-import { UserWireService } from "@services/UserWireService.ts";
-import { identity, ManagedRuntime } from "effect";
+import { identity } from "effect";
 import * as Context from "effect/Context";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as Schema from "effect/Schema";
 
-export class UserAuthError extends Data.TaggedError("UserAuthError")<{
-  readonly details: string;
-}> {
-  public readonly message = "Cannot process request.";
-}
+export class UserAuthError extends Schema.TaggedError<UserAuthError>()(
+  "UserAuthError",
+  {
+    message: Schema.String,
+  },
+) {}
 
 interface UserAuthClient {
   login: (
@@ -34,7 +33,7 @@ class UserAuthClientImpl implements UserAuthClient {
       Effect.mapError(_ =>
         Match.value(_).pipe(
           Match.tag("InvalidCredentials", identity),
-          Match.orElse(_ => new UserAuthError({ details: _._tag })),
+          Match.orElse(_ => new UserAuthError({ message: _._tag })),
         ),
       ),
     );

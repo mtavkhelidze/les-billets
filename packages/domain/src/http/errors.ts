@@ -38,7 +38,7 @@ export class NotFound extends S.TaggedError<NotFound>()(
 export class InvalidCredentials
   extends S.TaggedError<InvalidCredentials>()(
     "InvalidCredentials",
-    WithMessage(RP.UNPROCESSABLE_ENTITY),
+    WithMessage("Invalid credentials."),
     HttpApiSchema.annotations({ status: Code.UNPROCESSABLE_ENTITY }),
   ) {}
 

@@ -111,7 +111,7 @@ export const UserLogin = () => {
           >Login</Button>
         </div>
         <div className="flex flex-row justify-end gap-2">
-          {O.getOrNull(error)}
+          {O.getOrNull(error.pipe(O.map(e => e.message)))}
         </div>
       </form>
     </div>
