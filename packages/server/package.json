@@ -5,12 +5,12 @@
         "watch:start": "bun run --watch server.ts"
     },
     "dependencies": {
-        "@my/domain": "workspace:*",
         "@effect/platform": "^0.69.24",
         "@effect/platform-bun": "^0.49.26",
         "@effect/sql": "^0.20.8",
         "@effect/sql-drizzle": "^0.19.8",
         "@effect/sql-sqlite-bun": "^0.21.8",
+        "@my/domain": "workspace:*",
         "@types/jsrsasign": "^10.5.14",
         "drizzle-orm": "^0.36.3",
         "jsrsasign": "^11.1.0",

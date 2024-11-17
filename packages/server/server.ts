@@ -14,7 +14,7 @@ import * as Layer from "effect/Layer";
 import { serverPort } from "./src/config.ts";
 import { bunRunProgram } from "./src/runtime.ts";
 
-const program = serverPort.pipe(
+const httpServer = serverPort.pipe(
   Effect.andThen(port =>
     HttpApiBuilder
       .serve(HttpMiddleware.logger)
@@ -34,4 +34,4 @@ const program = serverPort.pipe(
   ),
 );
 
-bunRunProgram(program);
+bunRunProgram(httpServer);

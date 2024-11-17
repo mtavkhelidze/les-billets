@@ -12,6 +12,7 @@
         "./api": "./src/api/index.ts",
         "./http": "./src/http/index.ts",
         "./http/errors": "./src/http/errors.ts",
+        "./http/websocket": "./src/http/wc.ts",
         "./model": "./src/model/index.ts",
         "./storage": "./src/storage/index.ts",
         "./utils": "./src/utils/index.ts"
