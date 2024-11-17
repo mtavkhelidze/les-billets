@@ -3,9 +3,9 @@
     "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81",
     "private": true,
     "scripts": {
-        "server": "bun run packages/server/server.ts",
-        "watch:server": "bun run --watch packages/server/server.ts",
-        "dev": "cd packages/client && bunx --bun vite",
+        "typecheck": "for i in $(ls -1 packages/); do bun run --filter \"@my/$i\" typecheck; done",
+        "server": "bun run --filter '@my/server' start",
+        "watch:server": "bun run --watch --fileter @my/server dev",
         "db-generate": "drizzle-kit generate --config=drizzle.config.ts",
         "db-migrate": "drizzle-kit migrate --config=drizzle.config.ts"
     },

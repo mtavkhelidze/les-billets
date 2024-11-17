@@ -1,59 +1,53 @@
-import {
-  FetchHttpClient,
-  HttpClient,
-  HttpClientRequest,
-  HttpClientResponse,
-} from "@effect/platform";
-import { LoginRequest, LoginResponse } from "@my/domain/http";
-import { InvalidCredentials } from "@my/domain/http/errors";
+import { FetchHttpClient } from "@effect/platform";
+import { LoginRequest } from "@my/domain/http";
+import type { InvalidCredentials } from "@my/domain/http/errors";
 import { UserProfile } from "@my/domain/model";
-import { ManagedRuntime, pipe } from "effect";
+import { ApiClient } from "@services/LesBilletsApiClient.ts";
+import { UserWireService } from "@services/UserWireService.ts";
+import { identity, ManagedRuntime } from "effect";
 import * as Context from "effect/Context";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 
-export interface UserAuthError {
-  readonly message: string;
+export class UserAuthError extends Data.TaggedError("UserAuthError")<{
+  readonly details: string;
+}> {
+  public readonly message = "Cannot process request.";
 }
 
-class UserAuthClient {
-  // @misha: the other, hopefully proper way of doing what's in
+interface UserAuthClient {
+  login: (
+    email: string,
+    password: string,
+  ) => Effect.Effect<UserProfile, InvalidCredentials | UserAuthError>;
+}
+
+class UserAuthClientImpl implements UserAuthClient {
   public login = (email: string, password: string) =>
-    HttpClientRequest.schemaBodyJson(LoginRequest)(
-      HttpClientRequest.post("/user/login"),
-      { email, password },
-    ).pipe(
-      Effect.andThen(this.client.execute),
-      Effect.flatMap(HttpClientResponse.schemaBodyJson(LoginResponse)),
+    this.client.pipe(
+      Effect.andThen(api =>
+        api.user.login({ payload: LoginRequest.make({ email, password }) }),
+      ),
       Effect.map(res => UserProfile.make(res)),
-      Effect.mapError(e => new InvalidCredentials({ message: e.toString() })),
-      Effect.scoped,
+      Effect.mapError(_ =>
+        Match.value(_).pipe(
+          Match.tag("InvalidCredentials", identity),
+          Match.orElse(_ => new UserAuthError({ details: _._tag })),
+        ),
+      ),
     );
 
-  constructor(private client: HttpClient.HttpClient) {}
+  constructor(private client: ApiClient) {}
 }
 
 export class UserAuthService extends Context.Tag("UserAuthService")<
   UserAuthService,
   UserAuthClient
 >() {
-  public static live = pipe(
-    HttpClient.HttpClient,
-    Effect.map(HttpClient.filterStatusOk),
-    Effect.map(
-      HttpClient.mapRequest(
-        HttpClientRequest
-          .prependUrl("https://example.com"),
-      ),
-    ),
-    Effect.map(client => new UserAuthClient(client)),
-    Layer.effect(UserAuthService),
-  );
-
-  public static runtime = ManagedRuntime.make(
-    UserAuthService.live.pipe(
-      Layer.provide(FetchHttpClient.layer),
-    ),
+  public static live = Layer.effect(
+    UserAuthService,
+    Effect.succeed(new UserAuthClientImpl(ApiClient)),
   );
 }
-

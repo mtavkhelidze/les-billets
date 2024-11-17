@@ -1,28 +1,21 @@
 import { NotFound } from "@blocks/NotFound.tsx";
 import { TicketsTable } from "@blocks/tickets-table";
 import { UserLogin } from "@blocks/user-login";
-import { useUserProfile } from "@services/UserProfileService.ts";
-import * as O from "effect/Option";
-import React, { Component } from "react";
-import { Redirect, Route, Switch } from "wouter";
+import { useUserProfile } from "@services/UserWireService.ts";
+import React from "react";
+import { Route, Switch } from "wouter";
 
-// @misha: weak typing, but will work for now
-const Protected = <T extends object>(props: T) => {
-  const { profile } = useUserProfile();
-  console.log(profile);
-  const renderChildren = () =>
-    O.isSome(profile)
-      ? <Component {...props} />
-      : <Redirect to="/login" />;
+const maybeRedirect = (haveUser: boolean) => (el: React.ReactNode) =>
+  haveUser ? el : <UserLogin />;
 
-  return (
-    <Route>{renderChildren}</Route>
-  );
-};
 export const Routes = () => {
+  const { haveUser } = useUserProfile();
+
   return (
     <Switch>
-      <Route path="/"><Protected><TicketsTable tickets={[]} /></Protected></Route>
+      <Route path="/">
+        {maybeRedirect(haveUser)(<TicketsTable tickets={[]} />)}
+      </Route>
       <Route path="/login"><UserLogin /></Route>
       <Route><NotFound /></Route>
     </Switch>
