@@ -1,6 +1,7 @@
 import { UserProfile } from "@my/domain/model";
 import { Context, ManagedRuntime, pipe } from "effect";
 import * as Effect from "effect/Effect";
+import { constVoid } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
@@ -75,6 +76,11 @@ export class UserWireService extends Context.Tag("UserWireService")<
 export const useUserProfile = () => {
   const [profileState, setProfileState] = useState<O.Option<UserProfile>>(O.none());
 
+  const logoOutEffect =
+    UserWireService.pipe(
+      Effect.andThen(service => service.set(O.none())),
+    );
+
   // @misha: this can be moved into a static method of UserWireService
   // so the runtime is completely hidden from the user.
   const monitorProfileStream = pipe(
@@ -88,16 +94,25 @@ export const useUserProfile = () => {
     Effect.forever,
   );
 
+  const logout = () => {
+    UserWireService
+      .runtime
+      .runPromise(logoOutEffect)
+      .then(constVoid)
+      .catch(constVoid);
+  }
+
   useEffect(() => {
     UserWireService
       .runtime
       .runPromise(monitorProfileStream)
-      .then(console.log)
-      .catch(console.error);
+      .then(constVoid)
+      .catch(constVoid);
   }, []);
 
   return {
-    profile: profileState,
     isLoggedIn: O.isSome(profileState),
+    logout,
+    profile: profileState,
   };
 };
