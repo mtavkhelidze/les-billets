@@ -1,6 +1,8 @@
+import { SmallButton } from "@blocks/SmallButton.tsx";
 import { TicketRow } from "@blocks/tickets-table/TicketRow.tsx";
 import { Ticket } from "@my/domain/model";
 import * as Array from "effect/Array";
+import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as React from "react";
 import { type ChangeEventHandler, useEffect, useState } from "react";
@@ -15,6 +17,7 @@ type SelectValueType = Ticket["status"] | "all";
 
 const selectTicketsWith = (status: Ticket["status"]) =>
   Array.filter<Ticket>(t => t.status === status);
+
 
 export const TicketsTable: React.FC<Props> = ({ tickets }) => {
   const [filter, setFilter] = useState<SelectValueType>("all");
@@ -47,6 +50,10 @@ export const TicketsTable: React.FC<Props> = ({ tickets }) => {
           <div className="flex items-center justify-between">
             <h2 className="flex-1 text-lg">
               {Str.capitalize(filter)} Tickets
+              <SmallButton
+                className="ml-2"
+                onClick={() => undefined}
+              >add</SmallButton>
             </h2>
             <div>
               Show only

@@ -1,5 +1,6 @@
 import { NotFound } from "@blocks/NotFound.tsx";
 import { TicketsTable } from "@blocks/tickets-table";
+import { TicketEditor } from "src/blocks/ticket-editor";
 import { UserLogin } from "@blocks/user-login";
 import { useUserProfile } from "@services/UserWireService.ts";
 
@@ -18,7 +19,8 @@ export const Routes = () => {
 
   return (
     <Switch>
-      <Route path="/">
+      <Route path="/"><TicketEditor /></Route>
+      <Route path="/tickets">
         <Protected with={() => isLoggedIn}>
           <TicketsTable tickets={[]} />
         </Protected>

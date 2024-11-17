@@ -10,6 +10,18 @@ export default defineConfig({
     cssMinify: true,
     minify: true,
     target: "es2015",
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if(id.includes("effect/")) {
+            return "effect-ts";
+          }
+          if (id.includes("node_modules")) {
+            return "vendor";
+          }
+        },
+      }
+    }
   },
   plugins: [
     react(),

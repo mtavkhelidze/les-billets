@@ -26,8 +26,7 @@ export const UserLogin = () => {
 
   const onSubmit = (data: FormData) => {
     void login(data.email, data.password)
-      .then(() => navigate("/"));
-
+      .then(() => navigate("/tickets", { replace: true }));
   };
   return (
     <div className="flex flex-col w-full justify-center items-center gap-4">
