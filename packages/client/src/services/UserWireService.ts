@@ -98,6 +98,6 @@ export const useUserProfile = () => {
 
   return {
     profile: profileState,
-    haveUser: O.isSome(profileState),
+    isLoggedIn: O.isSome(profileState),
   };
 };
