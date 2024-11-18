@@ -1,9 +1,12 @@
 import * as S from "effect/Schema";
 
+export const UserID = S.UUID;
+export type UserID = S.Schema.Type<typeof UserID>;
+
 export class UserProfile extends S.Class<UserProfile>("UserProfile")({
   email: S.NonEmptyString,
   name: S.NonEmptyString,
-  id: S.UUID,
+  id: UserID,
   jwtToken: S.String.pipe(S.Option),
 }) {
   // @misha: directly from Scala

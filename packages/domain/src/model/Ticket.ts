@@ -1,13 +1,22 @@
 import * as S from "effect/Schema";
+import { UserID } from "./UserProfile.ts";
 
-export class Ticket extends S.TaggedClass<Ticket>()("Ticket", {
+export const TicketStatus = S.Literal("closed", "locked", "open");
+export type TicketStatus = S.Schema.Type<typeof TicketStatus>;
+
+export const TicketID = S.UUID;
+export type TicketID = S.Schema.Type<typeof TicketID>;
+
+export class Ticket extends S.TaggedClass<Ticket>()(
+  "@my/domain/model/Ticket",
+  {
     createdAt: S.Number,
-    createdBy: S.UUID,
+    createdBy: UserID,
     description: S.String,
-    id: S.UUID,
-    status: S.Literal("closed", "locked", "open"),
+    id: TicketID,
+    status: TicketStatus,
     title: S.String,
     updatedAt: S.Number.pipe(S.Option),
-    updatedBy: S.UUID.pipe(S.Option),
+    updatedBy: UserID.pipe(S.Option),
   },
 ) {}
