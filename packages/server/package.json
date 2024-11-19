@@ -1,8 +1,9 @@
 {
     "scripts": {
-        "typecheck": "tsc --noEmit",
         "start": "bun run server.ts",
-        "watch:start": "bun run --watch server.ts"
+        "typecheck": "tsc --noEmit",
+        "watch:start": "bun run --watch server.ts",
+        "watch:typecheck": "tsc --noEmit --watch"
     },
     "dependencies": {
         "@effect/platform": "^0.69.24",
