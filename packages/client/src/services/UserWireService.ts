@@ -100,7 +100,7 @@ export const useUserProfile = () => {
       .runPromise(logoOutEffect)
       .then(constVoid)
       .catch(constVoid);
-  }
+  };
 
   useEffect(() => {
     UserWireService

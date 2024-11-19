@@ -27,7 +27,7 @@ export const useUserLogin = () => {
     Effect.runPromise(
       loginEffect(email, password).pipe(
         Effect.provide(UserAuthService.live),
-      )
+      ),
     ).catch(_ => endWith(O.some(_)));
 
   const loginEffect = (email: string, password: string) =>
@@ -41,7 +41,7 @@ export const useUserLogin = () => {
       ),
       Effect.tapBoth({
         onSuccess: _ => Effect.void,
-        onFailure: Effect.succeed
+        onFailure: Effect.succeed,
       }),
     )
   ;

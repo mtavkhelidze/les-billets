@@ -17,13 +17,13 @@ export interface TelegraphService {
 }
 
 class TelegraphServiceImpl implements TelegraphService {
-  constructor(private readonly teletype: PubSub.PubSub<ServerCable>) {}
-
   public readonly [TelegraphServiceId]: TelegraphServiceId = TelegraphServiceId;
   public send = (cable: ServerCable) => this.teletype.publish(cable);
   public wire = () => this.teletype.pipe(
     Stream.fromPubSub<ServerCable>,
   );
+
+  constructor(private readonly teletype: PubSub.PubSub<ServerCable>) {}
 }
 
 export class CentralTelegraph extends Context.Tag(

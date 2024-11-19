@@ -2,7 +2,6 @@ import { SmallButton } from "@blocks/SmallButton.tsx";
 import { TicketRow } from "@blocks/tickets-table/TicketRow.tsx";
 import { Ticket } from "@my/domain/model";
 import * as Array from "effect/Array";
-import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as React from "react";
 import { type ChangeEventHandler, useEffect, useState } from "react";
