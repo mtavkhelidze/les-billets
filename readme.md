@@ -13,6 +13,8 @@ Support Ticketing System
 
 ### Message Flow Diagram
 
+<span style="font-size: 1.2rem; color: red">This diagram is completely outdated.</span>
+
 ```mermaid
 sequenceDiagram
     box Frontend
