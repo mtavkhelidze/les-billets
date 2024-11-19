@@ -1,3 +1,4 @@
+import type { ClientCable } from "@my/domain/http";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -10,7 +11,7 @@ const CableReaderId: unique symbol =
 type CableReaderId = typeof CableReaderId;
 
 export interface CableReader {
-  (msg: string): Effect.Effect<void>;
+  react: (cable: ClientCable) => Effect.Effect<void>;
 }
 
 export const CableReader = Context.GenericTag<CableReaderId, CableReader>(
@@ -18,8 +19,9 @@ export const CableReader = Context.GenericTag<CableReaderId, CableReader>(
 );
 
 export const CableReaderLice =
-  Layer.succeed(CableReader, (msg: string) =>
-    Console.log(msg).pipe(
-      Effect.annotateLogs(CableReaderId.toString(), "msg"),
-    ),
+  Layer.succeed(CableReader, CableReader.of({
+      react: (cable: ClientCable) => Console.log(cable).pipe(
+        Effect.annotateLogs(CableReaderId.toString(), "ClientCable"),
+      ),
+    }),
   );

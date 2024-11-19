@@ -24,11 +24,13 @@ Support Ticketing System
 * **Integration tests** would be very nice to have.
 * **TypeScript** happens to be a great language if you know how to use it.
 
-### Message Flow Diagram
+### Data Flow
+
+Server provides Swagger UI at `/docs`.
 
 > This diagram is somewhat outdated but it should provide a good idea, what the
 > system is supposed to do. > > To learn more on how it works, start with
-> `package.json` in `packages/*` and work your way down.
+> `package.json` in `packages/*` and work your way inside.
 >
 > Open an issue, if something is unclear.
 

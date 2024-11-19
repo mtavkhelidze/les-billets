@@ -3,6 +3,7 @@ import { Ticket } from "../model";
 import { TicketStatus } from "../model/Ticket.ts";
 import { UserID } from "../model/UserProfile.ts";
 
+// region ServerCable
 export class TicketList extends S.Class<TicketList>(
   "@my/domain/cable/TicketList",
 )(
@@ -27,3 +28,17 @@ export const ServerCable = S.Union(
   TicketStatusUpdate,
 );
 export type ServerCable = S.Schema.Type<typeof ServerCable>;
+// endregion
+
+// region ClientCable
+
+export class GetTicketList extends S.Class<GetTicketList>(
+  "@my/domain/cable/GetTicketList",
+)({}) {}
+
+export const ClientCable = S.Union(
+  GetTicketList,
+);
+export type ClientCable = S.Schema.Type<typeof ClientCable>;
+
+// endregion
