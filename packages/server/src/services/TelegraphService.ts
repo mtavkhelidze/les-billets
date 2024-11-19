@@ -5,10 +5,10 @@ import * as Layer from "effect/Layer";
 import * as PubSub from "effect/PubSub";
 import * as Stream from "effect/Stream";
 
-export const TelegraphServiceId: unique symbol =
-  Symbol.for("@my/services/CentralTelegraph");
+const TelegraphServiceId: unique symbol =
+  Symbol.for("@my/server/services/TelegraphService");
 
-export type TelegraphServiceId = typeof TelegraphServiceId;
+type TelegraphServiceId = typeof TelegraphServiceId;
 
 export interface TelegraphService {
   readonly [TelegraphServiceId]: TelegraphServiceId;
@@ -24,15 +24,11 @@ class TelegraphServiceImpl implements TelegraphService {
   public wire = () => this.teletype.pipe(
     Stream.fromPubSub<ServerCable>,
   );
-  //   Effect.flatMap(identity),
-  //   Effect.scoped,
-  //   Stream.fromEffect,
-  //   Stream.forever,
-  // );
 }
 
 export class CentralTelegraph extends Context.Tag(
-  "@my/services/CentralTelegraph")<
+  TelegraphServiceId.toString(),
+)<
   CentralTelegraph, TelegraphService
 >() {
   public static live = Layer.effect(
