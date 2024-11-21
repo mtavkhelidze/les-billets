@@ -45,8 +45,8 @@ export class UserAuthService extends Context.Tag("UserAuthService")<
   UserAuthService,
   UserAuthClient
 >() {
-  public static live = Layer.effect(
+  public static live = Layer.succeed(
     UserAuthService,
-    Effect.succeed(new UserAuthClientImpl(ApiClient)),
+    new UserAuthClientImpl(ApiClient),
   );
 }

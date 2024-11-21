@@ -3,7 +3,7 @@ import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-
+import * as Schema from "effect/Schema";
 
 const CableReaderId: unique symbol =
   Symbol.for("@my/server/services/CableReader");
@@ -18,9 +18,9 @@ export const CableReader = Context.GenericTag<CableReaderId, CableReader>(
   CableReaderId.toString(),
 );
 
-export const CableReaderLice =
+export const CableReaderLive =
   Layer.succeed(CableReader, CableReader.of({
-      react: (cable: ClientCable) => Console.log(cable).pipe(
+      react: (cable: ClientCable) => Console.log(`here: ${cable}`).pipe(
         Effect.annotateLogs(CableReaderId.toString(), "ClientCable"),
       ),
     }),

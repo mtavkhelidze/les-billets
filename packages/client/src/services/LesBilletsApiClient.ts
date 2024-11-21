@@ -15,7 +15,8 @@ export const ApiClient =
         {
           baseUrl: apiBase,
           transformClient: HttpClient.mapRequest(
-            HttpClientRequest.bearerToken("token"),
+            // HttpClientRequest.bearerToken("token"),
+            HttpClientRequest.setHeader("Connection", "upgrade"),
           ),
         },
       ).pipe(

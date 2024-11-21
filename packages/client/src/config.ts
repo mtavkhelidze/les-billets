@@ -7,12 +7,17 @@ export const apiBase = Config.string("API_BASE").pipe(
   Config.withDefault("http://localhost:9091"),
 );
 
+export const wsUrl = apiBase.pipe(
+  Config.map(url => `${url}/ws`),
+);
+
 export const logLevel = Config.logLevel("LOG_LEVEL");
 
 type DotEnvConfig = {
   env: {
     VITE_API_BASE: string;
     VITE_LOG_LEVEL: string;
+    VITE_WS_URL: string;
   }
 };
 
@@ -24,6 +29,9 @@ const EnvConfig: DotEnvConfig = {
     VITE_LOG_LEVEL: (
       import.meta as unknown as DotEnvConfig
     ).env.VITE_LOG_LEVEL,
+    VITE_WS_URL: (
+      import.meta as unknown as DotEnvConfig
+    ).env.VITE_WS_URL,
   },
 };
 

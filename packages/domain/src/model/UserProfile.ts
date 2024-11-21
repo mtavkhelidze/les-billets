@@ -3,7 +3,10 @@ import * as S from "effect/Schema";
 export const UserID = S.UUID;
 export type UserID = S.Schema.Type<typeof UserID>;
 
-export class UserProfile extends S.Class<UserProfile>("UserProfile")({
+export class UserProfile extends S.TaggedClass<UserProfile>(
+  "@my/domain/model/UserProfile",
+)(
+  "UserProfile", {
   email: S.NonEmptyString,
   name: S.NonEmptyString,
   id: UserID,

@@ -23,6 +23,7 @@ Support Ticketing System
 * **Unit tests** would be virtually useless. Types do the heavy lifting for you.
 * **Integration tests** would be very nice to have.
 * **TypeScript** happens to be a great language if you know how to use it.
+* **Naming** is inconsistent in places. This needs to be fixed.
 
 ### Data Flow
 

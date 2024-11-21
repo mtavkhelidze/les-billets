@@ -7,4 +7,4 @@ export {
   TicketStatusUpdate,
 } from "./cable.ts";
 
-export { TickersResponse } from "./tickets.ts";
+export { TicketsResponse } from "./tickets.ts";

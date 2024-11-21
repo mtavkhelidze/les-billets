@@ -6,7 +6,7 @@ import {
 } from "@effect/platform";
 import { BunHttpServer } from "@effect/platform-bun";
 import { ApiLive } from "@http";
-import { CableReaderLice } from "@services/CableReader.ts";
+import { CableReaderLive } from "@services/CableReader.ts";
 import { JwtBackend } from "@services/JwtBackend.ts";
 import { CentralTelegraph } from "@services/TelegraphService.ts";
 import { UserStorage } from "@storage";
@@ -25,7 +25,7 @@ const httpServer = serverPort.pipe(
         Layer.provide(HttpApiBuilder.middlewareOpenApi()),
         Layer.provide(ApiLive),
         Layer.provide(CentralTelegraph.live),
-        Layer.provide(CableReaderLice),
+        Layer.provide(CableReaderLive),
         Layer.provide(HttpApiBuilder.middlewareCors()),
         HttpServer.withLogAddress,
         Layer.provide(

@@ -1,5 +1,5 @@
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "@effect/platform";
-import { TickersResponse } from "@my/domain/http";
+import { TicketsResponse } from "@my/domain/http";
 import {
   InternalServerError,
   NotFound,
@@ -25,7 +25,7 @@ export class TicketsEndpoints extends HttpApiGroup
       .addError(InternalServerError)
       .addError(NotFound)
       .addError(Unauthorized)
-      .addSuccess(TickersResponse),
+      .addSuccess(TicketsResponse),
   )
   .prefix("/tickets")
   .middleware(AuthMiddleware)

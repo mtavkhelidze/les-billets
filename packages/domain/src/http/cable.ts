@@ -32,9 +32,12 @@ export type ServerCable = S.Schema.Type<typeof ServerCable>;
 
 // region ClientCable
 
-export class GetTicketList extends S.Class<GetTicketList>(
+export class GetTicketList extends S.TaggedClass<GetTicketList>(
   "@my/domain/cable/GetTicketList",
-)({}) {}
+)(
+  "GetTicketList",
+  {},
+) {}
 
 export const ClientCable = S.Union(
   GetTicketList,

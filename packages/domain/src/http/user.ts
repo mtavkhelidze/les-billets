@@ -1,7 +1,10 @@
 import * as S from "effect/Schema";
 import { UserProfile } from "../model";
 
-export class LoginRequest extends S.Class<LoginRequest>("LoginRequest")(
+export class LoginRequest extends S.TaggedClass<LoginRequest>(
+  "@my/domain/user/LoginRequest",
+)(
+  "LoginRequest",
   {
     email: S.NonEmptyString,
     password: S.NonEmptyString,
