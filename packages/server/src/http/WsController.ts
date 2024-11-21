@@ -7,7 +7,6 @@ import { LesBilletsAPI } from "@my/domain/api";
 import { clientCableFromJson } from "@my/domain/utils";
 import { CableReader } from "@services/CableReader.ts";
 import { CentralTelegraph } from "@services/TelegraphService.ts";
-import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 

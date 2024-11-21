@@ -1,6 +1,5 @@
 import { Socket } from "@effect/platform";
 import { ApiClient } from "@services/LesBilletsApiClient.ts";
-import { Chunk } from "effect";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -12,8 +11,6 @@ interface CableReader {
 
 
 class CableReaderImpl implements CableReader {
-  constructor(private client: ApiClient) {}
-
   public readonly connect = () => {
     return Socket.makeWebSocket("http://localhost:9091/ws").pipe(
       Effect.flatMap(s => s.writer),
@@ -21,6 +18,8 @@ class CableReaderImpl implements CableReader {
       Effect.scoped,
     );
   };
+
+  constructor(private client: ApiClient) {}
 }
 
 export class CableWireService extends Context.Tag("CableWireService")<

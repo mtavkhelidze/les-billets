@@ -7,11 +7,11 @@ export class UserProfile extends S.TaggedClass<UserProfile>(
   "@my/domain/model/UserProfile",
 )(
   "UserProfile", {
-  email: S.NonEmptyString,
-  name: S.NonEmptyString,
-  id: UserID,
-  jwtToken: S.String.pipe(S.Option),
-}) {
+    email: S.NonEmptyString,
+    name: S.NonEmptyString,
+    id: UserID,
+    jwtToken: S.String.pipe(S.Option),
+  }) {
   // @misha: directly from Scala
   public copy = (obj: Partial<UserProfile>): UserProfile =>
     new UserProfile({

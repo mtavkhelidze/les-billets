@@ -1,11 +1,4 @@
-import {
-  HttpApiEndpoint,
-  HttpApiGroup,
-  HttpServerResponse,
-  OpenApi,
-} from "@effect/platform";
-import * as S from "effect/Schema";
-import type * as Stream from "effect/Stream";
+import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "@effect/platform";
 
 export class WebSocketEndpoint extends HttpApiGroup.make("websocket")
   .add(
