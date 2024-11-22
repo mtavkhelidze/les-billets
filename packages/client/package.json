@@ -38,10 +38,9 @@
     "scripts": {
         "build": "tsc -b && vite build",
         "clean": "rm -rf dist",
-        "preview": "vite preview",
-        "start": "bunx --bun vite",
+        "start": "bunx -bun vite preview",
         "typecheck": "tsc --noEmit",
-        "watch:start": "bun start",
+        "watch:start": "bunx -bun vite",
         "watch:typecheck": "tsc --noEmi --watch"
     },
     "type": "module",

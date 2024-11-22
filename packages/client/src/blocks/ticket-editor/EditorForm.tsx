@@ -1,4 +1,6 @@
 import { Button } from "@blocks/button";
+import { LabelledInput } from "@blocks/labelled-input";
+import { NamedTimestamp } from "@blocks/named-timestamp";
 import { RadioButton } from "@blocks/RadioButton.tsx";
 import * as S from "@effect/schema/Schema";
 
@@ -41,35 +43,19 @@ export const EditorForm = () => {
       //   }
       // }
     >
-      <div className="form-row">
-        <label htmlFor="title" role="label">Title:</label>
-        <input
-          autoComplete=""
-          disabled={false}
-          id="title"
-          placeholder="Title"
-          type="text"
-          //  {...register("title")}
-        />
-      </div>
-      <div className="form-row">
-        <label htmlFor="description" role="label">Description:</label>
-        <input
-          autoComplete=""
-          disabled={false}
-          id="description"
-          placeholder="Description"
-          type="text"
-          //  {...register("title")}
-        />
-        {/*<div*/}
-        {/*  className="text-xs italic h-[1.2rem] text-red-600"*/}
-        {/*  role="alert"*/}
-        {/*>*/}
-        {/*  {errors.email?.message ?? ""}*/}
-        {/*</div>*/}
-      </div>
-      <div className="form-row">
+      <LabelledInput
+        id="title"
+        label="Title:"
+        placeholder="Hoover is too loud"
+      />
+      <LabelledInput
+        error="we have a problem"
+        id="description"
+        label="Description:"
+        multiline
+        placeholder="The janitor complains that from 5 to 7 am his houver is too noisy."
+      />
+      <div className="status-group">
         <label htmlFor="description" role="label">Status:</label>
         <fieldset>
           <RadioButton
@@ -95,6 +81,10 @@ export const EditorForm = () => {
           />
         </fieldset>
       </div>
+      <NamedTimestamp
+        className="mx-4"
+        deed={"Created"} by={"Misha Tavkhelidze"} at={0}
+      />
       <div className="flex flex-row justify-end gap-2 pr-4">
         <Button
           type="reset"

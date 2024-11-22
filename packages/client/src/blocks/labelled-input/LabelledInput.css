@@ -1,0 +1,29 @@
+
+.labelled-input-group {
+    @apply relative pb-3;
+    #error {
+        @apply absolute -bottom-3 left-0 right-0 mx-4 text-red-600 text-xs text-right h-5;
+    }
+
+    .input-group {
+        @apply mx-4 flex gap-2 flex-row flex items-start;
+
+        &.disabled {
+            label {
+                @apply text-gray-500;
+            }
+
+            textarea {
+                @apply bg-gray-200 border-gray-50 outline-none;
+            }
+        }
+
+        & > label {
+            @apply text-orange-600 font-medium min-w-24 text-right;
+        }
+
+        & > textarea {
+            @apply flex-1 rounded-lg border border-gray-400 px-2 py-1;
+        }
+    }
+}
