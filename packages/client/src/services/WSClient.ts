@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import WebSocket from "ws";
+import WebSocket from "isomorphic-ws";
 import { wsUrl } from "../config.ts";
 
 const toChunk = flow(
@@ -19,12 +19,14 @@ const WsClientId: unique symbol =
 
 type WsClientId = typeof WsClientId;
 
-export class WsClientError extends Schema.TaggedError<WsClientError>()(
-  WsClientId.toString() + "/WsClientError",
-  {
-    message: Schema.String,
-  },
-) {}
+export class WsClientError
+  extends Schema.TaggedError<WsClientError>(WsClientId.toString()
+    + "/WsClientError")(
+    "WsClientError",
+    {
+      message: Schema.String,
+    },
+  ) {}
 
 interface WsClient {
   readonly [WsClientId]: WsClientId;
@@ -43,7 +45,7 @@ const acquire = (url: string) =>
           return resume(Effect.succeed(client));
         };
         client.onerror = e => {
-          return resume(Effect.fail(new WsClientError({ message: e.message })));
+          return resume(Effect.fail(new WsClientError({ message: "Cannot connect." })));
         };
         return Effect.sync(() => {
           client.close();

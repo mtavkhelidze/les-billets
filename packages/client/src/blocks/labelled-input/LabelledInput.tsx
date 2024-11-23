@@ -1,46 +1,49 @@
 import cx from "clsx";
-import React from "react";
+import React, { type ForwardedRef, forwardRef } from "react";
 import "./LabelledInput.css";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
-type Props = {
+type Props = Omit<UseFormRegisterReturn<string>, "ref"> & {
   autoComplete?: React.HTMLInputAutoCompleteAttribute;
   disabled?: boolean;
-  id: string;
+  error: string | undefined;
   label: string;
   multiline?: boolean;
   placeholder?: string;
-  error?: string;
-  register: UseFormRegisterReturn<Props["id"]>;
+  required?: boolean;
 }
-export const LabelledInput: React.FC<Props> = props => {
-  const {
-    autoComplete = "off",
-    disabled,
-    error = "",
-    id,
-    label,
-    multiline = false,
-    placeholder,
-    register,
-  } = props;
-  return (
-    <div className="labelled-input-group">
-      <div className="input-group">
-        <label className="text-gray-500" htmlFor={id} role="label">
-          {label}
-        </label>
-        <textarea
-          rows={multiline ? 4 : 1}
-          className="resize-none flex-1"
-          autoComplete={autoComplete}
-          disabled={disabled}
-          id={id}
-          placeholder={placeholder}
-          {...register}
-        />
-      </div>
-      <div id="error" className={cx({ hidden: !error })}>{error}</div>
-    </div>
+export const LabelledInput =
+  forwardRef((props: Props, ref: ForwardedRef<HTMLTextAreaElement>) => {
+      const {
+        autoComplete = "off",
+        disabled,
+        error = "",
+        label,
+        multiline = false,
+        placeholder,
+        required,
+        ...rest
+      } = props;
+
+      return (
+        <div className="labelled-input-group">
+          <div className="input-group">
+            <label className="text-gray-500" htmlFor={props.name} role="label">
+              {label}
+            </label>
+            <textarea
+              autoComplete={autoComplete}
+              className="resize-none flex-1"
+              disabled={disabled}
+              placeholder={placeholder}
+              ref={ref}
+              required
+              rows={multiline ? 4 : 1}
+              {...rest}
+            />
+          </div>
+          <div id="error" className={cx({ hidden: !error })}>{error}</div>
+        </div>
+      );
+    },
   );
-};

@@ -1,66 +1,75 @@
+import { toNestErrors, validateFieldsNatively } from "@hookform/resolvers";
+import { flow, pipe } from "effect";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+
+import {
+  ArrayFormatter,
+  type ArrayFormatterIssue,
+  decodeUnknown,
+} from "effect/ParseResult";
+import * as S from "effect/Schema";
+import type { ParseOptions } from "effect/SchemaAST";
+import type { FieldError, FieldValues, Resolver } from "react-hook-form";
+
 /**
- * @misha: I just copied this from
+ * @misha: This is (kinda) copied from
  * https://github.com/react-hook-form/resolvers/tree/master/effect-ts
  *
- * v3.10, which will be using a correct import for effect/Schema wasn't
- * released yet (2024-11-23).
+ * As of 2024-11-23, v3.10, which will be using a correct
+ * import for effect/Schema, hasn't been released yet.
  */
-import { toNestErrors, validateFieldsNatively } from "@hookform/resolvers";
-import * as  Effect from "effect/Effect";
 
-import { ArrayFormatter, decodeUnknown } from "effect/ParseResult";
-import * as Schema from "effect/Schema";
-import type { ParseOptions } from "effect/SchemaAST";
-import type {
-  FieldErrors,
-  FieldValues,
-  ResolverOptions,
-  ResolverResult,
-} from "react-hook-form";
+const issueToError = (issue: ArrayFormatterIssue): Record<string, FieldError> => (
+  {
+    [issue.path.join(".")]: {
+      message: issue.message,
+      type: issue._tag,
+    },
+  }
+);
+const collectIssuesIntoErrors = (issues: ArrayFormatterIssue[]): Record<string, FieldError> =>
+  A.reduce<ArrayFormatterIssue, Record<string, FieldError>>(
+    issues,
+    {},
+    (acc, a) => (
+      { ...acc, ...issueToError(a) }
+    ),
+  );
 
-type Resolver = <A extends FieldValues, I, TContext>(
-  schema: Schema.Schema<A, I>,
-  config?: ParseOptions,
-) => (
-  values: FieldValues,
-  _context: TContext | undefined,
-  options: ResolverOptions<A>,
-) => Promise<ResolverResult<A>>;
-
-export const dbEffectResolver: Resolver =
-  (schema, config = { errors: "all", onExcessProperty: "ignore" }) =>
-    (values, _, options) => {
-      return decodeUnknown(
-        schema,
-        config,
-      )(values).pipe(
-        Effect.catchAll((parseIssue) =>
-          Effect.flip(ArrayFormatter.formatIssue(parseIssue)),
-        ),
-        Effect.mapError((issues) => {
-          const errors = issues.reduce((acc, current) => {
-            const key = current.path.join(".");
-            acc[key] = { message: current.message, type: current._tag };
-            return acc;
-          }, {} as FieldErrors);
-
-          return toNestErrors(errors, options);
-        }),
-        Effect.tap(() =>
-          Effect.sync(
-            () =>
-              options.shouldUseNativeValidation &&
-              validateFieldsNatively({}, options),
-          ),
-        ),
-        Effect.match({
-          onFailure: (errors) => (
-            { errors, values: {} }
-          ),
-          onSuccess: (result) => (
-            { errors: {}, values: result }
-          ),
-        }),
-        Effect.runPromise,
-      );
-    };
+export const resolver = <A extends FieldValues>(
+  schema: S.Schema<A>,
+  config: ParseOptions = {
+    errors: "all",
+    onExcessProperty: "ignore",
+  },
+): Resolver<A> => (
+  values,
+  _,
+  options,
+) => {
+  const program = pipe(
+    values,
+    decodeUnknown(schema, config),
+    Effect.map(values => (
+      { values, errors: {} }
+    )),
+    Effect.catchAll(flow(ArrayFormatter.formatIssue, Effect.flip)),
+    Effect.mapError(collectIssuesIntoErrors),
+    Effect.mapError(es => toNestErrors(es, options)),
+    Effect.tap(() => Effect.sync(() =>
+        options.shouldUseNativeValidation &&
+        validateFieldsNatively({}, options),
+      ),
+    ),
+    Effect.match({
+      onFailure: (errors) => (
+        { errors, values }
+      ),
+      onSuccess: ({ values }) => (
+        { errors: {}, values }
+      ),
+    }),
+  );
+  return Effect.runPromise(program);
+};

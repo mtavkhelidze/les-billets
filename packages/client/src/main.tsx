@@ -9,13 +9,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Routes } from "./Routes.tsx";
 
-Effect.runPromise(
-  Effect.scoped(WsClientService.pipe(
-      Effect.andThen(client => client.send(JSON.stringify(GetTicketList.make({})))),
-      Effect.provide(WsClientServiceLive),
-    ),
-  ),
-);
+// Effect.runPromise(
+//   Effect.scoped(WsClientService.pipe(
+//       Effect.andThen(client => client.send(JSON.stringify(GetTicketList.make({})))),
+//       Effect.provide(WsClientServiceLive),
+//     ),
+//   ),
+// );
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

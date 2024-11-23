@@ -20,7 +20,6 @@ export const NamedTimestamp: React.FC<Props> = ({
     "flex flex-row gap-1 items-center justify-end text-xs",
     className,
   );
-  console.log(cn);
   return (
     <div
       className={cn}

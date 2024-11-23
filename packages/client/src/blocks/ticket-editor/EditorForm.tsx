@@ -2,7 +2,7 @@ import { Button } from "@blocks/button";
 import { LabelledInput } from "@blocks/labelled-input";
 import { NamedTimestamp } from "@blocks/named-timestamp";
 import { RadioButton } from "@blocks/RadioButton.tsx";
-import { dbEffectResolver } from "@lib/form.ts";
+import { resolver } from "@lib/form.ts";
 
 import { Ticket } from "@my/domain/model";
 import * as S from "effect/Schema";
@@ -28,43 +28,41 @@ export const EditorForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: dbEffectResolver(FormData),
+    resolver: resolver(FormData),
   });
   // const [_, navigate] = useLocation();
   // const { loading, error, login, resetError } = useUserLogin();
   //
-  // const onSubmit = (data: FormData) => {
-  //   void login(data.email, data.password)
-  //     .then(() => navigate("/"));
-  //
-  // };
+  const onSubmit = (data: FormData) => {
+    console.log(data);
+  };
   return (
     <form
       className="editor-form"
       onSubmit={handleSubmit(onSubmit)}
       onReset={
         () => {
-          resetError();
           reset({
-            email: "",
-            password: "",
+            title: "",
+            description: "Misha",
+            status: "open",
           }, { keepErrors: false, keepDirty: false });
         }
       }
     >
       <LabelledInput
-        id="title"
+        error={errors.title?.message}
         label="Title:"
         placeholder="Hoover is too loud"
-        register={register("title")}
+        required
+        {...register("title")}
       />
       <LabelledInput
-        error="we have a problem"
-        id="description"
+        error={errors.description?.message}
         label="Description:"
         multiline
-        register={register("description")}
         placeholder="The janitor complains that from 5 to 7 am his houver is too noisy."
+        {...register("description")}
       />
       <div className="status-group">
         <label htmlFor="description" role="label">Status:</label>
@@ -73,22 +71,22 @@ export const EditorForm = () => {
             defaultChecked
             id="open"
             label="Open"
-            name="status"
             value="open"
+            {...register("status")}
           />
           <RadioButton
             defaultChecked={false}
             id="closed"
             label="Closed"
-            name="status"
             value="closed"
+            {...register("status")}
           />
           <RadioButton
             defaultChecked={false}
             id="locked"
             label="Locked"
-            name="status"
             value="locked"
+            {...register("status")}
           />
         </fieldset>
       </div>
