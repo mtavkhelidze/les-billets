@@ -1,8 +1,8 @@
 import { Button } from "@blocks/button";
 import { useUserLogin } from "@blocks/user-login/UserLogin.hooks.ts";
-import * as S from "@effect/schema/Schema";
-import { effectTsResolver } from "@hookform/resolvers/effect-ts";
+import { dbEffectResolver } from "@lib/form.ts";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 
@@ -19,7 +19,7 @@ export const UserLogin = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: effectTsResolver(FormData),
+    resolver: dbEffectResolver(FormData),
   });
   const [_, navigate] = useLocation();
   const { loading, error, login, resetError } = useUserLogin();

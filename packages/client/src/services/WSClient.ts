@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import WebSocket from "isomorphic-ws";
+import WebSocket from "ws";
 import { wsUrl } from "../config.ts";
 
 const toChunk = flow(

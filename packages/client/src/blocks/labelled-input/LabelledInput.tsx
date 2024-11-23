@@ -1,6 +1,7 @@
-import React from "react";
 import cx from "clsx";
+import React from "react";
 import "./LabelledInput.css";
+import type { UseFormRegisterReturn } from "react-hook-form";
 
 type Props = {
   autoComplete?: React.HTMLInputAutoCompleteAttribute;
@@ -10,6 +11,7 @@ type Props = {
   multiline?: boolean;
   placeholder?: string;
   error?: string;
+  register: UseFormRegisterReturn<Props["id"]>;
 }
 export const LabelledInput: React.FC<Props> = props => {
   const {
@@ -20,6 +22,7 @@ export const LabelledInput: React.FC<Props> = props => {
     label,
     multiline = false,
     placeholder,
+    register,
   } = props;
   return (
     <div className="labelled-input-group">
@@ -34,7 +37,7 @@ export const LabelledInput: React.FC<Props> = props => {
           disabled={disabled}
           id={id}
           placeholder={placeholder}
-          //  {...register("title")}
+          {...register}
         />
       </div>
       <div id="error" className={cx({ hidden: !error })}>{error}</div>

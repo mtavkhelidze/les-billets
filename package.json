@@ -1,5 +1,15 @@
 {
     "name": "des-billets",
+    "version": "1.0.0",
+    "devDependencies": {
+        "@libsql/client": "^0.14.0",
+        "@types/bun": "latest",
+        "dotenv": "^16.4.5",
+        "drizzle-kit": "^0.28.1"
+    },
+    "peerDependencies": {
+        "typescript": "^5.6.3"
+    },
     "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81",
     "private": true,
     "scripts": {
@@ -12,21 +22,8 @@
         "watch:server": "bun run --watch --fileter @my/server watch:start",
         "watch:typecheck": "bun --filter '*' watch:typecheck"
     },
-    "version": "1.0.0",
+    "type": "module",
     "workspaces": [
         "packages/*"
-    ],
-    "type": "module",
-    "devDependencies": {
-        "@libsql/client": "^0.14.0",
-        "@types/bun": "latest",
-        "dotenv": "^16.4.5",
-        "drizzle-kit": "^0.28.1"
-    },
-    "peerDependencies": {
-        "typescript": "^5.6.3"
-    },
-    "dependencies": {
-        "http-status-codes": "^2.3.0"
-    }
+    ]
 }

@@ -1,4 +1,4 @@
-import type { ParseError } from "@effect/schema/ParseResult";
+import type { ParseError } from "effect/ParseResult";
 import { DateTime, pipe } from "effect";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";

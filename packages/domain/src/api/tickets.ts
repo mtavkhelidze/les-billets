@@ -1,4 +1,5 @@
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "@effect/platform";
+import * as S from "effect/Schema";
 import { TicketsResponse } from "@my/domain/http";
 import {
   InternalServerError,
