@@ -28,7 +28,7 @@ export const LabelledInput =
       return (
         <div className="labelled-input-group">
           <div className="input-group">
-            <label className="text-gray-500" htmlFor={props.name} role="label">
+            <label className="text-gray-500 pt-1" htmlFor={props.name} role="label">
               {label}
             </label>
             <textarea

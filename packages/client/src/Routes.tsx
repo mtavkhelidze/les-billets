@@ -19,7 +19,7 @@ export const Routes = () => {
 
   return (
     <Switch>
-      <Route path="/"><TicketEditor /></Route>
+      <Route path="/"><UserLogin /></Route>
       <Route path="/tickets">
         <Protected with={() => isLoggedIn}>
           <TicketsTable tickets={[]} />

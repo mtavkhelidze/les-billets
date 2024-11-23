@@ -33,7 +33,7 @@ class UserAuthClientImpl implements UserAuthClient {
       Effect.mapError(_ =>
         Match.value(_).pipe(
           Match.tag("InvalidCredentials", identity),
-          Match.orElse(_ => new UserAuthError({ message: _._tag })),
+          Match.orElse(_ => new UserAuthError({ message: _.toString() })),
         ),
       ),
     );
