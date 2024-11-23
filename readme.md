@@ -16,7 +16,7 @@ Support Ticketing System
 * **Bun** is a great runtime. Just is.
 * **Code comments** are not necessary (hopefully).
 * **Drizzle migrations** are fragile: one day they work, on another day — no.
-  > Something like `for f in *.sql; do cat $i | sqlite3 tickets.db; done` will
+  Something like```for f in .sql; do cat $i | sqlite3 tickets.db; done```will
   work always.
 * **Drizzle** has to go at some point. My distrust of ORMs once again proves
   itself to be warranted.
@@ -24,6 +24,7 @@ Support Ticketing System
 * **Integration tests** would be very nice to have.
 * **TypeScript** happens to be a great language if you know how to use it.
 * **Naming** is inconsistent in places. This needs to be fixed.
+* **Design** and its execution can be _much_ better.
 
 ### Data Flow
 
