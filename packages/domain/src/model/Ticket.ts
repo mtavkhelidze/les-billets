@@ -1,5 +1,5 @@
 import * as S from "effect/Schema";
-import { UserID } from "./UserProfile.ts";
+import { UserID } from "./SystemUser.ts";
 
 export const TicketStatus = S.Literal("closed", "locked", "open");
 export type TicketStatus = S.Schema.Type<typeof TicketStatus>;

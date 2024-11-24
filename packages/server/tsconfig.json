@@ -17,6 +17,9 @@
             ],
             "@storage": [
                 "./src/storage/index.ts"
+            ],
+            "@storage/*": [
+                "./src/storage/*"
             ]
         }
     },

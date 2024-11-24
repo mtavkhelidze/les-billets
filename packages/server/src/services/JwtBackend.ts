@@ -1,4 +1,4 @@
-import { UserProfile } from "@my/domain/model";
+import { SystemUser, UserProfile } from "@my/domain/model";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -60,13 +60,13 @@ export class JwtBackend extends Context.Tag("JwtBackend")<
   JwtBackend,
   {
     unwrap: (token: string) => Effect.Effect<UserProfile["id"], JwtError>;
-    create: (user: UserProfile) => Effect.Effect<string, JwtError>;
+    create: (user: SystemUser) => Effect.Effect<string, JwtError>;
   }
 >() {
   public static live = Layer.succeed(
     JwtBackend,
     JwtBackend.of({
-      create: (user: UserProfile) =>
+      create: (user: SystemUser) =>
         jwtSecret.pipe(
           Effect.catchAll(e => Effect.fail(new JwtInvalidSecret({ message: e.toString() }))),
           Effect.andThen(secret => DateTime.now.pipe(

@@ -1,19 +1,14 @@
 import * as S from "effect/Schema";
+import { SystemUser } from "./SystemUser.ts";
 
-export const UserID = S.UUID;
-export type UserID = S.Schema.Type<typeof UserID>;
-
-export class UserProfile extends S.TaggedClass<UserProfile>(
-  "@my/domain/model/UserProfile",
+export class UserProfile extends SystemUser.extend<UserProfile>(
+  "UserProfile",
 )(
-  "UserProfile", {
-    email: S.NonEmptyString,
-    name: S.NonEmptyString,
-    id: UserID,
+  {
     jwtToken: S.String.pipe(S.Option),
   }) {
   // @misha: directly from Scala
-  public copy = (obj: Partial<UserProfile>): UserProfile =>
+  public copy = (obj: UserProfile): UserProfile =>
     new UserProfile({
       id: obj.id ?? this.id,
       name: obj.name ?? this.name,

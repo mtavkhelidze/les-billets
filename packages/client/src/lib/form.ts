@@ -12,14 +12,6 @@ import * as S from "effect/Schema";
 import type { ParseOptions } from "effect/SchemaAST";
 import type { FieldError, FieldValues, Resolver } from "react-hook-form";
 
-/**
- * @misha: This is (kinda) copied from
- * https://github.com/react-hook-form/resolvers/tree/master/effect-ts
- *
- * As of 2024-11-23, v3.10, which will be using a correct
- * import for effect/Schema, hasn't been released yet.
- */
-
 const issueToError = (issue: ArrayFormatterIssue): Record<string, FieldError> => (
   {
     [issue.path.join(".")]: {
@@ -28,6 +20,7 @@ const issueToError = (issue: ArrayFormatterIssue): Record<string, FieldError> =>
     },
   }
 );
+
 const collectIssuesIntoErrors = (issues: ArrayFormatterIssue[]): Record<string, FieldError> =>
   A.reduce<ArrayFormatterIssue, Record<string, FieldError>>(
     issues,
@@ -37,6 +30,15 @@ const collectIssuesIntoErrors = (issues: ArrayFormatterIssue[]): Record<string, 
     ),
   );
 
+/**
+ * @misha: This resolver/validator is (kinda) copied from
+ * https://github.com/react-hook-form/resolvers/tree/master/effect-ts
+ *
+ * As of 2024-11-23, v3.10, which will be using a correct
+ * import for effect/Schema, hasn't been released yet.
+ *
+ * Perhaps this resolver is not needed for this project.
+ */
 export const resolver = <A extends FieldValues>(
   schema: S.Schema<A>,
   config: ParseOptions = {

@@ -5,11 +5,11 @@ import {
   HttpServer,
 } from "@effect/platform";
 import { BunHttpServer } from "@effect/platform-bun";
-import { ApiLive } from "@http";
+import { HttpControllersLive } from "@http";
 import { CableReaderLive } from "@services/CableReader.ts";
 import { JwtBackend } from "@services/JwtBackend.ts";
 import { CentralTelegraph } from "@services/TelegraphService.ts";
-import { UserStorage } from "@storage";
+import { UserStorageSqlLite } from "@storage";
 
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -23,15 +23,13 @@ const httpServer = serverPort.pipe(
       .pipe(
         Layer.provide(HttpApiSwagger.layer()),
         Layer.provide(HttpApiBuilder.middlewareOpenApi()),
-        Layer.provide(ApiLive),
+        Layer.provide(HttpControllersLive),
         Layer.provide(CentralTelegraph.live),
         Layer.provide(CableReaderLive),
         Layer.provide(HttpApiBuilder.middlewareCors()),
         HttpServer.withLogAddress,
-        Layer.provide(
-          BunHttpServer.layer({ port }),
-        ),
-        Layer.provide(UserStorage.live),
+        Layer.provide(BunHttpServer.layer({ port })),
+        Layer.provide(UserStorageSqlLite),
         Layer.provide(JwtBackend.live),
         Layer.launch,
       ),

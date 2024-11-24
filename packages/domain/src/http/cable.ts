@@ -1,7 +1,7 @@
 import * as S from "effect/Schema";
 import { Ticket } from "../model";
+import { UserID } from "../model/SystemUser.ts";
 import { TicketStatus } from "../model/Ticket.ts";
-import { UserID } from "../model/UserProfile.ts";
 
 // region ServerCable
 export class TicketList extends S.Class<TicketList>(

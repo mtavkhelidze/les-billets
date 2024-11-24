@@ -15,6 +15,7 @@
         "./http/errors": "./src/http/errors.ts",
         "./http/websocket": "./src/http/wc.ts",
         "./model": "./src/model/index.ts",
+        "./model/utility": "./src/model/utility.ts",
         "./storage": "./src/storage/index.ts",
         "./utils": "./src/utils/index.ts"
     },

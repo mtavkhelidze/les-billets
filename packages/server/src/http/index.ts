@@ -1,13 +1,13 @@
 import { HttpApiBuilder } from "@effect/platform";
 import { LesBilletsAPI } from "@my/domain/api";
-import { DatabaseDriver, TicketStorage } from "@storage";
+import { DataBaseDriver, TicketStorage } from "@storage";
 import * as Layer from "effect/Layer";
 import { AuthMiddlewareLive } from "./middleware/AuthMiddlewareLive.ts";
 import { TicketController } from "./TicketsController.ts";
 import { UserController } from "./UserController.ts";
 import { WsController } from "./WsController.ts";
 
-export const ApiLive =
+export const HttpControllersLive =
   HttpApiBuilder
     .api(LesBilletsAPI)
     .pipe(
@@ -17,5 +17,4 @@ export const ApiLive =
       Layer.provide(WsController),
       Layer.provide(AuthMiddlewareLive),
       Layer.provide(TicketStorage.live),
-      Layer.provide(DatabaseDriver.live),
     );

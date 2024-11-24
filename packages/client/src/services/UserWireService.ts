@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 const dummyUser = UserProfile.make({
   email: "x@y.com",
   id: "23f6be43-4bdd-4116-ae4a-8b1203de1045",
-  jwtToken: O.some("token"),
   name: "John Doe",
 });
 

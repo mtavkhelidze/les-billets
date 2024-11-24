@@ -45,6 +45,7 @@ const acquire = (url: string) =>
           return resume(Effect.succeed(client));
         };
         client.onerror = e => {
+          console.log(e);
           return resume(Effect.fail(new WsClientError({ message: "Cannot connect." })));
         };
         return Effect.sync(() => {
