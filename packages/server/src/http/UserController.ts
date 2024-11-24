@@ -31,17 +31,12 @@ export const UserController = HttpApiBuilder.group(
       return UserStorageService.pipe(
         Effect.andThen(storage => storage.findByCreds(payload)),
         Effect.flatMap(getJwtToken),
-        Effect.tapError(e => Effect.logError(e.toJSON())),
         Effect.mapError(e =>
           Match.value(e).pipe(
-            Match.tag(
-              "JwtInvalidSecret",
-              e => new InternalServerError(),
-            ),
-            Match.tag(
-              "QueryError",
-              e => new InternalServerError(),
-            ),
+            Match.tags({
+              JwtInvalidSecret: _ => new InternalServerError(),
+              QueryError: _ => new InternalServerError(),
+            }),
             Match.orElse(() => new InvalidCredentials()),
           ),
         ),

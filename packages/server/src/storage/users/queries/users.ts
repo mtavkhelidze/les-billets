@@ -29,7 +29,7 @@ export const findByCredsQuery = (sql: SqlClient.SqlClient) =>
               and password = ${password}
         `,
     }),
-    Effect.tapError(e => Effect.logError("findByCredsQuery", e)),
+    Effect.tapError(e => Effect.logError(e.toJSON())),
     Effect.catchAll(failWithQueryError),
     Effect.withLogSpan("findByCredsQuery"),
   );

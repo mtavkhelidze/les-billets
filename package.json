@@ -14,8 +14,7 @@
     "private": true,
     "scripts": {
         "client": "bun run --filter '@my/client' start",
-        "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
-        "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
+        "db:migrate": "cd migrations; mvn flyway:migrate",
         "server": "bun run --filter '@my/server' start",
         "typecheck": "bun run --filter '*' typecheck",
         "watch:client": "bun run --watch --fileter @my/client watch:start",
