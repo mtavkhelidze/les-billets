@@ -178,4 +178,4 @@ dist
 drizzle/db.sqlite
 
 *.txt
-
+data/*.*
