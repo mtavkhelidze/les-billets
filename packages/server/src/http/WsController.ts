@@ -14,7 +14,6 @@ export const WsController = HttpApiBuilder.group(
   LesBilletsAPI,
   "websocket",
   handlers => handlers.handle("connect", () => {
-    console.log("New connection");
     return Effect.all([CentralTelegraph, CableReader]).pipe(
       Effect.andThen(([teletype, reader]) => teletype.wire().pipe(
           Stream.map(JSON.stringify),

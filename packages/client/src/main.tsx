@@ -1,19 +1,19 @@
 import "./main.css";
 import { Container } from "@blocks/Container.tsx";
-import { GetTicketList } from "@my/domain/http";
-import { WsClientService, WsClientServiceLive } from "@services/WSClient.ts";
-import { Effect } from "effect";
+import { CableReaderLive } from "@services/CableWireService.ts";
+import { UserWireService } from "@services/UserWireService.ts";
+import { WsClientService } from "@services/WSClient.ts";
+import * as Effect from "effect/Effect";
 
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Routes } from "./Routes.tsx";
 
-Effect.runPromise(
-  Effect.scoped(WsClientService.pipe(
-      Effect.andThen(client => client.send(JSON.stringify(GetTicketList.make({})))),
-      Effect.provide(WsClientServiceLive),
-    ),
+UserWireService.runtime.runPromise(
+  CableReaderLive.pipe(
+    Effect.provide(WsClientService.live),
+    Effect.provide(UserWireService.live),
   ),
 );
 

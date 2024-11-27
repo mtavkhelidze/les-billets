@@ -1,11 +1,15 @@
-import { Exit, flow, Layer } from "effect";
+import { WithMessage } from "@my/domain/model/utility";
+import { flow } from "effect";
 import * as Chunk from "effect/Chunk";
+import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import WebSocket from "isomorphic-ws";
 import { wsUrl } from "../config.ts";
 
 const toChunk = flow(
@@ -14,78 +18,135 @@ const toChunk = flow(
   x => Chunk.fromIterable([x]),
 );
 
-const WsClientId: unique symbol =
+const WsClientServiceId: unique symbol =
   Symbol.for("@my/client/services/WsClient");
 
-type WsClientId = typeof WsClientId;
+type WsClientId = typeof WsClientServiceId;
 
-export class WsClientError
-  extends Schema.TaggedError<WsClientError>(WsClientId.toString()
-    + "/WsClientError")(
-    "WsClientError",
+export class CannotConnect
+  extends Schema.TaggedError<CannotConnect>(WsClientServiceId.toString()
+    + "/CannotConnect")(
+    "CannotConnect",
     {
       message: Schema.String,
     },
   ) {}
 
+export class NoConnection
+  extends Schema.TaggedError<NoConnection>(WsClientServiceId.toString()
+    + "/NoConnection")(
+    "NoConnection", WithMessage("No connection"),
+  ) {}
+
+export class CannotSend
+  extends Schema.TaggedError<CannotSend>(WsClientServiceId.toString()
+    + "/CannotSend")(
+    "CannotSend", {
+      message: Schema.String,
+    },
+  ) {}
+
+export const WsClientError = Schema.Union(
+  CannotConnect,
+  CannotSend,
+  NoConnection,
+);
+export type WsClientError = Schema.Schema.Type<typeof WsClientError>;
+
 interface WsClient {
-  readonly [WsClientId]: WsClientId;
-  readonly send: (data: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
+  readonly connectWith: (token: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
   readonly messages: Stream.Stream<string, WsClientError>;
+  readonly send: (data: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
+  readonly close: () => Effect.Effect<void, never, Scope.Scope>;
 }
 
-export const WsClientService =
-  Context.GenericTag<WsClientId, WsClient>(WsClientId.toString());
+class WsClientImpl implements WsClient {
+  private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
 
-const acquire = (url: string) =>
-  Effect.suspend(() => Effect.succeed(new WebSocket(url))).pipe(
-    Effect.flatMap(client =>
-      Effect.async<WebSocket, WsClientError>(resume => {
-        client.onopen = () => {
-          return resume(Effect.succeed(client));
-        };
-        client.onerror = e => {
-          console.log(e);
-          return resume(Effect.fail(new WsClientError({ message: "Cannot connect." })));
-        };
-        return Effect.sync(() => {
-          client.close();
-        });
-      }),
-    ),
-  );
+  constructor(private readonly url: string) {
+  }
 
-const use = (ws: WebSocket) =>
-  Effect.succeed(WsClientService.of({
-      [WsClientId]: WsClientId,
-      messages: Stream.async(emit => {
+  close = () =>
+    this.wsRef.pipe(
+      Ref.get,
+      Effect.map(
+        O.flatMap(O.liftThrowable(ws => ws.close())),
+      ),
+      Effect.flatMap(() => Ref.set(this.wsRef, O.none())),
+    );
+
+  send = (data: string) =>
+    this.wsRef.pipe(
+      Ref.get,
+      Effect.flatMap(
+        O.match({
+          onNone: () => Effect.fail(new NoConnection()),
+          onSome: ws => Effect.succeed(ws),
+        }),
+      ),
+      Effect.flatMap(ws =>
+        Effect.try({
+          try: () => ws.send(data),
+          catch: e => new CannotSend({
+            message: (
+              e as DOMException
+            ).message,
+          }),
+        }),
+      ),
+    );
+
+  connectWith = (token: string) =>
+    Effect.try({
+      // @misha: use URL()
+      try: () => new WebSocket(`${this.url}?token=${token}`),
+      catch: e => {
+        return new CannotConnect({ message: `Cannot connect: ${e}` });
+      },
+    }).pipe(
+      Effect.flatMap(
+        client =>
+          Effect.async<WebSocket, CannotConnect>(resume => {
+            client.onopen = () => {
+              return resume(Effect.succeed(client));
+            };
+            client.onerror = e => {
+              return resume(Effect.fail(new CannotConnect({ message: "Cannot connect." })));
+            };
+            return Effect.sync(() => { client.close(); });
+          }),
+      ),
+      Effect.flatMap(ws => this.wsRef.pipe(Ref.set(O.some(ws)))),
+    );
+
+  readonly messages = Stream.asyncEffect<string, WsClientError>(
+    emit => this.wsRef.pipe(
+      Ref.get,
+      Effect.flatMap(
+        O.match({
+          onNone: () => Effect.fail(new NoConnection()),
+          onSome: ws => Effect.succeed(ws),
+        }),
+      ),
+      Effect.map(ws => {
         ws.on(
           "message",
-          data => { void emit(Effect.succeed(toChunk(data))); },
+          data => {
+            void emit(Effect.succeed(toChunk(data)));
+          },
         );
       }),
-      send: data => Effect.try({
-        try: () => ws.send(data),
-        catch: e => new WsClientError({
-          message: (
-            e as DOMException
-          ).message,
-        }),
-      }),
-    }),
-  );
-
-const release = (
-  _: WebSocket,
-  exit: Exit.Exit<WsClient, WsClientError>,
-) => exit.pipe(Effect.catchAll(e => Effect.logDebug(e)));
-
-export const WsClientServiceLive = Layer.effect(
-  WsClientService,
-  wsUrl.pipe(
-    Effect.andThen(
-      url => Effect.acquireUseRelease(acquire(url), use, release),
     ),
-    Effect.scoped,
-  ),
-);
+  );
+}
+
+export class WsClientService extends Context.Tag(WsClientServiceId.toString())<
+  WsClientService, WsClient
+>() {
+  public static live = Layer.effect(
+    WsClientService,
+    wsUrl.pipe(
+      Effect.andThen(url => new WsClientImpl(url)),
+    ),
+  );
+}

@@ -9,12 +9,6 @@ import * as SRef from "effect/SubscriptionRef";
 
 import { useEffect, useState } from "react";
 
-const dummyUser = UserProfile.make({
-  email: "x@y.com",
-  id: "23f6be43-4bdd-4116-ae4a-8b1203de1045",
-  name: "John Doe",
-});
-
 class UserWireImpl {
   constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {}
 
@@ -23,6 +17,16 @@ class UserWireImpl {
    *
    * @note: this is exactly what SubscriptionRef is dooing under the hood.
    */
+  public get user() {
+    return SRef.get(this.wire);
+  }
+
+  public get token() {
+    return this.user.pipe(
+      Effect.flatMap(O.flatMap(u => u.jwtToken)),
+    );
+  }
+
   public get stream() {
     return this.wire.changes;
   }
@@ -72,16 +76,15 @@ export class UserWireService extends Context.Tag("UserWireService")<
   };
 }
 
+// @misha: there must ba a better place for his stuff
 export const useUserProfile = () => {
   const [profileState, setProfileState] = useState<O.Option<UserProfile>>(O.none());
 
-  const logoOutEffect =
+  const logoutEffect =
     UserWireService.pipe(
       Effect.andThen(service => service.set(O.none())),
     );
 
-  // @misha: this can be moved into a static method of UserWireService
-  // so the runtime is completely hidden from the user.
   const monitorProfileStream = pipe(
     UserWireService,
     Effect.andThen(wire => wire.stream),
@@ -90,13 +93,12 @@ export const useUserProfile = () => {
         profile => Effect.succeed(void setProfileState(profile)),
       ),
     ),
-    Effect.forever,
   );
 
   const logout = () => {
     UserWireService
       .runtime
-      .runPromise(logoOutEffect)
+      .runPromise(logoutEffect)
       .then(constVoid)
       .catch(constVoid);
   };

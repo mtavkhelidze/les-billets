@@ -21,6 +21,10 @@ export const UserLogin = () => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: resolver(FormData),
+    defaultValues: {
+      email: "user@one.com",
+      password: "pass!Un",
+    },
   });
   const [_, navigate] = useLocation();
   const { loading, error, login, resetError } = useUserLogin();
@@ -34,10 +38,10 @@ export const UserLogin = () => {
       <h1 className="m-2 text-xl text-orange-600 font-bold">Login</h1>
       <h1 className="m-2 text-xs md:w-56 w-full font-extralight">
         <code>
-          use:
-          <br />| user@one.com:pass!Un
-          <br />| user@two.com:pass@Deux
-          <br />| user@three.com:pass#Trois
+          try one of those:
+          <br />| user@one.com : pass!Un
+          <br />| user@two.com : pass@Deux
+          <br />| user@three.com : pass#Trois
         </code>
       </h1>
       <form
@@ -53,16 +57,23 @@ export const UserLogin = () => {
         }
         className="flex flex-col w-4/5 gap-3"
       >
+        <input
+          type="text"
+          name="hidden"
+          autoComplete="username email"
+          className="hidden"
+        />
         <LabelledInput
           required
           error={errors.email?.message}
-          autoComplete="EMAIL"
+          autoComplete="username email"
           disabled={loading}
           label="Email:"
           placeholder="name@example.com"
           {...register("email")} />
         <LabelledInput
           required
+          password
           error={errors.password?.message}
           autoComplete="current-password"
           disabled={loading}

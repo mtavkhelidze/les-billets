@@ -5,6 +5,9 @@
             "@blocks/*": [
                 "src/blocks/*"
             ],
+            "@daemons": [
+                "src/daemons/index.ts"
+            ],
             "@lib/*": [
                 "src/lib/*"
             ],

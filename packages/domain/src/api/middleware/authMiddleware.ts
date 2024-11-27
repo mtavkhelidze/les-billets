@@ -12,7 +12,10 @@ export class AuthMiddleware extends HttpApiMiddleware.Tag<AuthMiddleware>()(
     failure: Unauthorized,
     provides: AuthUserId,
     security: {
-      deToken: HttpApiSecurity.bearer,
+      deToken: HttpApiSecurity.apiKey({
+        in: "query",
+        key: "token",
+      }),
     },
   },
 ) {}
