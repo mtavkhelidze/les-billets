@@ -6,13 +6,7 @@ import { constVoid } from "effect/Function";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import { useEffect, useState } from "react";
-import { stateExecute, stateRuntime } from "./runtime.ts";
-
-const setProfile = (profile: O.Option<UserProfile>) => {
-  return UserProfileService.pipe(
-    Effect.andThen(s => s.set(profile)),
-  );
-};
+import { execute } from "./runtime.ts";
 
 export const useUserProfile = () => {
   const [error, setError] = useState<O.Option<Error>>(O.none());
@@ -50,7 +44,7 @@ export const useUserProfile = () => {
       Effect.andThen(profile =>
         UserProfileService.set(O.some(profile)),
       ),
-      Effect.zipLeft(Effect.logInfo("Logged in.")),
+      Effect.zipLeft(Effect.logDebug("Logged in.")),
       Effect.tapBoth({
         onSuccess: _ => Effect.void,
         onFailure: Effect.succeed,
@@ -65,7 +59,7 @@ export const useUserProfile = () => {
 
   const login = (email: string, password: string): Promise<void> => {
     begin();
-    return stateRuntime.runPromise(
+    return execute(
       loginEffect(email, password).pipe(
         Effect.provide(UserAuthService.live),
       ),
@@ -78,18 +72,13 @@ export const useUserProfile = () => {
   };
 
   const logout = () => {
-    stateExecute(
-      UserProfileService.set(O.none()),
-    )
+    execute(UserProfileService.set(O.none()))
       .then(constVoid)
       .catch(constVoid);
   };
 
   useEffect(() => {
-    stateRuntime
-      .runPromise(
-        monitorProfileStream,
-      )
+    execute(monitorProfileStream)
       .catch(console.error)
       .then(constVoid);
   }, []);

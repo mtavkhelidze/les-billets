@@ -13,7 +13,7 @@ export const wsUrl = apiBase.pipe(
 );
 
 export const logLevel = Config.logLevel("LOG_LEVEL").pipe(
-  Config.withDefault(LogLevel.All),
+  Config.withDefault(process.env.NODE_ENV === "production" ? LogLevel.Error : LogLevel.All),
 );
 
 type DotEnvConfig = {
