@@ -31,7 +31,7 @@ export const LabelledInput =
         ? (
           <input
             autoComplete={autoComplete}
-            className="resize-none flex-1"
+            className="resize-none flex-1  focus:outline-orange-400"
             disabled={disabled}
             placeholder={placeholder}
             ref={ref as ForwardedRef<HTMLInputElement>}
@@ -43,7 +43,7 @@ export const LabelledInput =
         : (
           <textarea
             autoComplete={autoComplete}
-            className="resize-none flex-1"
+            className="resize-none flex-1 focus:outline-orange-400"
             disabled={disabled}
             placeholder={placeholder}
             ref={ref as ForwardedRef<HTMLTextAreaElement>}

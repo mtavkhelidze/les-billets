@@ -1,7 +1,7 @@
 import { Button } from "@blocks/button";
 import { LabelledInput } from "@blocks/labelled-input";
-import { useUserLogin } from "@blocks/user-login/UserLogin.hooks.ts";
 import { resolver } from "@lib/form.ts";
+import { useUserProfile } from "@state";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { useForm } from "react-hook-form";
@@ -27,11 +27,13 @@ export const UserLogin = () => {
     },
   });
   const [_, navigate] = useLocation();
-  const { loading, error, login, resetError } = useUserLogin();
+  const { loading, error, login, resetError } = useUserProfile();
 
   const onSubmit = (data: FormData) => {
     void login(data.email, data.password)
-      .then(() => navigate("/tickets", { replace: true }));
+      .then(() => {
+        navigate("/tickets", { replace: true })
+      });
   };
   return (
     <div className="flex flex-col w-full justify-center items-center gap-4">
@@ -78,7 +80,7 @@ export const UserLogin = () => {
           autoComplete="current-password"
           disabled={loading}
           label="Password:"
-          placeholder="name@example.com"
+          placeholder="1234567"
           {...register("password")} />
         <div className="flex flex-row justify-end gap-2 mr-4 mt-2">
           <Button

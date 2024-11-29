@@ -3,7 +3,6 @@ import type { InvalidCredentials } from "@my/domain/http/errors";
 import { UserProfile } from "@my/domain/model";
 import { ApiClient } from "@services/LesBilletsApiClient.ts";
 import { identity } from "effect";
-import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
@@ -41,12 +40,12 @@ class UserAuthClientImpl implements UserAuthClient {
   constructor(private client: ApiClient) {}
 }
 
-export class UserAuthService extends Context.Tag("UserAuthService")<
+export class UserAuthService extends Effect.Tag("UserAuthService")<
   UserAuthService,
   UserAuthClient
 >() {
   public static live = Layer.succeed(
-    UserAuthService,
+    this,
     new UserAuthClientImpl(ApiClient),
   );
 }

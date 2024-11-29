@@ -13,6 +13,9 @@
             ],
             "@services/*": [
                 "src/services/*"
+            ],
+            "@state": [
+                "src/state/index.ts"
             ]
         }
     },

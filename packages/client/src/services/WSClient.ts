@@ -60,7 +60,7 @@ interface WsClient {
   readonly close: () => Effect.Effect<void, never, Scope.Scope>;
 }
 
-class WsClientImpl implements WsClient {
+class WsClientServiceImpl implements WsClient {
   private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
 
   constructor(private readonly url: string) {
@@ -146,7 +146,7 @@ export class WsClientService extends Context.Tag(WsClientServiceId.toString())<
   public static live = Layer.effect(
     WsClientService,
     wsUrl.pipe(
-      Effect.andThen(url => new WsClientImpl(url)),
+      Effect.andThen(url => new WsClientServiceImpl(url)),
     ),
   );
 }

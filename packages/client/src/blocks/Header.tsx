@@ -1,4 +1,4 @@
-import { useUserProfile } from "@services/UserWireService.ts";
+import { useUserProfile } from "@state";
 import * as O from "effect/Option";
 import { Link } from "wouter";
 import Logo from "../images/les-billets-logo.png";

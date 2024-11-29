@@ -1,3 +1,4 @@
+import { LogLevel } from "effect";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 
@@ -11,7 +12,9 @@ export const wsUrl = apiBase.pipe(
   Config.map(url => `${url}/ws`),
 );
 
-export const logLevel = Config.logLevel("LOG_LEVEL");
+export const logLevel = Config.logLevel("LOG_LEVEL").pipe(
+  Config.withDefault(LogLevel.All),
+);
 
 type DotEnvConfig = {
   env: {
