@@ -20,10 +20,14 @@ export class UserProfileServiceImpl implements UserProfileStore {
     console.log("once");
   }
 
-  public user = () => pipe(
-    this.wire,
-    SRef.get,
-  );
+  public set(profile: O.Option<UserProfile>) {
+    return pipe(
+      this.wire,
+      SRef.set(profile),
+    );
+  }
+
+  public stream = () => this.wire.changes;
 
   public token() {
     return this.user().pipe(
@@ -31,14 +35,10 @@ export class UserProfileServiceImpl implements UserProfileStore {
     );
   }
 
-  public stream = () => this.wire.changes;
-
-  public set(profile: O.Option<UserProfile>) {
-    return pipe(
-      this.wire,
-      SRef.set(profile),
-    );
-  }
+  public user = () => pipe(
+    this.wire,
+    SRef.get,
+  );
 }
 
 export class UserProfileService extends Context.Tag("UserProfileService")<

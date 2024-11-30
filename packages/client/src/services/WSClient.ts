@@ -1,6 +1,7 @@
 import { WithMessage } from "@my/domain/model/utility";
 import { flow } from "effect";
 import * as Chunk from "effect/Chunk";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -8,7 +9,6 @@ import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
-import * as Context from "effect/Context";
 import { wsUrl } from "../config.ts";
 
 const toChunk = flow(
@@ -60,11 +60,6 @@ interface WsClient {
 }
 
 class WsClientServiceImpl implements WsClient {
-  private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
-
-  constructor(private readonly url: string) {
-  }
-
   close = () =>
     this.wsRef.pipe(
       Ref.get,
@@ -73,28 +68,6 @@ class WsClientServiceImpl implements WsClient {
       ),
       Effect.flatMap(() => Ref.set(this.wsRef, O.none())),
     );
-
-  send = (data: string) =>
-    this.wsRef.pipe(
-      Ref.get,
-      Effect.flatMap(
-        O.match({
-          onNone: () => Effect.fail(new NoConnection()),
-          onSome: ws => Effect.succeed(ws),
-        }),
-      ),
-      Effect.flatMap(ws =>
-        Effect.try({
-          try: () => ws.send(data),
-          catch: e => new CannotSend({
-            message: (
-              e as DOMException
-            ).message,
-          }),
-        }),
-      ),
-    );
-
   connectWith = (token: string) =>
     Effect.try({
       // @misha: use URL()
@@ -117,7 +90,7 @@ class WsClientServiceImpl implements WsClient {
       ),
       Effect.flatMap(ws => this.wsRef.pipe(Ref.set(O.some(ws)))),
     );
-
+  private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
   readonly messages = Stream.asyncEffect<string, WsClientError>(
     emit => this.wsRef.pipe(
       Ref.get,
@@ -137,6 +110,29 @@ class WsClientServiceImpl implements WsClient {
       }),
     ),
   );
+  send = (data: string) =>
+    this.wsRef.pipe(
+      Ref.get,
+      Effect.flatMap(
+        O.match({
+          onNone: () => Effect.fail(new NoConnection()),
+          onSome: ws => Effect.succeed(ws),
+        }),
+      ),
+      Effect.flatMap(ws =>
+        Effect.try({
+          try: () => ws.send(data),
+          catch: e => new CannotSend({
+            message: (
+              e as DOMException
+            ).message,
+          }),
+        }),
+      ),
+    );
+
+  constructor(private readonly url: string) {
+  }
 }
 
 export class WsClientService extends Context.Tag(WsClientServiceId.toString())<

@@ -1,7 +1,7 @@
-import { LogLevel, ManagedRuntime } from "effect";
+import { ManagedRuntime } from "effect";
 import * as Effect from "effect/Effect";
 import * as Logger from "effect/Logger";
-import { logLevel, ViteConfigProvider } from "../config.ts";
+import { logLevel } from "../config.ts";
 
 export const appExecute =
   <R>(tag: string, mr: ManagedRuntime.ManagedRuntime<R, never>) =>

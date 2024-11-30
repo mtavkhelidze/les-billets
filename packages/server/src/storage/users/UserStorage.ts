@@ -7,10 +7,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import {
-  UserNotFound,
-  UserStorageError,
-} from "./errors.ts";
+import { UserNotFound, UserStorageError } from "./errors.ts";
 import { findByCredsQuery } from "./queries/users.ts";
 
 interface UserStorageService {

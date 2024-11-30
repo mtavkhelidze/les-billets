@@ -1,6 +1,7 @@
 
 .labelled-input-group {
     @apply relative pb-3;
+
     #error {
         @apply absolute -bottom-3 left-0 right-0 mx-4 text-red-600 text-xs text-right h-5;
     }

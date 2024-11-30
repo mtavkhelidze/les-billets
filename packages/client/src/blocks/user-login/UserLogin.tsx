@@ -32,7 +32,7 @@ export const UserLogin = () => {
   const onSubmit = (data: FormData) => {
     void login(data.email, data.password)
       .then(() => {
-        navigate("/tickets", { replace: true })
+        navigate("/tickets", { replace: true });
       });
   };
   return (

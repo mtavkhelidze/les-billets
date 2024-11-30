@@ -1,6 +1,6 @@
 import { HttpApiBuilder } from "@effect/platform";
 import { LesBilletsAPI } from "@my/domain/api";
-import { DataBaseDriver, TicketStorage } from "@storage";
+import { TicketStorage } from "@storage";
 import * as Layer from "effect/Layer";
 import { AuthMiddlewareLive } from "./middleware/AuthMiddlewareLive.ts";
 import { TicketController } from "./TicketsController.ts";

@@ -1,5 +1,6 @@
 .editor-form {
     @apply flex flex-col w-3/4 gap-4 mt-4;
+
     .status-group {
         @apply mx-4 flex gap-2 flex-row flex items-center;
 

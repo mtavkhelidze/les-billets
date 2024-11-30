@@ -59,4 +59,4 @@ export class CableReaderDaemon extends Context.Tag("CableReaderDaemon")<
     CableReaderDaemon,
     new CableReaderDaemonImpl(),
   );
-};
+}
