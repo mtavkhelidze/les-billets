@@ -15,13 +15,25 @@ const extractToken = (profile: O.Option<UserProfile>) => pipe(
   Effect.flatMap(p => p.jwtToken),
 );
 
+const reader = WsClientService.pipe(
+  Effect.andThen(client => client.messages.pipe(
+      Stream.runForEach(Console.log),
+    ),
+  ),
+);
 const runner = flow(
   extractToken,
   Effect.flatMap(token => pipe(
       WsClientService,
       Effect.andThen(client =>
         client.connectWith(token).pipe(
-          Effect.andThen(client.send(GetTicketList.make({}).toString())),
+          Effect.andThen(
+            client.send(
+              JSON.stringify(
+                GetTicketList.make({}),
+              ),
+            ),
+          ),
         ),
       ),
       Effect.tap(Effect.log(`Connected to websocket.`)),
@@ -32,16 +44,16 @@ const runner = flow(
       Effect.andThen(ws => ws.close()),
     ),
   ),
-  Effect.catchAll(e => Effect.logError(`CableReader: ${e}`).pipe(
-    Effect.zipRight(Effect.void),
-  )),
+  Effect.catchAll(e => Effect.logError(`CableReader: ${e}`)),
+  Effect.ignore,
+  Effect.scoped,
 );
 
 class CableReaderDaemonImpl implements CableReader {
   public run = () => {
     return UserProfileStoreService.pipe(
       Effect.andThen(store => store.stream().pipe(
-        Stream.runForEach(Console.log),
+        Stream.runForEach(runner),
       )),
     );
   };

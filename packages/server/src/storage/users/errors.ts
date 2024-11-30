@@ -1,10 +1,8 @@
 import { ErrorShape } from "@my/domain/model/utility";
 import * as Schema from "effect/Schema";
 
-const ModuleId = Symbol.for("@my/server/storage/users");
-
 export class QueryError extends Schema.TaggedError<QueryError>(
-  Symbol.for("@my/server/storage/users/queryError").toString(),
+  Symbol.for("@my/server/storage/users/QueryError").toString(),
 )("QueryError", ErrorShape) {}
 
 export class UserNotFound extends Schema.TaggedError<UserNotFound>(

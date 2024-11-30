@@ -2,12 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-input, select {
-    @apply border-gray-400 border-2;
-    box-shadow: none !important;
-}
+@layer base {
+    input, textarea, select {
+        @apply border-gray-400 focus:outline-orange-400;
+        @apply resize-none overflow-hidden;
+    }
 
-option {
-    @apply bg-white;
-    box-shadow: none !important;
+    option {
+        @apply bg-white;
+        box-shadow: none !important;
+    }
 }

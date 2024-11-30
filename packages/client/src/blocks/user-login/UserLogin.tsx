@@ -36,7 +36,7 @@ export const UserLogin = () => {
       });
   };
   return (
-    <div className="flex flex-col w-full justify-center items-center gap-4">
+    <div className="flex flex-col w-full md:w-3/4 justify-center items-center gap-4">
       <h1 className="m-2 text-xl text-orange-600 font-bold">Login</h1>
       <h1 className="m-2 text-xs md:w-56 w-full font-extralight">
         <code>

@@ -1,13 +1,13 @@
 
 .labelled-input-group {
-    @apply relative pb-3;
+    @apply relative w-full flex justify-end flex-col;
 
     #error {
-        @apply absolute -bottom-3 left-0 right-0 mx-4 text-red-600 text-xs text-right h-5;
+        @apply absolute -bottom-3 left-0 right-0 text-red-600 text-xs text-right h-5;
     }
 
     .input-group {
-        @apply mx-4 flex gap-2 flex-row flex items-start;
+        @apply gap-2 mb-2 flex-row flex flex-grow;
 
         &.disabled {
             label {
@@ -24,7 +24,7 @@
         }
 
         & > textarea, & > input {
-            @apply flex-1 rounded-lg border border-gray-400 px-2 py-1;
+            @apply  w-full rounded border border-gray-400 px-1 py-0.5;
         }
     }
 }

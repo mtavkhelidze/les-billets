@@ -64,7 +64,7 @@ class WsClientServiceImpl implements WsClient {
     this.wsRef.pipe(
       Ref.get,
       Effect.map(
-        O.flatMap(O.liftThrowable(ws => ws.close())),
+        O.flatMap(O.liftThrowable(ws => ws.terminate())),
       ),
       Effect.flatMap(() => Ref.set(this.wsRef, O.none())),
     );

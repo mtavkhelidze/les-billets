@@ -24,9 +24,11 @@ export const findByCredsQuery = (sql: SqlClient.SqlClient) =>
       execute:
         ({ email, password }) => sql`
             select *
-            from users
-            where email = ${email}
-              and password = ${password}
+            from
+                users
+            where
+                email = ${email}
+                and password = ${password}
         `,
     }),
     Effect.tapError(e => Effect.logError(e.toJSON())),

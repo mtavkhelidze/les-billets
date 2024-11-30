@@ -1,6 +1,5 @@
 import * as S from "effect/Schema";
-import { Ticket } from "../model";
-import { UserID } from "../model/SystemUser.ts";
+import { Ticket, UserID } from "../model";
 import { TicketStatus } from "../model/Ticket.ts";
 
 // region ServerCable
