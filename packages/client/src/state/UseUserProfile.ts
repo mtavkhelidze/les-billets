@@ -33,16 +33,19 @@ export const useUserProfile = () => {
   // region Effects
 
   const monitorProfileStream =
-    UserProfileService.stream().pipe(
-      Effect.andThen(
-        Stream.runForEach(setUserProfile),
+    UserProfileService.pipe(
+      Effect.andThen(store => store.stream().pipe(
+          Stream.runForEach(setUserProfile),
+        ),
       ),
     );
 
   const loginEffect = (email: string, password: string) =>
-    UserAuthService.login(email, password).pipe(
-      Effect.andThen(profile =>
-        UserProfileService.set(O.some(profile)),
+    UserAuthService.pipe(
+      Effect.andThen(auth => auth.login(email, password)),
+      Effect.flatMap(profile => UserProfileService.pipe(
+          Effect.andThen(store => store.set(O.some(profile))),
+        ),
       ),
       Effect.zipLeft(Effect.logDebug("Logged in.")),
       Effect.tapBoth({
@@ -72,7 +75,13 @@ export const useUserProfile = () => {
   };
 
   const logout = () => {
-    execute(UserProfileService.set(O.none()))
+    execute(
+      UserProfileService.pipe(
+        Effect.andThen(
+          service => service.set(O.none()),
+        ),
+      ),
+    )
       .then(constVoid)
       .catch(constVoid);
   };

@@ -1,8 +1,6 @@
 import { WithMessage } from "@my/domain/model/utility";
 import { flow } from "effect";
 import * as Chunk from "effect/Chunk";
-import * as Console from "effect/Console";
-import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -10,6 +8,7 @@ import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as Stream from "effect/Stream";
+import * as Context from "effect/Context";
 import { wsUrl } from "../config.ts";
 
 const toChunk = flow(

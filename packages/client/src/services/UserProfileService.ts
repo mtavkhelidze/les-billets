@@ -1,6 +1,7 @@
 import { UserProfile } from "@my/domain/model";
-import { Context, pipe } from "effect";
+import { pipe } from "effect";
 import type { NoSuchElementException } from "effect/Cause";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -15,7 +16,9 @@ interface UserProfileStore {
 }
 
 export class UserProfileServiceImpl implements UserProfileStore {
-  constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {}
+  constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {
+    console.log("once");
+  }
 
   public user = () => pipe(
     this.wire,
@@ -38,9 +41,9 @@ export class UserProfileServiceImpl implements UserProfileStore {
   }
 }
 
-export class UserProfileService extends Effect.Tag("UserProfileService")<
+export class UserProfileService extends Context.Tag("UserProfileService")<
   UserProfileService,
-  UserProfileServiceImpl
+  UserProfileStore
 >() {
   public static live = Layer.effect(
     UserProfileService,
