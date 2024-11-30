@@ -1,6 +1,6 @@
 import { GetTicketList } from "@my/domain/http";
 import { UserProfile } from "@my/domain/model";
-import { UserProfileService } from "@services/UserProfileService.ts";
+import { UserProfileStoreService } from "@services/UserProfileStoreService.ts";
 import { WsClientService } from "@services/WSClient.ts";
 import { Console, flow, pipe } from "effect";
 import * as ConfigError from "effect/ConfigError";
@@ -39,7 +39,7 @@ const runner = flow(
 
 class CableReaderDaemonImpl implements CableReader {
   public run = () => {
-    return UserProfileService.pipe(
+    return UserProfileStoreService.pipe(
       Effect.andThen(store => store.stream().pipe(
         Stream.runForEach(Console.log),
       )),
@@ -48,7 +48,7 @@ class CableReaderDaemonImpl implements CableReader {
 }
 
 interface CableReader {
-  readonly run: () => Effect.Effect<void, ConfigError.ConfigError, UserProfileService | WsClientService>;
+  readonly run: () => Effect.Effect<void, ConfigError.ConfigError, UserProfileStoreService | WsClientService>;
 }
 
 export class CableReaderDaemon extends Context.Tag("CableReaderDaemon")<

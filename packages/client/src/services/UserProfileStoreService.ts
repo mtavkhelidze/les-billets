@@ -17,7 +17,6 @@ interface UserProfileStore {
 
 export class UserProfileServiceImpl implements UserProfileStore {
   constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {
-    console.log("once");
   }
 
   public set(profile: O.Option<UserProfile>) {
@@ -41,12 +40,13 @@ export class UserProfileServiceImpl implements UserProfileStore {
   );
 }
 
-export class UserProfileService extends Context.Tag("UserProfileService")<
-  UserProfileService,
+export class UserProfileStoreService extends Context.Tag(
+  "UserProfileStoreService")<
+  UserProfileStoreService,
   UserProfileStore
 >() {
   public static live = Layer.effect(
-    UserProfileService,
+    UserProfileStoreService,
     SRef.make<O.Option<UserProfile>>(O.none())
       .pipe(
         Effect.map(ref => new UserProfileServiceImpl(ref)),

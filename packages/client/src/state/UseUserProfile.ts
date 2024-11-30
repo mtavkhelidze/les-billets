@@ -1,12 +1,12 @@
 import { UserProfile } from "@my/domain/model";
 import { UserAuthService } from "@services/UserAuthService.ts";
-import { UserProfileService } from "@services/UserProfileService.ts";
+import { UserProfileStoreService } from "@services/UserProfileStoreService.ts";
 import * as Effect from "effect/Effect";
 import { constVoid } from "effect/Function";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import { useEffect, useState } from "react";
-import { execute } from "./runtime.ts";
+import { StateRuntime } from "./runtime.ts";
 
 export const useUserProfile = () => {
   const [error, setError] = useState<O.Option<Error>>(O.none());
@@ -32,8 +32,8 @@ export const useUserProfile = () => {
 
   // region Effects
 
-  const monitorProfileStream =
-    UserProfileService.pipe(
+  const watchProfileStream =
+    UserProfileStoreService.pipe(
       Effect.andThen(store => store.stream().pipe(
           Stream.runForEach(setUserProfile),
         ),
@@ -43,7 +43,7 @@ export const useUserProfile = () => {
   const loginEffect = (email: string, password: string) =>
     UserAuthService.pipe(
       Effect.andThen(auth => auth.login(email, password)),
-      Effect.flatMap(profile => UserProfileService.pipe(
+      Effect.flatMap(profile => UserProfileStoreService.pipe(
           Effect.andThen(store => store.set(O.some(profile))),
         ),
       ),
@@ -62,7 +62,7 @@ export const useUserProfile = () => {
 
   const login = (email: string, password: string): Promise<void> => {
     begin();
-    return execute(
+    return StateRuntime.execute(
       loginEffect(email, password).pipe(
         Effect.provide(UserAuthService.live),
       ),
@@ -75,10 +75,11 @@ export const useUserProfile = () => {
   };
 
   const logout = () => {
-    execute(
-      UserProfileService.pipe(
-        Effect.andThen(
-          service => service.set(O.none()),
+    StateRuntime.execute(
+      UserProfileStoreService.pipe(
+        Effect.andThen(store => store.set(O.none()).pipe(
+            Effect.zipLeft(Effect.logDebug("Logged out.")),
+          ),
         ),
       ),
     )
@@ -87,7 +88,7 @@ export const useUserProfile = () => {
   };
 
   useEffect(() => {
-    execute(monitorProfileStream)
+    StateRuntime.execute(watchProfileStream)
       .catch(console.error)
       .then(constVoid);
   }, []);
