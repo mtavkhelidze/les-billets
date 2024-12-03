@@ -5,7 +5,7 @@ export class UserProfile extends SystemUser.extend<UserProfile>(
   "UserProfile",
 )(
   {
-    jwtToken: S.String.pipe(S.Option),
+    jwtToken: S.String,
   }) {
   // @misha: directly from Scala
   public copy = (obj: UserProfile): UserProfile =>

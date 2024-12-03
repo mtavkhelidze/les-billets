@@ -11,7 +11,6 @@ import * as SRef from "effect/SubscriptionRef";
 interface UserProfileStore {
   readonly set: (profile: O.Option<UserProfile>) => Effect.Effect<void>;
   readonly stream: () => Stream.Stream<O.Option<UserProfile>>;
-  readonly token: () => Effect.Effect<string, NoSuchElementException>;
   readonly user: () => Effect.Effect<O.Option<UserProfile>>;
 }
 
@@ -27,12 +26,6 @@ export class UserProfileServiceImpl implements UserProfileStore {
   }
 
   public stream = () => this.wire.changes;
-
-  public token() {
-    return this.user().pipe(
-      Effect.flatMap(O.flatMap(u => u.jwtToken)),
-    );
-  }
 
   public user = () => pipe(
     this.wire,

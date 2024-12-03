@@ -12,7 +12,7 @@ import * as Stream from "effect/Stream";
 
 const extractToken = (profile: O.Option<UserProfile>) => pipe(
   profile,
-  Effect.flatMap(p => p.jwtToken),
+  Effect.andThen(p => p.jwtToken),
 );
 
 const reader = WsClientService.pipe(
@@ -48,6 +48,11 @@ const runner = flow(
   Effect.ignore,
   Effect.scoped,
 );
+
+const onProfile = (profile: O.Option<UserProfile>) =>
+  WsClientService.pipe(
+    Effect.andThen(client => client),
+  );
 
 class CableReaderDaemonImpl implements CableReader {
   public run = () => {

@@ -11,14 +11,13 @@ import { pipe } from "effect";
 
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
-import * as O from "effect/Option";
 
 const getJwtToken = (user: SystemUser) => pipe(
   JwtBackend,
   Effect.flatMap(JwtBackend => JwtBackend.create(user)),
-  Effect.map(token => UserProfile.make({
+  Effect.map(jwtToken => UserProfile.make({
     ...user,
-    jwtToken: O.some(token),
+    jwtToken,
   })),
   Effect.tapErrorTag("JwtInvalidSecret", Effect.logError),
 );
