@@ -56,17 +56,23 @@ interface WsClient {
   readonly connectWith: (token: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
   readonly messages: Stream.Stream<string, WsClientError>;
   readonly send: (data: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
-  readonly close: () => Effect.Effect<void, never, Scope.Scope>;
+  readonly cleanup: () => Effect.Effect<void, never, Scope.Scope>;
 }
 
 class WsClientServiceImpl implements WsClient {
-  close = () =>
+  cleanup = () =>
     this.wsRef.pipe(
       Ref.get,
       Effect.map(
-        O.flatMap(O.liftThrowable(ws => ws.terminate())),
+        O.flatMap(
+          O.liftThrowable(ws => {
+            ws.close();
+            ws.terminate();
+          }),
+        ),
       ),
       Effect.flatMap(() => Ref.set(this.wsRef, O.none())),
+      Effect.andThen(() => Effect.logDebug("Disconnected")),
     );
   connectWith = (token: string) =>
     Effect.try({

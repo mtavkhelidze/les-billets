@@ -20,7 +20,7 @@ export const WsController = HttpApiBuilder.group(
           Stream.pipeThroughChannel(HttpServerRequest.upgradeChannel()),
           Stream.decodeText("utf-8"),
           Stream.flatMap(clientCableFromJson),
-          Stream.runForEach(reader.react),
+          Stream.runForEach(reader.process),
           Effect.annotateLogs("ws", "recv"),
           Effect.catchAll(e => Effect.logError(e)),
           Effect.as(HttpServerResponse.setStatus(101, "Switching Protocols")),

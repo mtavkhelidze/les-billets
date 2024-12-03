@@ -4,7 +4,7 @@ import { UserLogin } from "@blocks/user-login";
 import { useUserProfile } from "@state";
 
 import React, { type PropsWithChildren } from "react";
-import { Route, Switch } from "wouter";
+import { Redirect, Route, Switch } from "wouter";
 
 type Props = PropsWithChildren & {
   with: () => boolean;
@@ -18,7 +18,7 @@ export const Routes = () => {
 
   return (
     <Switch>
-      <Route path="/"><UserLogin /></Route>
+      <Route path="/"><Redirect to="/tickets" /></Route>
       <Route path="/tickets">
         <Protected with={() => isLoggedIn}>
           <TicketsTable tickets={[]} />

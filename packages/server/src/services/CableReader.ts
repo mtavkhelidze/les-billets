@@ -10,7 +10,7 @@ const CableReaderId: unique symbol =
 type CableReaderId = typeof CableReaderId;
 
 export interface CableReader {
-  react: (cable: ClientCable) => Effect.Effect<void>;
+  process: (cable: ClientCable) => Effect.Effect<void>;
 }
 
 export const CableReader = Context.GenericTag<CableReaderId, CableReader>(
@@ -19,7 +19,7 @@ export const CableReader = Context.GenericTag<CableReaderId, CableReader>(
 
 export const CableReaderLive =
   Layer.succeed(CableReader, CableReader.of({
-      react: (cable: ClientCable) => Console.log(`here: ${cable}`).pipe(
+      process: (cable: ClientCable) => Console.log(`here: ${cable}`).pipe(
         Effect.annotateLogs(CableReaderId.toString(), "ClientCable"),
       ),
     }),
