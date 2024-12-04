@@ -1,6 +1,5 @@
 import { Ticket } from "@my/domain/model";
 import * as DateTime from "effect/DateTime";
-import * as O from "effect/Option";
 import React from "react";
 
 import "./TableRow.css";
@@ -32,13 +31,8 @@ export const TicketRow: React.FC<Props> = ({ ticket }) => {
         {title}
       </th>
       <td>{description}</td>
-      <td>{utcToDateString(createdAt)}</td>
-      <td>{
-        updatedAt.pipe(
-          O.map(utcToDateString),
-          O.getOrNull,
-        )
-      }</td>
+      <td>{createdAt.toString()}</td>
+      <td>{updatedAt.toString()}</td>
       <td>{status}</td>
     </tr>
   );

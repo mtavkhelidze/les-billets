@@ -16,7 +16,7 @@ const extractToken = (profile: O.Option<UserProfile>) => pipe(
 );
 
 const reader = WsClientService.pipe(
-  Effect.andThen(client => client.messages.pipe(
+  Effect.andThen(client => client.messages().pipe(
       Stream.runForEach(Console.log),
     ),
   ),

@@ -15,14 +15,14 @@ export class UserAuthError extends Schema.TaggedError<UserAuthError>()(
   },
 ) {}
 
-interface UserAuthClient {
+interface UserAuth {
   login: (
     email: string,
     password: string,
   ) => Effect.Effect<UserProfile, InvalidCredentials | UserAuthError>;
 }
 
-class UserAuthClientImpl implements UserAuthClient {
+class UserAuthClientImpl implements UserAuth {
   public login = (email: string, password: string) =>
     this.client.pipe(
       Effect.andThen(api =>
@@ -42,10 +42,10 @@ class UserAuthClientImpl implements UserAuthClient {
 
 export class UserAuthService extends Effect.Tag("UserAuthService")<
   UserAuthService,
-  UserAuthClient
+  UserAuth
 >() {
   public static live = Layer.succeed(
-    this,
+    UserAuthService,
     new UserAuthClientImpl(ApiClient),
   );
 }

@@ -1,13 +1,13 @@
-import * as S from "effect/Schema";
+import * as Schema from "effect/Schema";
 import { UserProfile } from "../model";
 
-export class LoginRequest extends S.TaggedClass<LoginRequest>(
+export class LoginRequest extends Schema.TaggedClass<LoginRequest>(
   "@my/domain/user/LoginRequest",
 )(
   "LoginRequest",
   {
-    email: S.NonEmptyString,
-    password: S.NonEmptyString,
+    email: Schema.NonEmptyString,
+    password: Schema.NonEmptyString,
   },
 ) {}
 

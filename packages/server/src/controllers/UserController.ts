@@ -25,19 +25,20 @@ const getJwtToken = (user: SystemUser) => pipe(
 export const UserController = HttpApiBuilder.group(
   LesBilletsAPI,
   "user",
-  handlers => handlers
-    .handle("login", ({ payload }) => {
-      return UserStorageService.pipe(
-        Effect.andThen(storage => storage.findByCreds(payload)),
-        Effect.flatMap(getJwtToken),
-        Effect.mapError(e =>
-          Match.value(e).pipe(
-            Match.tags({
-              JwtInvalidSecret: _ => new InternalServerError(),
-            }),
-            Match.orElse(() => new InvalidCredentials()),
+  handlers =>
+    handlers
+      .handle("login", ({ payload }) => {
+        return UserStorageService.pipe(
+          Effect.andThen(storage => storage.findByCreds(payload)),
+          Effect.flatMap(getJwtToken),
+          Effect.mapError(e =>
+            Match.value(e).pipe(
+              Match.tags({
+                JwtInvalidSecret: _ => new InternalServerError(),
+              }),
+              Match.orElse(() => new InvalidCredentials()),
+            ),
           ),
-        ),
-      );
-    }),
+        );
+      }),
 );

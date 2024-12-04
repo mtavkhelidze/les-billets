@@ -5,7 +5,9 @@ import { WebSocketEndpoint } from "./ws.ts";
 
 export { AuthMiddleware, AuthUserId } from "./middleware/authMiddleware.ts";
 
-export const LesBilletsAPI = HttpApi.empty
+// https://github.com/Effect-TS/effect/blob/main/packages/platform-node/examples/api.ts
+
+export class LesBilletsAPI extends HttpApi.empty
   .add(UserEndpoints)
   .add(TicketsEndpoints)
-  .add(WebSocketEndpoint);
+  .add(WebSocketEndpoint) {}

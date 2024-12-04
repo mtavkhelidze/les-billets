@@ -60,6 +60,19 @@ interface WsClient {
 }
 
 class WsClientServiceImpl implements WsClient {
+  public readonly cleanup = () =>
+    this.wsRef.pipe(
+      Ref.get,
+      Effect.map(
+        O.flatMap(
+          O.liftThrowable(ws => {
+            ws.close();
+          }),
+        ),
+      ),
+      Effect.flatMap(() => Ref.set(this.wsRef, O.none())),
+      Effect.andThen(() => Effect.logDebug("Disconnected")),
+    );
   public readonly connectWith = (token: string) => {
     return Effect.try({
       // @misha: use URL()
@@ -101,21 +114,7 @@ class WsClientServiceImpl implements WsClient {
       ),
     );
   };
-
-  public readonly cleanup = () =>
-    this.wsRef.pipe(
-      Ref.get,
-      Effect.map(
-        O.flatMap(
-          O.liftThrowable(ws => {
-            ws.close();
-          }),
-        ),
-      ),
-      Effect.flatMap(() => Ref.set(this.wsRef, O.none())),
-      Effect.andThen(() => Effect.logDebug("Disconnected")),
-    );
-
+  public readonly messages = () => this.stream;
   public readonly send = (data: string) =>
     this.wsRef.pipe(
       Ref.get,
@@ -136,11 +135,8 @@ class WsClientServiceImpl implements WsClient {
         }),
       ),
     );
-
   private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
   private stream: Stream.Stream<string, WsClientError> = Stream.empty;
-
-  public readonly messages = () => this.stream;
 
   constructor(private readonly url: string) {
   }
