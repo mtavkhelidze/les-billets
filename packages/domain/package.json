@@ -1,12 +1,6 @@
 {
-    "name": "@my/domain",
-    "private": true,
-    "version": "1.0.0",
-    "type": "module",
-    "main": "src/index.ts",
-    "scripts": {
-        "typecheck": "tsc --noEmit",
-        "watch:typecheck": "tsc --noEmit --watch"
+    "dependencies": {
+        "http-status-codes": "^2.3.0"
     },
     "exports": {
         ".": "./src/index.ts",
@@ -19,11 +13,16 @@
         "./storage": "./src/storage/index.ts",
         "./utils": "./src/utils/index.ts"
     },
-    "dependencies": {
-        "http-status-codes": "^2.3.0",
-        "uuid": "^11.0.3"
-    },
+    "main": "src/index.ts",
+    "name": "@my/domain",
     "peerDependencies": {
         "typescript": "^5.7.2"
-    }
+    },
+    "private": true,
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "watch:typecheck": "tsc --noEmit --watch"
+    },
+    "type": "module",
+    "version": "1.0.0"
 }

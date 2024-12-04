@@ -9,10 +9,8 @@ import * as Layer from "effect/Layer";
 const CableReaderId: unique symbol =
   Symbol.for("@my/server/services/CableReader");
 
-type CableReaderId = typeof CableReaderId;
-
 export interface CableReader {
-  processIncoming: (cable: ClientCable) => Effect.Effect<void>;
+  processIncoming: (cable: ClientCable) => Effect.Effect<void, never, TicketStorageService | CentralTelegraph>;
 }
 
 export class CableReaderService extends Context.Tag(CableReaderId.toString())<

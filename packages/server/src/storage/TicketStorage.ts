@@ -1,6 +1,5 @@
 import { SqlClient } from "@effect/sql";
 import { Ticket } from "@my/domain/model";
-import { DataBaseDriver } from "@storage/DataBaseDriver.ts";
 import { getTicketsQuery } from "@storage/queries/tickets.ts";
 import { flow } from "effect";
 import * as Context from "effect/Context";
