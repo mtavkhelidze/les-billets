@@ -1,67 +1,38 @@
-import * as SqliteDrizzle from "@effect/sql-drizzle/Sqlite";
+import { SqlClient } from "@effect/sql";
 import { Ticket } from "@my/domain/model";
-import { type RowTicket, TableTickets } from "@my/domain/storage";
-import { stringToUtc } from "@my/domain/utils";
-import { eq } from "drizzle-orm";
+import { DataBaseDriver } from "@storage/DataBaseDriver.ts";
+import { getTicketsQuery } from "@storage/queries/tickets.ts";
+import { flow } from "effect";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 
 class TicketStorageError extends Data.TaggedError("TicketStorageError")<{
   error: Error
 }> {}
 
-const rowsToTickets = (rows: RowTicket[]): Ticket[] => rows.map(row =>
-  Ticket.make(
-    {
-      createdAt: stringToUtc(row.createdAt).pipe(O.getOrElse(() => 0)),
-      createdBy: row.createdBy,
-      description: row.description,
-      id: row.id,
-      status: row.status,
-      title: row.title,
-      updatedAt: stringToUtc(row.updatedAt),
-      updatedBy: O.fromNullable(row.updatedBy),
-    }),
-);
+interface TicketStorage {
+  readonly getTickets: () => Effect.Effect<readonly Ticket[], TicketStorageError>;
+}
 
-export class TicketStorage extends Context.Tag("TicketStorage")<
-  TicketStorage,
-  {
-    getTickets: () => Effect.Effect<Ticket[], TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
-    lockTicket: (
-      userId: string,
-      ticketId: string,
-    ) => Effect.Effect<void, TicketStorageError, SqliteDrizzle.SqliteDrizzle>;
-  }
+export class TicketStorageService extends Context.Tag("TicketStorage")<
+  TicketStorageService, TicketStorage
 >() {
-  public static live = Layer.succeed(
-    TicketStorage,
-    TicketStorage.of({
-      lockTicket: (userId: string, ticketId: string) =>
-        SqliteDrizzle.SqliteDrizzle.pipe(
-          Effect.andThen(
-            db => db.update(TableTickets)
-              .set({ status: "locked" })
-              .where(eq(TableTickets.id, ticketId)),
+  public static live = Layer.effect(
+    TicketStorageService,
+    SqlClient.SqlClient.pipe(
+      Effect.andThen(sql => TicketStorageService.of({
+          getTickets: flow(
+            getTicketsQuery(sql),
+            Effect.catchAll(e =>
+              Effect.fail(new TicketStorageError({ error: e })).pipe(
+                Effect.zipLeft(Effect.logError(e.toJSON())),
+              ),
+            ),
           ),
-          Effect.flatMap(_ => Effect.void),
-          Effect.catchAll(e => Effect.fail(new TicketStorageError({ error: e }))),
-          Effect.tapError(Effect.logError),
-        ),
-      getTickets: () =>
-        SqliteDrizzle.SqliteDrizzle.pipe(
-          Effect.andThen(
-            db => db.select()
-              .from(TableTickets)
-              .all(),
-          ),
-          Effect.map(rowsToTickets),
-          Effect.catchAll(e => Effect.fail(new TicketStorageError({ error: e }))),
-          Effect.tapError(Effect.logError),
-        ),
-    }),
+        }),
+      ),
+    ),
   );
 }

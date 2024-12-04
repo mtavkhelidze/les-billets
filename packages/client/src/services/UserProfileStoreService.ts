@@ -1,6 +1,5 @@
 import { UserProfile } from "@my/domain/model";
 import { pipe } from "effect";
-import type { NoSuchElementException } from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

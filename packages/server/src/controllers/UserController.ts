@@ -6,7 +6,7 @@ import {
 } from "@my/domain/http/errors";
 import { SystemUser, UserProfile } from "@my/domain/model";
 import { JwtBackend } from "@services/JwtBackend.ts";
-import { UserStorageService } from "@storage/users";
+import { UserStorageService } from "@storage";
 import { pipe } from "effect";
 
 import * as Effect from "effect/Effect";
@@ -34,7 +34,6 @@ export const UserController = HttpApiBuilder.group(
           Match.value(e).pipe(
             Match.tags({
               JwtInvalidSecret: _ => new InternalServerError(),
-              QueryError: _ => new InternalServerError(),
             }),
             Match.orElse(() => new InvalidCredentials()),
           ),

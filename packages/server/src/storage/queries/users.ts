@@ -4,9 +4,9 @@ import { EmailPassword } from "@my/domain/model/utility";
 
 import { flow } from "effect";
 import * as Effect from "effect/Effect";
-import { QueryError } from "../errors.ts";
+import { QueryError } from "./errors.ts";
 
-const ModuleId = Symbol.for("@my/server/storage/users/queries/users");
+const ModuleId = Symbol.for("@my/server/storage/queries/users");
 
 export const failWithQueryError = (error: Error) => Effect.fail(
   new QueryError({

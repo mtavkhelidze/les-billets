@@ -21,6 +21,7 @@ const reader = WsClientService.pipe(
     ),
   ),
 );
+
 const runner = flow(
   extractToken,
   Effect.flatMap(token => pipe(
@@ -34,6 +35,7 @@ const runner = flow(
               ),
             ),
           ),
+          Effect.andThen(reader),
         ),
       ),
       Effect.tap(Effect.log(`Connected to websocket.`)),
@@ -41,7 +43,7 @@ const runner = flow(
   ),
   Effect.catchTag("NoSuchElementException", () => pipe(
       WsClientService,
-      Effect.andThen(ws => ws.close()),
+      Effect.andThen(ws => ws.cleanup()),
     ),
   ),
   Effect.catchAll(e => Effect.logError(`CableReader: ${e}`)),
