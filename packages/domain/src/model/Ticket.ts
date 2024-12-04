@@ -10,13 +10,13 @@ export type TicketID = S.Schema.Type<typeof TicketID>;
 export class Ticket extends S.TaggedClass<Ticket>()(
   "@my/domain/model/Ticket",
   {
-    createdAt: S.Number,
+    createdAt: S.DateTimeUtc,
     createdBy: UserID,
     description: S.String,
     id: TicketID,
     status: TicketStatus,
     title: S.String,
-    updatedAt: S.Number.pipe(S.Option),
+    updatedAt: S.DateTimeUtc,
     updatedBy: UserID.pipe(S.Option),
   },
 ) {}

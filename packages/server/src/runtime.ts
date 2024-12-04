@@ -1,12 +1,12 @@
 import { runMain } from "@effect/platform-bun/BunRuntime";
-import { Exit, pipe } from "effect";
+import { CentralTelegraph } from "@services/TelegraphService.ts";
+import { Exit, ManagedRuntime, pipe } from "effect";
 import * as Effect from "effect/Effect";
 
-export const bunRunProgram = <A, E>(effect: Effect.Effect<A, E, unknown>) => {
+export const bunRunProgram = <A, E>(effect: Effect.Effect<A, E>) => {
   runMain(
     effect.pipe(
-      // @misha: This is going to bite me in the arse some day.
-      x => x as Effect.Effect<never, never, never>,
+      Effect.provide(CentralTelegraph.live),
       Effect.catchAllCause(cause => pipe(
           Effect.logFatal("Cannot continue", cause),
           Effect.andThen(Exit.fail(cause)),

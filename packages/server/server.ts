@@ -1,3 +1,4 @@
+import { HttpControllersLive } from "@controllers";
 import {
   HttpApiBuilder,
   HttpApiSwagger,
@@ -5,11 +6,11 @@ import {
   HttpServer,
 } from "@effect/platform";
 import { BunHttpServer } from "@effect/platform-bun";
-import { HttpControllersLive } from "@http";
-import { CableReaderLive } from "@services/CableReader.ts";
+import { CableReaderService } from "@services/CableReader.ts";
 import { JwtBackend } from "@services/JwtBackend.ts";
 import { CentralTelegraph } from "@services/TelegraphService.ts";
-import { UserStorageSqlLite } from "@storage";
+import { TicketStorageService, UserStorageService } from "@storage";
+import { DataBaseDriver } from "@storage/DataBaseDriver.ts";
 
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -21,15 +22,17 @@ const httpServer = serverPort.pipe(
     HttpApiBuilder
       .serve(HttpMiddleware.logger)
       .pipe(
-        Layer.provide(HttpApiSwagger.layer()),
-        Layer.provide(HttpApiBuilder.middlewareOpenApi()),
-        Layer.provide(HttpControllersLive),
-        Layer.provide(CentralTelegraph.live),
-        Layer.provide(CableReaderLive),
-        Layer.provide(HttpApiBuilder.middlewareCors()),
         HttpServer.withLogAddress,
         Layer.provide(BunHttpServer.layer({ port })),
-        Layer.provide(UserStorageSqlLite),
+        Layer.provide(HttpApiSwagger.layer()),
+        Layer.provide(HttpApiBuilder.middlewareOpenApi()),
+        Layer.provide(HttpApiBuilder.middlewareCors()),
+        Layer.provide(HttpControllersLive),
+        Layer.provide(CentralTelegraph.live),
+        Layer.provide(CableReaderService.live),
+        Layer.provide(UserStorageService.live),
+        Layer.provide(TicketStorageService.live),
+        Layer.provide(DataBaseDriver.live),
         Layer.provide(JwtBackend.live),
         Layer.launch,
       ),

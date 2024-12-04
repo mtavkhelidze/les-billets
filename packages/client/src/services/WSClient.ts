@@ -54,7 +54,7 @@ export type WsClientError = Schema.Schema.Type<typeof WsClientError>;
 
 interface WsClient {
   readonly connectWith: (token: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
-  readonly messages: Stream.Stream<string, WsClientError>;
+  readonly messages: () => Stream.Stream<string, WsClientError>;
   readonly send: (data: string) => Effect.Effect<void, WsClientError, Scope.Scope>;
   readonly cleanup: () => Effect.Effect<void, never, Scope.Scope>;
 }
@@ -86,6 +86,13 @@ class WsClientServiceImpl implements WsClient {
             };
           }),
       ),
+      Effect.tap(wsc => {
+        this.stream = Stream.async<string, WsClientError>(emit => {
+          wsc.onmessage = data => {
+            return void emit(Effect.succeed(toChunk(data)));
+          };
+        });
+      }),
       Effect.flatMap(ws => this.wsRef.pipe(Ref.set(O.some(ws)))),
       Effect.catchAll(e => this.wsRef.pipe(
           Ref.set(O.none()),
@@ -109,26 +116,6 @@ class WsClientServiceImpl implements WsClient {
       Effect.andThen(() => Effect.logDebug("Disconnected")),
     );
 
-  public readonly messages = Stream.asyncEffect<string, WsClientError>(
-    emit => this.wsRef.pipe(
-      Ref.get,
-      Effect.flatMap(
-        O.match({
-          onNone: () => Effect.fail(new NoConnection()),
-          onSome: ws => Effect.succeed(ws),
-        }),
-      ),
-      Effect.map(ws => {
-        ws.on(
-          "message",
-          data => {
-            void emit(Effect.succeed(toChunk(data)));
-          },
-        );
-      }),
-    ),
-  );
-
   public readonly send = (data: string) =>
     this.wsRef.pipe(
       Ref.get,
@@ -151,6 +138,9 @@ class WsClientServiceImpl implements WsClient {
     );
 
   private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
+  private stream: Stream.Stream<string, WsClientError> = Stream.empty;
+
+  public readonly messages = () => this.stream;
 
   constructor(private readonly url: string) {
   }

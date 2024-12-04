@@ -40,7 +40,7 @@ export class GetTicketList extends S.TaggedClass<GetTicketList>(
 
 export const ClientCable = S.Union(
   GetTicketList,
-);
+)
 export type ClientCable = S.Schema.Type<typeof ClientCable>;
 
 // endregion

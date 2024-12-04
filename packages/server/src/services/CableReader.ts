@@ -1,5 +1,7 @@
-import type { ClientCable } from "@my/domain/http";
-import * as Console from "effect/Console";
+import { type ClientCable, TicketList } from "@my/domain/http";
+import { CentralTelegraph } from "@services/TelegraphService.ts";
+import { TicketStorageService } from "@storage";
+
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -10,17 +12,24 @@ const CableReaderId: unique symbol =
 type CableReaderId = typeof CableReaderId;
 
 export interface CableReader {
-  process: (cable: ClientCable) => Effect.Effect<void>;
+  processIncoming: (cable: ClientCable) => Effect.Effect<void>;
 }
 
-export const CableReader = Context.GenericTag<CableReaderId, CableReader>(
-  CableReaderId.toString(),
-);
+export class CableReaderService extends Context.Tag(CableReaderId.toString())<
+  CableReaderService, CableReader
+>() {
 
-export const CableReaderLive =
-  Layer.succeed(CableReader, CableReader.of({
-      process: (cable: ClientCable) => Console.log(`here: ${cable}`).pipe(
-        Effect.annotateLogs(CableReaderId.toString(), "ClientCable"),
-      ),
+  public static live = Layer.succeed(
+    CableReaderService, CableReaderService.of({
+      processIncoming: (cable: ClientCable) =>
+        Effect.all([TicketStorageService, CentralTelegraph]).pipe(
+          Effect.andThen(([db, tt]) =>
+            db.getTickets().pipe(
+              Effect.andThen(tickets => tt.send(TicketList.make({ tickets }))),
+            ),
+          ),
+          Effect.ignoreLogged,
+        ),
     }),
   );
+}

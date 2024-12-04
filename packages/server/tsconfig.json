@@ -9,8 +9,8 @@
             "@api/error": [
                 "./src/api/error.ts"
             ],
-            "@http": [
-                "./src/http/index.ts"
+            "@controllers": [
+                "./src/controllers/index.ts"
             ],
             "@services/*": [
                 "./src/services/*"
