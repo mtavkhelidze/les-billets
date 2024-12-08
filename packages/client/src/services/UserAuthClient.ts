@@ -40,12 +40,12 @@ class UserAuthClientImpl implements UserAuth {
   constructor(private client: ApiClient) {}
 }
 
-export class UserAuthService extends Effect.Tag("UserAuthService")<
-  UserAuthService,
+export class UserAuthClient extends Effect.Tag("UserAuthClient")<
+  UserAuthClient,
   UserAuth
 >() {
   public static live = Layer.succeed(
-    UserAuthService,
+    UserAuthClient,
     new UserAuthClientImpl(ApiClient),
   );
 }

@@ -1,13 +1,13 @@
 import "./main.css";
 import { Container } from "@blocks/Container.tsx";
+import { AppRuntime } from "@lib/runtime.ts";
 import { GetTicketList } from "@my/domain/http";
 import { UserProfile } from "@my/domain/model";
 import { UserProfileStoreService } from "@services/UserProfileStoreService.ts";
+import { WebSuckerClient } from "@services/WebSuckerClient.ts";
 import { WsClientService } from "@services/WSClient.ts";
-import { StateRuntime } from "@state";
-import { Console } from "effect";
+import { Layer } from "effect";
 import * as Effect from "effect/Effect";
-import { constVoid } from "effect/Function";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 
@@ -19,69 +19,49 @@ import { Routes } from "./Routes.tsx";
 const onProfile = (po: O.Option<UserProfile>) => {
   return WsClientService.pipe(
     Effect.andThen(wsc => O.match(po, {
-        onSome: p =>
-          wsc.connectWith(p.jwtToken).pipe(
-            Effect.andThen(_ => Effect.all([
-                wsc.send(
-                  JSON.stringify(
-                    GetTicketList.make({}),
-                  ),
-                ),
-                Effect.succeed(
-                  wsc.messages().pipe(
-                    Stream.runForEach(Console.log),
-                  ),
-                ),
-              ]).pipe(
-                Effect.ignoreLogged,
+        onNone: () => wsc.cleanup(),
+        onSome: p => wsc.connectWith(p.jwtToken).pipe(
+          Effect.andThen(_ => wsc.send(
+              JSON.stringify(
+                GetTicketList.make({}),
               ),
             ),
           ),
-        onNone: () => wsc.cleanup(),
+          Effect.andThen(_ => wsc.messages().pipe(
+              Stream.runForEach(x => {
+                console.log(">>>>>", x);
+                return Effect.void;
+              }),
+            ),
+          ),
+        ),
       }),
     ),
   );
-  // return WsClientService.pipe(
-  //   Effect.map(wsc => {
-  //     console.count("onProfile");
-  //     return wsc.connectWith;
-  //   }),
-  // );
-  // return WsClientService.pipe(
-  //   Effect.andThen(wsc =>
-  //     O.match(po, {
-  //       onSome: p => {
-  //         return wsc.connectWith(p.jwtToken);
-  //       },
-  //       onNone: () => {
-  //         return wsc.cleanup();
-  //       },
-  //     }),
-  //   ),
-  //   Effect.tapBoth({
-  //     onSuccess: Console.log,
-  //     onFailure: Console.warn,
-  //   })
-  // );
 };
-const watchUserProfile = () =>
+
+const watchUserProfile = Layer.effectDiscard(
   UserProfileStoreService.pipe(
     Effect.andThen(store => store.stream().pipe(
         Stream.runForEach(onProfile),
       ),
     ),
-    Effect.scoped,
-  );
+  ),
+);
 
 const Main = () => {
   useEffect(() => {
-    StateRuntime.execute(
-      watchUserProfile().pipe(
-        Effect.provide(WsClientService.live),
-      ),
+    AppRuntime.runPromise(
+      WebSuckerClient.send("misha"),
     )
-      .then(constVoid)
-      .catch(constVoid);
+      .then(console.warn)
+      .catch(console.warn);
+
+    AppRuntime.runPromise(
+      WebSuckerClient.messages(x => console.log("got >>>", x)),
+    )
+      .then(console.warn)
+      .catch(console.warn);
   }, []);
 
   return (

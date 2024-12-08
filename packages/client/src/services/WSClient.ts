@@ -20,11 +20,11 @@ const toChunk = flow(
 const WsClientServiceId: unique symbol =
   Symbol.for("@my/client/services/WsClient");
 
-type WsClientId = typeof WsClientServiceId;
+type WsClientServiceId = typeof WsClientServiceId;
 
 export class CannotConnect
   extends Schema.TaggedError<CannotConnect>(WsClientServiceId.toString()
-    + "/CannotConnect")(
+    + "/CannotCreate")(
     "CannotConnect",
     {
       message: Schema.String,
@@ -66,6 +66,9 @@ class WsClientServiceImpl implements WsClient {
       Effect.map(
         O.flatMap(
           O.liftThrowable(ws => {
+            ws.onmessage = null;
+            ws.onerror = null;
+            ws.onopen = null;
             ws.close();
           }),
         ),
@@ -99,13 +102,6 @@ class WsClientServiceImpl implements WsClient {
             };
           }),
       ),
-      Effect.tap(wsc => {
-        this.stream = Stream.async<string, WsClientError>(emit => {
-          wsc.onmessage = data => {
-            return void emit(Effect.succeed(toChunk(data)));
-          };
-        });
-      }),
       Effect.flatMap(ws => this.wsRef.pipe(Ref.set(O.some(ws)))),
       Effect.catchAll(e => this.wsRef.pipe(
           Ref.set(O.none()),
@@ -114,7 +110,6 @@ class WsClientServiceImpl implements WsClient {
       ),
     );
   };
-  public readonly messages = () => this.stream;
   public readonly send = (data: string) =>
     this.wsRef.pipe(
       Ref.get,
@@ -136,10 +131,28 @@ class WsClientServiceImpl implements WsClient {
       ),
     );
   private wsRef: Ref.Ref<O.Option<WebSocket>> = Ref.unsafeMake(O.none());
-  private stream: Stream.Stream<string, WsClientError> = Stream.empty;
 
   constructor(private readonly url: string) {
   }
+
+  public messages = () => Stream.asyncEffect<string, NoConnection>(emit => {
+    return this.wsRef.pipe(
+      Ref.get,
+      Effect.andThen(
+        O.match({
+          onNone: () => {
+            void emit(Effect.fail(O.none()));
+          },
+          onSome: ws => {
+            ws.onmessage = event => {
+              console.log(">>>>>", event.data);
+              void emit(Effect.succeed(Chunk.of(event.data)));
+            };
+          },
+        }),
+      ),
+    );
+  });
 }
 
 export class WsClientService extends Context.Tag(WsClientServiceId.toString())<

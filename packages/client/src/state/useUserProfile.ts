@@ -1,12 +1,11 @@
+import { AppRuntime } from "@lib/runtime.ts";
 import { UserProfile } from "@my/domain/model";
-import { UserAuthService } from "@services/UserAuthService.ts";
+import { UserAuthClient } from "@services/UserAuthClient.ts";
 import { UserProfileStoreService } from "@services/UserProfileStoreService.ts";
 import * as Effect from "effect/Effect";
-import { constVoid } from "effect/Function";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import { useEffect, useState } from "react";
-import { StateRuntime } from "./runtime.ts";
 
 export const useUserProfile = () => {
   const [error, setError] = useState<O.Option<Error>>(O.none());
@@ -41,7 +40,7 @@ export const useUserProfile = () => {
     );
 
   const loginEffect = (email: string, password: string) =>
-    UserAuthService.pipe(
+    UserAuthClient.pipe(
       Effect.andThen(auth => auth.login(email, password)),
       Effect.flatMap(profile => UserProfileStoreService.pipe(
           Effect.andThen(store => store.set(O.some(profile))),
@@ -62,10 +61,8 @@ export const useUserProfile = () => {
 
   const login = (email: string, password: string): Promise<void> => {
     begin();
-    return StateRuntime.execute(
-      loginEffect(email, password).pipe(
-        Effect.provide(UserAuthService.live),
-      ),
+    return AppRuntime.runPromise(
+      loginEffect(email, password),
     ).catch(e => {
       endWith(O.some(e));
       throw e;
@@ -75,22 +72,18 @@ export const useUserProfile = () => {
   };
 
   const logout = () => {
-    StateRuntime.execute(
+    void AppRuntime.runPromise(
       UserProfileStoreService.pipe(
         Effect.andThen(store => store.set(O.none()).pipe(
             Effect.zipLeft(Effect.logDebug("Logged out.")),
           ),
         ),
       ),
-    )
-      .then(constVoid)
-      .catch(constVoid);
+    );
   };
 
   useEffect(() => {
-    StateRuntime.execute(watchProfileStream)
-      .catch(console.error)
-      .then(constVoid);
+    void AppRuntime.runPromise(watchProfileStream);
   }, []);
 
   // endregion
