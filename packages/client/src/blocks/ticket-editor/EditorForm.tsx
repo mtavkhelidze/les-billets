@@ -92,7 +92,7 @@ export const EditorForm = () => {
       </div>
       <NamedTimestamp
         className="mx-4"
-        deed={"Created"} by={"Misha Tavkhelidze"} at={0}
+        deed={"Created"} by={"Socket Tavkhelidze"} at={0}
       />
       <div className="flex flex-row justify-end gap-2 pr-4">
         <Button

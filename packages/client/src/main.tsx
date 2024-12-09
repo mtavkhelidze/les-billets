@@ -3,10 +3,10 @@ import { Container } from "@blocks/Container.tsx";
 import { AppRuntime } from "@lib/runtime.ts";
 import { GetTicketList } from "@my/domain/http";
 import { UserProfile } from "@my/domain/model";
-import { UserProfileStoreService } from "@services/UserProfileStoreService.ts";
+import { UserProfileStore } from "@services/UserProfileStore.ts";
 import { WebSuckerClient } from "@services/WebSuckerClient.ts";
 import { WsClientService } from "@services/WSClient.ts";
-import { Layer } from "effect";
+import { Console, Layer } from "effect";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
@@ -41,7 +41,7 @@ const onProfile = (po: O.Option<UserProfile>) => {
 };
 
 const watchUserProfile = Layer.effectDiscard(
-  UserProfileStoreService.pipe(
+  UserProfileStore.pipe(
     Effect.andThen(store => store.stream().pipe(
         Stream.runForEach(onProfile),
       ),
@@ -51,17 +51,22 @@ const watchUserProfile = Layer.effectDiscard(
 
 const Main = () => {
   useEffect(() => {
-    AppRuntime.runPromise(
-      WebSuckerClient.send("misha"),
-    )
-      .then(console.warn)
-      .catch(console.warn);
+    void AppRuntime.runPromise(
+      WebSuckerClient.send("misha").pipe(
+        Effect.catchAll(Console.log),
+      ),
+    ).catch(console.warn);
 
-    AppRuntime.runPromise(
-      WebSuckerClient.messages(x => console.log("got >>>", x)),
-    )
-      .then(console.warn)
-      .catch(console.warn);
+    void AppRuntime.runPromise(
+      WebSuckerClient.messages().pipe(
+        Effect.andThen(x =>
+          Stream.runForEach(x, s =>{
+            console.log("finally!", s);
+            return Effect.void;
+          }),
+        ),
+      ),
+    ).catch(console.warn);
   }, []);
 
   return (

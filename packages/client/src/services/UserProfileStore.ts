@@ -7,13 +7,13 @@ import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import * as SRef from "effect/SubscriptionRef";
 
-interface UserProfileStore {
+interface UserProfileState {
   readonly set: (profile: O.Option<UserProfile>) => Effect.Effect<void>;
   readonly stream: () => Stream.Stream<O.Option<UserProfile>>;
   readonly user: () => Effect.Effect<O.Option<UserProfile>>;
 }
 
-export class UserProfileServiceImpl implements UserProfileStore {
+export class UserProfileStoreImpl implements UserProfileState {
   constructor(private wire: SRef.SubscriptionRef<O.Option<UserProfile>>) {
   }
 
@@ -32,16 +32,16 @@ export class UserProfileServiceImpl implements UserProfileStore {
   );
 }
 
-export class UserProfileStoreService extends Context.Tag(
-  "UserProfileStoreService")<
-  UserProfileStoreService,
-  UserProfileStore
+export class UserProfileStore extends Effect.Tag(
+  "UserProfileStore")<
+  UserProfileStore,
+  UserProfileState
 >() {
   public static live = Layer.effect(
-    UserProfileStoreService,
+    UserProfileStore,
     SRef.make<O.Option<UserProfile>>(O.none())
       .pipe(
-        Effect.map(ref => new UserProfileServiceImpl(ref)),
+        Effect.map(ref => new UserProfileStoreImpl(ref)),
       ),
   );
 }

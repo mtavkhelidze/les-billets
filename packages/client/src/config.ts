@@ -5,11 +5,11 @@ import * as ConfigProvider from "effect/ConfigProvider";
 export const apiBase = Config.string("API_BASE").pipe(
   Config.mapAttempt((_) => new URL(_)),
   Config.map((url) => url.href.replace(/\/$/, "")),
-  Config.withDefault("http://localhost:9091"),
+  Config.withDefault("http://localhost:8081"),
 );
 
 export const wsUrl = apiBase.pipe(
-  Config.map(url => `${url}/ws`),
+  // Config.map(url => `${url}/ws`),
 );
 
 export const logLevel = Config.logLevel("LOG_LEVEL").pipe(

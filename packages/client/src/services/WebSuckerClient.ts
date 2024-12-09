@@ -1,70 +1,112 @@
+import { AppRuntime } from "@lib/runtime.ts";
+import { EventMessage, Socket, StreamEvent } from "@lib/socket.ts";
 import { ErrorShape } from "@my/domain/model/utility";
-import { WebSuckerSocket } from "@services/WebSuckerSocket.ts";
-import { identity, Layer } from "effect";
+import { flow, Layer, pipe } from "effect";
+import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
-import * as O from "effect/Option";
 import * as Queue from "effect/Queue";
 import * as Schema from "effect/Schema";
-
-const Id: unique symbol =
-  Symbol.for("@my/client/services/WebSucker");
-
+import * as Stream from "effect/Stream";
+const Id = Symbol.for("@my/client/services/WebSucker");
 const id = Id.toString();
 
-export class CannotCreate extends Schema.TaggedError<
-  CannotCreate>(`${id}/CannotCreate`)(
-  "CannotCreate",
+export class CannotConnect extends Schema.TaggedError<
+  CannotConnect
+>(`${id}/CannotConnect`)(
+  "CannotConnect",
+  ErrorShape,
+) {
+}
+
+export class CannotClose extends Schema.TaggedError<
+  CannotClose
+>(`${id}/CannotClose`)(
+  "CannotClose",
+  ErrorShape,
+) {
+}
+
+export class CannotSend extends Schema.TaggedError<
+  CannotSend
+>(`${id}/CannotSend`)(
+  "CannotConnect",
   ErrorShape,
 ) {}
 
 export const WebSuckerError = Schema.Union(
-  CannotCreate,
+  CannotConnect,
+  CannotSend,
+  CannotClose,
 );
 export type WebSuckerError = Schema.Schema.Type<typeof WebSuckerError>;
 
 interface WebSucker {
-  send: (message: string) => Effect.Effect<void>;
-  messages: (reader: (_: string) => void) => Effect.Effect<void>;
+  send: (message: string) => Effect.Effect<void, WebSuckerError>;
+  messages: () => Stream.Stream<string>;
+  close: () => Effect.Effect<void, WebSuckerError>;
 }
 
+const toChunk = flow(
+  x => x as ArrayBuffer,
+  new TextDecoder("utf-8").decode,
+  x => Chunk.fromIterable([x]),
+);
+
 class WebSuckerImpl implements WebSucker {
-  private static instance: O.Option<WebSuckerImpl> = O.none();
-
-  public static create = (
-    socket: WebSocket,
-    inc: Queue.Queue<string>,
-    out: Queue.Queue<string>,
-  ): WebSuckerImpl => {
-    return O.match(WebSuckerImpl.instance, {
-      onSome: identity,
-      onNone: () => {
-        const wsi = new WebSuckerImpl(socket, inc, out);
-        WebSuckerImpl.instance = O.some(wsi);
-        return wsi;
-      },
-    });
-  };
-
-  private constructor(
-    private readonly socket: WebSocket,
-    private readonly incoming: Queue.Queue<string>,
-    private readonly outgoing: Queue.Queue<string>,
+  constructor(
+    private readonly socket: Socket,
+    private readonly incoming: Queue.Queue<StreamEvent>,
   ) {
-    console.count(">>> Constructor");
+    this.socket.watch(e => {
+      console.log(e);
+      switch (e._tag) {
+        case "EventMessage":
+          this.incoming.pipe(
+            Queue.offer(e),
+            AppRuntime.runFork,
+          );
+          break;
+        case "EventClose":
+        case "EventError":
+          this.incoming.pipe(
+            Queue.shutdown,
+            Effect.andThen(Effect.logDebug("Shutting down...", e)),
+            AppRuntime.runFork,
+          );
+          break;
+      }
+    });
   }
 
-  public send = (message: string): Effect.Effect<void> => {
-    console.log("sending >>>>", message);
-    return Queue.offer(this.outgoing, message);
-  };
-
-  public messages = (reader: (_: string) => void) => {
-    return Queue.take(this.outgoing).pipe(
-      Effect.tap(console.log),
-      Effect.andThen(x => reader(x)),
-      Effect.forever,
+  public readonly send = (message: string): Effect.Effect<void, WebSuckerError> => {
+    return this.socket.send(message).pipe(
+      Effect.catchAll(e => new CannotSend({
+          message: e.message,
+          module: Id,
+          cause: e,
+        }),
+      ),
     );
   };
+
+  public readonly messages = () => {
+    return this.incoming.pipe(
+      Queue.take,
+      Effect.tap(s => console.log("take >>>>", s)),
+      Stream.map(x => x._tag),
+      Stream.tapError(Effect.log),
+      Stream.forever,
+    );
+  };
+
+  public readonly close = () => this.socket.close().pipe(
+    Effect.catchAll(e => new CannotSend({
+        message: e.message,
+        module: Id,
+        cause: e,
+      }),
+    ),
+  );
 }
 
 export class WebSuckerClient extends Effect.Tag(id)<
@@ -72,17 +114,14 @@ export class WebSuckerClient extends Effect.Tag(id)<
 >() {
   public static live = Layer.effect(
     WebSuckerClient,
-    WebSuckerSocket.open("ws://localhost:8081").pipe(
-      Effect.tap(console.log),
-      Effect.andThen(ws => Effect.all([
-          Queue.unbounded<string>(),
-          Queue.unbounded<string>(),
-        ]).pipe(
-          Effect.andThen(([i, o]) => WebSuckerImpl.create(ws, i, o)),
+    // @misha: each sucker get its own socket it has to close.
+    Socket.open("ws://localhost:8081").pipe(
+      Effect.flatMap(
+        socket => pipe(
+          Queue.unbounded<StreamEvent>(),
+          Effect.map(incoming => new WebSuckerImpl(socket, incoming)),
         ),
       ),
-    ).pipe(
-      Effect.provideService(WebSuckerSocket, WebSuckerSocket.live),
     ),
   );
 }

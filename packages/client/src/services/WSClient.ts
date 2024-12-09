@@ -24,7 +24,7 @@ type WsClientServiceId = typeof WsClientServiceId;
 
 export class CannotConnect
   extends Schema.TaggedError<CannotConnect>(WsClientServiceId.toString()
-    + "/CannotCreate")(
+    + "/CannotConnect")(
     "CannotConnect",
     {
       message: Schema.String,
