@@ -1,12 +1,13 @@
 import { AppRuntime } from "@lib/runtime.ts";
-import { EventMessage, Socket, SocketError } from "@lib/socket.ts";
+import { EventMessage, Socket, SocketError, SocketEvent } from "@lib/socket.ts";
 import { Layer, pipe } from "effect";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as Match from "effect/Match";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 
-const tag = Symbol.for("@my/client/services/WebSucker").toString();
+const tag = "@my/client/services/WebSucker";
 const tagFor = (subTag: string) => tag + "/" + subTag;
 
 interface WithSocketCause {
@@ -34,26 +35,31 @@ interface WebSucker {
 }
 
 class WebSuckerImpl implements WebSucker {
+  private dispatch = (e: SocketEvent) => {
+    Match.value<SocketEvent>(e).pipe(
+      Match.tag("EventMessage", e => {
+        return this.incoming.pipe(
+          Queue.offer(e.message),
+        );
+      }),
+      Match.orElse(e => {
+        return this.close().pipe(
+          Effect.zipLeft(
+            Effect.logTrace(`Closing: ${e._tag}`),
+          ),
+        );
+      }),
+    ).pipe(
+      Effect.withSpan(tagFor("dispatch")),
+      AppRuntime.runFork,
+    );
+  };
+
   constructor(
     private readonly socket: Socket,
     private readonly incoming: Queue.Queue<string>,
   ) {
-    this.socket.watch(e => {
-      switch (e._tag) {
-        case "EventMessage":
-          this.incoming.pipe(
-            Queue.offer(e.message),
-            AppRuntime.runFork,
-          );
-          break;
-        case "EventClose":
-        case "EventError":
-          this.close().pipe(
-            AppRuntime.runFork,
-          );
-          break;
-      }
-    });
+    this.socket.watch(this.dispatch);
   }
 
   public readonly send = (message: string): Effect.Effect<void, WebSuckerError> => {
@@ -76,7 +82,7 @@ class WebSuckerImpl implements WebSucker {
     );
 }
 
-export class WebSuckerClient extends Effect.Tag(tag)<
+export class WebSuckerClient extends Effect.Tag(tag.toString())<
   WebSuckerClient, WebSucker
 >() {
   public static live = Layer.effect(
@@ -89,6 +95,7 @@ export class WebSuckerClient extends Effect.Tag(tag)<
           Effect.map(incoming => new WebSuckerImpl(socket, incoming)),
         ),
       ),
+      Effect.withSpan(tag),
     ),
   );
 }

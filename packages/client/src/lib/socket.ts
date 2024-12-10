@@ -25,9 +25,9 @@ export const EventMessage = Data.tagged<EventMessage>("EventMessage");
 export const EventClose = Data.tagged<EventClose>("EventClose");
 export const EventError = Data.tagged<EventError>("EventError");
 
-export type StreamEvent = EventMessage | EventClose | EventError
+export type SocketEvent = EventMessage | EventClose | EventError
 
-type EventWatcher = (event: StreamEvent) => void;
+type EventWatcher = (event: SocketEvent) => void;
 
 export interface SocketOperations {
   readonly send: (message: string) => Effect.Effect<void, SocketError>;
