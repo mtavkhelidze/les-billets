@@ -5,6 +5,7 @@
         "@effect/sql": "^0.20.12",
         "@effect/sql-sqlite-bun": "^0.21.12",
         "@my/domain": "workspace:*",
+        "@opentelemetry/sdk-trace-node": "^1.29.0",
         "dotenv": "^16.4.7",
         "jsrsasign": "^11.1.0",
         "jsrsasign-util": "^1.0.5",
