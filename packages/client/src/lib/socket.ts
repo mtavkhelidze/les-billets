@@ -2,12 +2,9 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import { constVoid } from "effect/Function";
 
-const id = "@my/client/misha";
-type id = typeof id;
-
-export class SocketError extends Data.TaggedError(`${id}/SocketError`)<{
-  message: string;
+export class SocketError extends Data.Error<{
   cause: Error;
+  message: string;
 }> {}
 
 export interface EventMessage {
@@ -33,10 +30,17 @@ export type StreamEvent = EventMessage | EventClose | EventError
 type EventWatcher = (event: StreamEvent) => void;
 
 export interface SocketOperations {
-  readonly close: () => Effect.Effect<void, SocketError>;
   readonly send: (message: string) => Effect.Effect<void, SocketError>;
+  readonly shutdown: () => Effect.Effect<void, SocketError>;
   readonly watch: (watcher: EventWatcher) => void;
 }
+
+const failWithError = (error: unknown) => {
+  return new SocketError({
+    message: `Cannot send: ${error}}`,
+    cause: error as Error,
+  });
+};
 
 export class Socket implements SocketOperations {
   private constructor(private readonly ws: WebSocket) {}
@@ -49,55 +53,39 @@ export class Socket implements SocketOperations {
           void emit(Effect.succeed(new Socket(ws)));
         };
       } catch (error) {
-        void emit(new SocketError({
-            message: "Cannot open socket",
-            cause: error as Error,
-          }),
-        );
+        void emit(failWithError(error));
       }
     });
 
   public watch = (watcher: EventWatcher): void => {
     this.ws.onmessage = event => {
       watcher(EventMessage({ message: `${event.data}` }));
-    }
+    };
     this.ws.onclose = () => {
       watcher(EventClose());
-    }
+    };
     this.ws.onerror = error => {
       watcher(EventError({ message: `${error}` }));
-    }
-
+    };
   };
 
   public readonly send = (message: string): Effect.Effect<void, SocketError> => {
     return Effect.try({
       try: () => this.ws.send(message),
-      catch: (error) => {
-        return new SocketError({
-          message: `Cannot send: ${error}}`,
-          cause: error as Error,
-        });
-      },
+      catch: failWithError,
     });
   };
 
-  public readonly close = (): Effect.Effect<void, SocketError> => {
+  public readonly shutdown = (): Effect.Effect<void, SocketError> => {
     return Effect.try({
       try: () => {
         this.ws.onopen = null;
         this.ws.onerror = null;
         this.ws.onmessage = null;
         this.ws.close();
-        this.ws.terminate();
         return constVoid();
       },
-      catch: (error) => {
-        return new SocketError({
-          message: `Cannot create socket: ${error}`,
-          cause: error as Error,
-        });
-      },
+      catch: failWithError,
     });
   };
 }

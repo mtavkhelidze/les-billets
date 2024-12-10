@@ -54,17 +54,19 @@ const Main = () => {
     void AppRuntime.runPromise(
       WebSuckerClient.send("misha").pipe(
         Effect.catchAll(Console.log),
+        Effect.andThen(WebSuckerClient.send("end")),
       ),
     ).catch(console.warn);
 
     void AppRuntime.runPromise(
       WebSuckerClient.messages().pipe(
         Effect.andThen(x =>
-          Stream.runForEach(x, s =>{
+          Stream.runForEach(x, s => {
             console.log("finally!", s);
             return Effect.void;
           }),
         ),
+        Effect.catchAll(e => Console.log(e)),
       ),
     ).catch(console.warn);
   }, []);
