@@ -1,6 +1,9 @@
 import { LogLevel } from "effect";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
 
 export const apiBase = Config.string("API_BASE").pipe(
   Config.mapAttempt((_) => new URL(_)),
@@ -9,13 +12,15 @@ export const apiBase = Config.string("API_BASE").pipe(
 );
 
 export const wsUrl = apiBase.pipe(
-  // Config.map(url => `${url}/ws`),
+  Config.map(url => `${url}/ws`),
 );
 
-export const logLevel = Config.logLevel("LOG_LEVEL").pipe(
+export const withLogLevel = Config.logLevel("LOG_LEVEL").pipe(
   Config.withDefault(process.env.NODE_ENV === "production"
     ? LogLevel.Error
     : LogLevel.All),
+  Effect.andThen(level => Logger.minimumLogLevel(level)),
+  Layer.unwrapEffect,
 );
 
 type DotEnvConfig = {

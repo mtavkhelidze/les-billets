@@ -1,3 +1,4 @@
+import { wsUrl } from "@config";
 import { AppRuntime } from "@lib/runtime.ts";
 import { EventMessage, Socket, SocketError, SocketEvent } from "@lib/socket.ts";
 import { Layer, pipe } from "effect";
@@ -45,12 +46,12 @@ class WebSuckerImpl implements WebSucker {
       Match.orElse(e => {
         return this.close().pipe(
           Effect.zipLeft(
-            Effect.logTrace(`Closing: ${e._tag}`),
+            Effect.logDebug(`Closing: ${e._tag}`),
           ),
         );
       }),
     ).pipe(
-      Effect.withSpan(tagFor("dispatch")),
+      Effect.annotateLogs(tag, "dispatch"),
       AppRuntime.runFork,
     );
   };
@@ -88,7 +89,8 @@ export class WebSuckerClient extends Effect.Tag(tag.toString())<
   public static live = Layer.effect(
     WebSuckerClient,
     // @misha: each sucker get its own socket it has to shutdown.
-    Socket.open("ws://localhost:8081").pipe(
+    wsUrl.pipe(
+      Effect.andThen(Socket.open),
       Effect.flatMap(
         socket => pipe(
           Queue.unbounded<string>(),

@@ -6,7 +6,7 @@ import {
 } from "@effect/platform";
 import { LesBilletsAPI } from "@my/domain/api";
 import * as Effect from "effect/Effect";
-import { apiBase } from "../config.ts";
+import { apiBase } from "@config";
 
 export const ApiClient =
   apiBase.pipe(

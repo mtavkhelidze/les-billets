@@ -3,6 +3,9 @@
         "verbatimModuleSyntax": false,
         "baseUrl": ".",
         "paths": {
+            "@config": [
+                "src/config.ts"
+            ],
             "@blocks/*": [
                 "src/blocks/*"
             ],
