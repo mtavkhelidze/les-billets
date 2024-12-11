@@ -1,7 +1,7 @@
 import { LoginRequest } from "@my/domain/http";
 import type { InvalidCredentials } from "@my/domain/http/errors";
 import { UserProfile } from "@my/domain/model";
-import { ApiClient } from "@services/LesBilletsApiClient.ts";
+import { ApiClient } from "./LesBilletsApiClient";
 import { identity } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

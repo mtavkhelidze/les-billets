@@ -1,7 +1,6 @@
 import { AppRuntime } from "@lib/runtime.ts";
 import { UserProfile } from "@my/domain/model";
-import { UserAuthClient } from "@services/UserAuthClient.ts";
-import { UserProfileStore } from "@services/UserProfileStore.ts";
+import { UserAuthClient, UserProfileStore } from "@services";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";

@@ -8,7 +8,7 @@ import * as Logger from "effect/Logger";
 export const apiBase = Config.string("API_BASE").pipe(
   Config.mapAttempt((_) => new URL(_)),
   Config.map((url) => url.href.replace(/\/$/, "")),
-  Config.withDefault("http://localhost:8081"),
+  Config.withDefault("http://localhost:9091"),
 );
 
 export const wsUrl = apiBase.pipe(

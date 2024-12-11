@@ -31,13 +31,13 @@ type EventWatcher = (event: SocketEvent) => void;
 
 export interface SocketOperations {
   readonly send: (message: string) => Effect.Effect<void, SocketError>;
-  readonly shutdown: () => Effect.Effect<void, SocketError>;
+  readonly disconnect: () => Effect.Effect<void, SocketError>;
   readonly watch: (watcher: EventWatcher) => void;
 }
 
-const failWithError = (error: unknown) => {
+const failWithError = (msg: string) => (error: unknown) => {
   return new SocketError({
-    message: `Cannot send: ${error}}`,
+    message: `${msg}: ${error}`,
     cause: error as Error,
   });
 };
@@ -45,15 +45,18 @@ const failWithError = (error: unknown) => {
 export class Socket implements SocketOperations {
   private constructor(private readonly ws: WebSocket) {}
 
-  public static open = (url: string): Effect.Effect<Socket, SocketError> =>
+  public static connect = (url: string): Effect.Effect<Socket, SocketError> =>
     Effect.async<Socket, SocketError>(emit => {
       try {
         const ws = new WebSocket(url);
         ws.onopen = () => {
           void emit(Effect.succeed(new Socket(ws)));
         };
+        ws.onerror = e => {
+          void emit(failWithError("Cannot connect")(Error("no connection")));
+        };
       } catch (error) {
-        void emit(failWithError(error));
+        void emit(failWithError("Invalid parameters")(error as DOMException));
       }
     });
 
@@ -72,11 +75,11 @@ export class Socket implements SocketOperations {
   public readonly send = (message: string): Effect.Effect<void, SocketError> => {
     return Effect.try({
       try: () => this.ws.send(message),
-      catch: failWithError,
+      catch: failWithError("Cannot send message"),
     });
   };
 
-  public readonly shutdown = (): Effect.Effect<void, SocketError> => {
+  public readonly disconnect = (): Effect.Effect<void, SocketError> => {
     return Effect.try({
       try: () => {
         this.ws.onopen = null;
@@ -85,7 +88,7 @@ export class Socket implements SocketOperations {
         this.ws.close();
         return constVoid();
       },
-      catch: failWithError,
+      catch: failWithError("Error closing socket"),
     });
   };
 }
