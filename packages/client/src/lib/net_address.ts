@@ -2,9 +2,17 @@ import * as Data from "effect/Data";
 import * as E from "effect/Either";
 
 class NetAddressError extends Data.Error<{
-  // message: string;
-  // cause: Error;
-}> {}
+  message: string;
+  cause: Error;
+}> {
+  public static make = (e: unknown): NetAddressError =>
+    new NetAddressError({
+      cause: e as TypeError,
+      message: (
+        e as TypeError
+      ).message,
+    });
+}
 
 export class NetAddress extends Data.Class {
   private constructor(private readonly url: URL) {
@@ -28,6 +36,6 @@ export class NetAddress extends Data.Class {
   public static make = (url: string): E.Either<NetAddress, NetAddressError> =>
     E.try({
       try: () => new NetAddress(new URL(url)),
-      catch: e => new NetAddressError(),
+      catch: NetAddressError.make,
     });
 }

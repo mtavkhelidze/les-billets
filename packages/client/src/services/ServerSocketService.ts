@@ -53,18 +53,10 @@ interface ServerSocket {
 class ServerSocketImpl implements ServerSocket {
   private socket: O.Option<Socket> = O.none();
 
-  private constructor(
+  constructor(
     private readonly address: NetAddress,
     private readonly incoming: Queue.Queue<string>,
   ) {}
-
-  public static make = (address: NetAddress) =>
-    Queue.unbounded<string>().pipe(
-      Effect.andThen(incoming => new ServerSocketImpl(
-        address,
-        incoming,
-      )),
-    );
 
   private dispatch = (e: SocketEvent) => {
     Match.value<SocketEvent>(e).pipe(
@@ -98,13 +90,15 @@ class ServerSocketImpl implements ServerSocket {
     const disconnect = this.socket.pipe(
       Effect.flatMap(s => s.disconnect()),
       Effect.andThen(_ => this.socket = O.none()),
-      Effect.catchAll(Effect.logDebug),
-      Effect.asVoid,
+      Effect.ignore,
     );
 
     const connect = this.address.addQueryParam("token", token).pipe(
       Effect.flatMap(address => Socket.connect(address.mkString)),
-      Effect.andThen(socket => this.socket = O.some(socket)),
+      Effect.andThen(socket => {
+        socket.watch(this.dispatch);
+        this.socket = O.some(socket);
+      }),
       Effect.catchAll(CannotCreate.make),
       Effect.asVoid,
     );
@@ -145,9 +139,15 @@ export class ServerSocketService extends Effect.Tag(tag.toString())<
   public static live = Layer.effect(
     ServerSocketService,
     wsUrl.pipe(
+      Effect.map(_ => "ws://localhost:9099/"),
       Effect.andThen(NetAddress.make),
-      Effect.flatMap(ServerSocketImpl.make),
-      Effect.withSpan(tag),
+      Effect.andThen(address => Queue.unbounded<string>().pipe(
+          Effect.andThen(incoming => new ServerSocketImpl(
+            address,
+            incoming,
+          )),
+        ),
+      ),
     ),
   );
 }
