@@ -4,12 +4,15 @@ import { UserProfile } from "@my/domain/model";
 import {
   ServerSocket,
   ServerSocketService,
+  TicketStore,
+  TicketStoreService,
   UserProfileStore,
   UserProfileStoreService,
 } from "@services";
 import { Console, pipe } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 
@@ -45,6 +48,11 @@ class CableClerkImpl implements CableClerk {
       Effect.ignoreLogged,
     );
   };
+  private dispatch = (cable: ServerCable) => Match.value(cable).pipe(
+    Match.tag("TicketList", m => this.ticketStore.setAll(m.tickets)),
+    Match.orElse(Console.log),
+  );
+
   private onUserIn = (profile: UserProfile) => {
     return this.serverSocket.create(profile.jwtToken).pipe(
       Effect.andThen(
@@ -52,7 +60,7 @@ class CableClerkImpl implements CableClerk {
           this.sendCable(GetTicketList.make()),
           this.serverSocket.messages().pipe(
             Stream.flatMap(cableFromJson),
-            Stream.runForEach(Console.log),
+            Stream.runForEach(this.dispatch),
           ),
         ]),
       ),
@@ -66,7 +74,8 @@ class CableClerkImpl implements CableClerk {
 
   constructor(
     private readonly serverSocket: ServerSocket,
-    private readonly profileRef: UserProfileStore,
+    private readonly profileStore: UserProfileStore,
+    private readonly ticketStore: TicketStore,
   ) {}
 }
 
@@ -76,11 +85,18 @@ export class CableClerkDaemon extends Effect.Tag(tag)<
 >() {
   public static daemon = Layer.scopedDiscard(
     pipe(
-      Effect.all([ServerSocketService, UserProfileStoreService]),
-      Effect.andThen(([serverSocket, profileStore]) => new CableClerkImpl(
-        serverSocket,
-        profileStore,
-      )),
+      Effect.all([
+        ServerSocketService,
+        UserProfileStoreService,
+        TicketStoreService,
+      ]),
+      Effect.andThen(([serverSocket, profileStore, ticketStore]) =>
+        new CableClerkImpl(
+          serverSocket,
+          profileStore,
+          ticketStore,
+        ),
+      ),
       Effect.andThen(daemon => daemon.work()),
       // @misha: each daemon gets its own socket, but store is shared app-wide
       Effect.provideServiceEffect(

@@ -5,3 +5,7 @@ export {
 export {
   ServerSocketService, type ServerSocket,
 } from "./ServerSocketService.ts";
+
+export {
+  TicketStoreService, type TicketStore,
+} from "./TicketStoreService.ts";
