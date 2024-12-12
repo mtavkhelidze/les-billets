@@ -2,7 +2,7 @@ import { wsUrl } from "@config";
 import { NetAddress } from "@lib/net_address.ts";
 import { AppRuntime } from "@lib/runtime.ts";
 import { EventMessage, Socket, SocketEvent } from "@lib/socket.ts";
-import { Layer, pipe } from "effect";
+import { pipe } from "effect";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
@@ -10,29 +10,33 @@ import * as O from "effect/Option";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 
-const tag = "@my/client/services/ServerSocket";
+const tag = "@my/client/services/ServerSocketService";
 const tagFor = (subTag: string) => tag + "/" + subTag;
 
 interface WithSocketCause {
   cause: Error;
+  message: string;
 }
 
 export class CannotCreate extends Data.TaggedError(tagFor("CannotCreate"))<
   WithSocketCause
 > {
-  public static make = (cause: Error): CannotCreate => new CannotCreate({ cause });
+  public static make = (cause: Error): CannotCreate =>
+    new CannotCreate({ cause, message: `${cause}` });
 }
 
 export class CannotDestroy extends Data.TaggedError(tagFor("CannotDestroy"))<
   WithSocketCause
 > {
-  public static make = (cause: Error): CannotDestroy => new CannotDestroy({ cause });
+  public static make = (cause: Error): CannotDestroy =>
+    new CannotDestroy({ cause, message: `${cause}` });
 }
 
 export class CannotSend extends Data.TaggedError(tagFor("CannotSend"))<
   WithSocketCause
 > {
-  public static make = (cause: Error): CannotSend => new CannotSend({ cause });
+  public static make = (cause: Error): CannotSend =>
+    new CannotSend({ cause, message: `${cause}` });
 }
 
 export class AlreadyConnected extends Data.TaggedError(tagFor("CannotSend")) {}
@@ -43,7 +47,7 @@ export type MessageStreamError =
   | CannotDestroy
   | CannotCreate;
 
-interface ServerSocket {
+export interface ServerSocket {
   create: (token: string) => Effect.Effect<void, MessageStreamError>;
   send: (message: string) => Effect.Effect<void, MessageStreamError>;
   messages: () => Stream.Stream<string>;
@@ -132,19 +136,15 @@ class ServerSocketImpl implements ServerSocket {
 }
 
 export class ServerSocketService extends Effect.Tag(tag.toString())<
-  ServerSocketService, ServerSocketImpl
+  ServerSocketService, ServerSocket
 >() {
-  public static live = Layer.effect(
-    ServerSocketService,
-    wsUrl.pipe(
-//      Effect.map(_ => "ws://localhost:9099/"),
-      Effect.andThen(NetAddress.make),
-      Effect.andThen(address => Queue.unbounded<string>().pipe(
-          Effect.andThen(incoming => new ServerSocketImpl(
-            address,
-            incoming,
-          )),
-        ),
+  public static service = wsUrl.pipe(
+    Effect.andThen(NetAddress.make),
+    Effect.andThen(address => Queue.unbounded<string>().pipe(
+        Effect.andThen(incoming => new ServerSocketImpl(
+          address,
+          incoming,
+        )),
       ),
     ),
   );

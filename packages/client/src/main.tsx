@@ -3,6 +3,9 @@ import { Container } from "@blocks/Container.tsx";
 import { CableClerkDaemon } from "@daemons";
 import { AppRuntime } from "@lib/runtime.ts";
 import { GetTicketList } from "@my/domain/http";
+import { pipe } from "effect";
+
+import * as Effect from "effect/Effect";
 
 // void AppRuntime.runPromise(
 //   ServerSocketService.create("token").pipe(
@@ -16,9 +19,6 @@ import { GetTicketList } from "@my/domain/http";
 //     ServerSocketService.destroy(),
 //   ).catch(console.error);
 // }, 5000);
-import * as Effect from "effect/Effect";
-
-
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Routes } from "./Routes.tsx";
@@ -26,9 +26,10 @@ import { Routes } from "./Routes.tsx";
 const Main = () => {
   useEffect(() => {
     void AppRuntime.runFork(
-      Effect.all([
-        CableClerkDaemon.work,
-      ]),
+      pipe(
+        CableClerkDaemon.sendCable(GetTicketList.make()),
+        Effect.provide(CableClerkDaemon.layer),
+      ),
     );
   }, []);
 

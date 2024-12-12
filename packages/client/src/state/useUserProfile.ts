@@ -1,6 +1,6 @@
 import { AppRuntime } from "@lib/runtime.ts";
 import { UserProfile } from "@my/domain/model";
-import { UserAuthClient, UserProfileStore } from "@services";
+import { UserAuthClient, UserProfileStoreService } from "@services";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
@@ -31,17 +31,15 @@ export const useUserProfile = () => {
   // region Effects
 
   const watchProfileStream =
-    UserProfileStore.pipe(
-      Effect.andThen(store => store.stream().pipe(
-          Stream.runForEach(setUserProfile),
-        ),
-      ),
+    UserProfileStoreService.pipe(
+      Effect.andThen(store => store.stream()),
+      Effect.andThen(Stream.runForEach(setUserProfile)),
     );
 
   const loginEffect = (email: string, password: string) =>
     UserAuthClient.pipe(
       Effect.andThen(auth => auth.login(email, password)),
-      Effect.flatMap(profile => UserProfileStore.pipe(
+      Effect.flatMap(profile => UserProfileStoreService.pipe(
           Effect.andThen(store => store.set(O.some(profile))),
         ),
       ),
@@ -72,7 +70,7 @@ export const useUserProfile = () => {
 
   const logout = () => {
     void AppRuntime.runPromise(
-      UserProfileStore.pipe(
+      UserProfileStoreService.pipe(
         Effect.andThen(store => store.set(O.none()).pipe(
             Effect.zipLeft(Effect.logDebug("Logged out.")),
           ),

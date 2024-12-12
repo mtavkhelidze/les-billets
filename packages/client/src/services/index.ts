@@ -1,3 +1,5 @@
 export { UserAuthClient } from "./UserAuthClient.ts";
-export { UserProfileStore } from "./UserProfileStore.ts";
-export { ServerSocketService } from "./ServerSocketService.ts";
+export { UserProfileStoreService, type UserProfileStore } from "./UserProfileStoreService.ts";
+export {
+  ServerSocketService, type ServerSocket,
+} from "./ServerSocketService.ts";
