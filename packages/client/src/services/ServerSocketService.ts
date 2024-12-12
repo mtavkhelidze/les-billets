@@ -41,17 +41,17 @@ export class CannotSend extends Data.TaggedError(tagFor("CannotSend"))<
 
 export class AlreadyConnected extends Data.TaggedError(tagFor("CannotSend")) {}
 
-export type MessageStreamError =
+export type ServerSocketError =
   | AlreadyConnected
   | CannotSend
   | CannotDestroy
   | CannotCreate;
 
 export interface ServerSocket {
-  create: (token: string) => Effect.Effect<void, MessageStreamError>;
-  send: (message: string) => Effect.Effect<void, MessageStreamError>;
+  create: (token: string) => Effect.Effect<void, ServerSocketError>;
+  send: (message: string) => Effect.Effect<void, ServerSocketError>;
   messages: () => Stream.Stream<string>;
-  destroy: () => Effect.Effect<void, MessageStreamError>;
+  destroy: () => Effect.Effect<void, ServerSocketError>;
 }
 
 class ServerSocketImpl implements ServerSocket {
@@ -90,7 +90,7 @@ class ServerSocketImpl implements ServerSocket {
    * @param token JWT Token
    */
 
-  public readonly create = (token: string): Effect.Effect<void, MessageStreamError> => {
+  public readonly create = (token: string): Effect.Effect<void, ServerSocketError> => {
     const disconnect = this.socket.pipe(
       Effect.flatMap(s => s.disconnect()),
       Effect.andThen(_ => this.socket = O.none()),
@@ -113,7 +113,7 @@ class ServerSocketImpl implements ServerSocket {
     );
   };
 
-  public readonly send = (message: string): Effect.Effect<void, MessageStreamError> => {
+  public readonly send = (message: string): Effect.Effect<void, ServerSocketError> => {
     return this.socket.pipe(
       Effect.flatMap(s => s.send(message)),
       Effect.catchAll(CannotSend.make),
@@ -123,7 +123,6 @@ class ServerSocketImpl implements ServerSocket {
   public readonly messages = () => {
     return this.incoming.pipe(
       Queue.take,
-      Effect.tap(s => console.log("take >>>>", s)),
       Stream.forever,
     );
   };

@@ -2,10 +2,7 @@ import "./main.css";
 import { Container } from "@blocks/Container.tsx";
 import { CableClerkDaemon } from "@daemons";
 import { AppRuntime } from "@lib/runtime.ts";
-import { GetTicketList } from "@my/domain/http";
-import { pipe } from "effect";
-
-import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 
 // void AppRuntime.runPromise(
 //   ServerSocketService.create("token").pipe(
@@ -26,10 +23,7 @@ import { Routes } from "./Routes.tsx";
 const Main = () => {
   useEffect(() => {
     void AppRuntime.runFork(
-      pipe(
-        CableClerkDaemon.sendCable(GetTicketList.make()),
-        Effect.provide(CableClerkDaemon.layer),
-      ),
+      Layer.launch(CableClerkDaemon.daemon),
     );
   }, []);
 
