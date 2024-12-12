@@ -1,5 +1,6 @@
 import { UserProfile } from "@my/domain/model";
 import { pipe } from "effect";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -31,7 +32,6 @@ class UserProfileStoreImpl implements UserProfileStore {
   );
 }
 
-import * as Context from "effect/Context";
 export class UserProfileStoreService extends Context.Tag(
   "UserProfileStoreService")<
   UserProfileStoreService,

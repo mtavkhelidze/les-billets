@@ -43,8 +43,6 @@ const failWithError = (msg: string) => (error: unknown) => {
 };
 
 export class Socket implements SocketOperations {
-  private constructor(private readonly ws: WebSocket) {}
-
   public static connect = (url: string): Effect.Effect<Socket, SocketError> =>
     Effect.async<Socket, SocketError>(emit => {
       try {
@@ -59,26 +57,6 @@ export class Socket implements SocketOperations {
         void emit(failWithError("Invalid parameters")(error as DOMException));
       }
     });
-
-  public watch = (watcher: EventWatcher): void => {
-    this.ws.onmessage = event => {
-      watcher(EventMessage({ message: `${event.data}` }));
-    };
-    this.ws.onclose = () => {
-      watcher(EventClose());
-    };
-    this.ws.onerror = error => {
-      watcher(EventError({ message: `${error}` }));
-    };
-  };
-
-  public readonly send = (message: string): Effect.Effect<void, SocketError> => {
-    return Effect.try({
-      try: () => this.ws.send(message),
-      catch: failWithError("Cannot send message"),
-    });
-  };
-
   public readonly disconnect = (): Effect.Effect<void, SocketError> => {
     return Effect.try({
       try: () => {
@@ -91,4 +69,23 @@ export class Socket implements SocketOperations {
       catch: failWithError("Error closing socket"),
     });
   };
+  public readonly send = (message: string): Effect.Effect<void, SocketError> => {
+    return Effect.try({
+      try: () => this.ws.send(message),
+      catch: failWithError("Cannot send message"),
+    });
+  };
+  public watch = (watcher: EventWatcher): void => {
+    this.ws.onmessage = event => {
+      watcher(EventMessage({ message: `${event.data}` }));
+    };
+    this.ws.onclose = () => {
+      watcher(EventClose());
+    };
+    this.ws.onerror = error => {
+      watcher(EventError({ message: `${error}` }));
+    };
+  };
+
+  private constructor(private readonly ws: WebSocket) {}
 }

@@ -1,12 +1,12 @@
 import { LoginRequest } from "@my/domain/http";
 import type { InvalidCredentials } from "@my/domain/http/errors";
 import { UserProfile } from "@my/domain/model";
-import { ApiClient } from "./LesBilletsApiClient";
 import { identity } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Schema from "effect/Schema";
+import { ApiClient } from "./LesBilletsApiClient";
 
 export class UserAuthError extends Schema.TaggedError<UserAuthError>()(
   "UserAuthError",

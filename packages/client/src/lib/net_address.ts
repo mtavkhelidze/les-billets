@@ -15,6 +15,20 @@ class NetAddressError extends Data.Error<{
 }
 
 export class NetAddress extends Data.Class {
+  public static make = (url: string): E.Either<NetAddress, NetAddressError> =>
+    E.try({
+      try: () => new NetAddress(new URL(url)),
+      catch: NetAddressError.make,
+    });
+  public addQueryParam = (key: string, value: string) => {
+    this.url.searchParams.append(key, value);
+    return NetAddress.make(this.url.toString());
+  };
+  public removeQueryParam = (key: string) => {
+    this.url.searchParams.delete(key);
+    return NetAddress.make(this.url.toString());
+  };
+
   private constructor(private readonly url: URL) {
     super();
   }
@@ -22,20 +36,4 @@ export class NetAddress extends Data.Class {
   public get mkString() {
     return this.url.toString();
   }
-
-  public addQueryParam = (key: string, value: string) => {
-    this.url.searchParams.append(key, value);
-    return NetAddress.make(this.url.toString());
-  };
-
-  public removeQueryParam = (key: string) => {
-    this.url.searchParams.delete(key);
-    return NetAddress.make(this.url.toString());
-  };
-
-  public static make = (url: string): E.Either<NetAddress, NetAddressError> =>
-    E.try({
-      try: () => new NetAddress(new URL(url)),
-      catch: NetAddressError.make,
-    });
 }

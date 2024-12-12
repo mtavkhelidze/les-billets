@@ -55,33 +55,6 @@ export interface ServerSocket {
 }
 
 class ServerSocketImpl implements ServerSocket {
-  private socket: O.Option<Socket> = O.none();
-
-  constructor(
-    private readonly address: NetAddress,
-    private readonly incoming: Queue.Queue<string>,
-  ) {}
-
-  private dispatch = (e: SocketEvent) => {
-    Match.value<SocketEvent>(e).pipe(
-      Match.tag("EventMessage", e => {
-        return this.incoming.pipe(
-          Queue.offer(e.message),
-        );
-      }),
-      Match.orElse(e => {
-        return this.destroy().pipe(
-          Effect.zipLeft(
-            Effect.logDebug(`Closing: ${e._tag}`),
-          ),
-        );
-      }),
-    ).pipe(
-      Effect.annotateLogs(tag, "dispatch"),
-      AppRuntime.runFork,
-    );
-  };
-
   /**
    * Create a socket connection to the server with JQT token as
    * parameter. If there is the connection
@@ -112,26 +85,48 @@ class ServerSocketImpl implements ServerSocket {
       Effect.andThen(_ => connect),
     );
   };
-
-  public readonly send = (message: string): Effect.Effect<void, ServerSocketError> => {
-    return this.socket.pipe(
-      Effect.flatMap(s => s.send(message)),
-      Effect.catchAll(CannotSend.make),
+  public readonly destroy = () =>
+    this.socket.pipe(
+      Effect.flatMap(s => s.disconnect()),
+      Effect.catchAll(CannotDestroy.make),
     );
-  };
-
   public readonly messages = () => {
     return this.incoming.pipe(
       Queue.take,
       Stream.forever,
     );
   };
-
-  public readonly destroy = () =>
-    this.socket.pipe(
-      Effect.flatMap(s => s.disconnect()),
-      Effect.catchAll(CannotDestroy.make),
+  public readonly send = (message: string): Effect.Effect<void, ServerSocketError> => {
+    return this.socket.pipe(
+      Effect.flatMap(s => s.send(message)),
+      Effect.catchAll(CannotSend.make),
     );
+  };
+  private socket: O.Option<Socket> = O.none();
+  private dispatch = (e: SocketEvent) => {
+    Match.value<SocketEvent>(e).pipe(
+      Match.tag("EventMessage", e => {
+        return this.incoming.pipe(
+          Queue.offer(e.message),
+        );
+      }),
+      Match.orElse(e => {
+        return this.destroy().pipe(
+          Effect.zipLeft(
+            Effect.logDebug(`Closing: ${e._tag}`),
+          ),
+        );
+      }),
+    ).pipe(
+      Effect.annotateLogs(tag, "dispatch"),
+      AppRuntime.runFork,
+    );
+  };
+
+  constructor(
+    private readonly address: NetAddress,
+    private readonly incoming: Queue.Queue<string>,
+  ) {}
 }
 
 export class ServerSocketService extends Effect.Tag(tag.toString())<

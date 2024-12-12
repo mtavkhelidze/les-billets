@@ -25,15 +25,24 @@ interface CableClerk {
 }
 
 class CableClerkImpl implements CableClerk {
-  constructor(
-    private readonly serverSocket: ServerSocket,
-    private readonly profileRef: UserProfileStore,
-  ) {}
-
   public readonly sendCable = (cable: ClientCable) => {
     return cableToJson(cable).pipe(
       Effect.andThen(json => this.serverSocket.send(json)),
       Effect.catchAll(Effect.logDebug),
+    );
+  };
+  public readonly work = () => {
+    return UserProfileStoreService.pipe(
+      Effect.andThen(store => store.stream()),
+      Effect.andThen(
+        Stream.runForEach(
+          O.match({
+            onSome: this.onUserIn,
+            onNone: this.onUserOut,
+          }),
+        ),
+      ),
+      Effect.ignoreLogged,
     );
   };
   private onUserIn = (profile: UserProfile) => {
@@ -55,20 +64,10 @@ class CableClerkImpl implements CableClerk {
     return Effect.void;
   };
 
-  public readonly work = () => {
-    return UserProfileStoreService.pipe(
-      Effect.andThen(store => store.stream()),
-      Effect.andThen(
-        Stream.runForEach(
-          O.match({
-            onSome: this.onUserIn,
-            onNone: this.onUserOut,
-          }),
-        ),
-      ),
-      Effect.ignoreLogged,
-    );
-  };
+  constructor(
+    private readonly serverSocket: ServerSocket,
+    private readonly profileRef: UserProfileStore,
+  ) {}
 }
 
 export class CableClerkDaemon extends Effect.Tag(tag)<
