@@ -1,7 +1,7 @@
 import { HttpApiSchema } from "@effect/platform";
 import * as S from "effect/Schema";
 import { ReasonPhrases as RP, StatusCodes as Code } from "http-status-codes";
-import { WithMessage } from "../model/utility.ts";
+import { WithMessage } from "../utils";
 
 export class Conflict
   extends S.TaggedError<Conflict>()(

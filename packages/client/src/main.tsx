@@ -1,11 +1,22 @@
 import "./main.css";
 import { Container } from "@blocks/Container.tsx";
+import { CableClerkDaemon } from "@daemons";
 import { AppRuntime } from "@lib/runtime.ts";
-import { ServerSocketService } from "@services";
-import { Console } from "effect";
+import { GetTicketList } from "@my/domain/http";
 
+// void AppRuntime.runPromise(
+//   ServerSocketService.create("token").pipe(
+//     Effect.andThen(_ => ServerSocketService.send("Misha")),
+//     Effect.andThen(_ => ServerSocketService.messages()),
+//     Effect.andThen(Stream.runForEach(Console.log)),
+//   ),
+// ).catch(console.error);
+// setTimeout(() => {
+//   void AppRuntime.runPromise(
+//     ServerSocketService.destroy(),
+//   ).catch(console.error);
+// }, 5000);
 import * as Effect from "effect/Effect";
-import * as Stream from "effect/Stream";
 
 
 import { StrictMode, useEffect } from "react";
@@ -14,20 +25,11 @@ import { Routes } from "./Routes.tsx";
 
 const Main = () => {
   useEffect(() => {
-    void AppRuntime.runPromise(
-      ServerSocketService.create("token").pipe(
-        Effect.andThen(_ => ServerSocketService.send("Misha")),
-        Effect.andThen(_ => ServerSocketService.messages()),
-        Effect.andThen(Stream.runForEach(Console.log)),
-      ),
-    ).catch(console.error);
-  }, []);
-  useEffect(() => {
-    setTimeout(() => {
-      void AppRuntime.runPromise(
-        ServerSocketService.destroy(),
-      ).catch(console.error);
-    }, 5000);
+    void AppRuntime.runFork(
+      Effect.all([
+        CableClerkDaemon.work,
+      ]),
+    );
   }, []);
 
   return (

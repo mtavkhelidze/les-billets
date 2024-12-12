@@ -103,12 +103,10 @@ class ServerSocketImpl implements ServerSocket {
       Effect.asVoid,
     );
 
-    const result = pipe(
+    return pipe(
       disconnect,
       Effect.andThen(_ => connect),
     );
-
-    return result;
   };
 
   public readonly send = (message: string): Effect.Effect<void, MessageStreamError> => {
@@ -139,7 +137,7 @@ export class ServerSocketService extends Effect.Tag(tag.toString())<
   public static live = Layer.effect(
     ServerSocketService,
     wsUrl.pipe(
-      Effect.map(_ => "ws://localhost:9099/"),
+//      Effect.map(_ => "ws://localhost:9099/"),
       Effect.andThen(NetAddress.make),
       Effect.andThen(address => Queue.unbounded<string>().pipe(
           Effect.andThen(incoming => new ServerSocketImpl(

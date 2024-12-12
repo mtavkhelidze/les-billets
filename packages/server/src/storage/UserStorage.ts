@@ -1,6 +1,6 @@
 import { SqlClient } from "@effect/sql";
 import { SystemUser } from "@my/domain/model";
-import { type EmailPassword } from "@my/domain/model/utility";
+import { type EmailPassword } from "@my/domain/utils";
 import { flow, pipe } from "effect";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

@@ -1,4 +1,4 @@
-import { ErrorShape } from "@my/domain/model/utility";
+import { ErrorShape } from "@my/domain/utils";
 import * as Schema from "effect/Schema";
 
 export class QueryError extends Schema.TaggedError<QueryError>(

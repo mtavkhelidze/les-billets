@@ -1,4 +1,6 @@
-import { UserProfileStore } from "@services";
+import { ClientCable } from "@my/domain/http";
+import { toJson } from "@my/domain/json";
+import { ServerSocketService, UserProfileStore } from "@services";
 import { Console } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -8,22 +10,37 @@ const tag = "@my/client/daemons/CableClerkDaemon";
 const tagFor = (subTag: string) => tag + "/" + subTag;
 
 interface CableClerk {
-  readonly work: () => Effect.Effect<void, never, UserProfileStore>;
+  readonly sendCable: (cable: ClientCable) => Effect.Effect<void, never, ServerSocketService>
+  readonly work: Effect.Effect<void, never, UserProfileStore>;
 }
 
-const work: CableClerk["work"] = () =>
+const cableToJson = toJson(ClientCable);
+
+const sendCable = (cable: ClientCable): Effect.Effect<void, never, ServerSocketService> => {
+  return cableToJson(cable).pipe(
+    Effect.andThen(json => ServerSocketService.send(json)),
+    Effect.catchAll(Effect.logError),
+  );
+};
+
+const work: CableClerk["work"] =
   UserProfileStore.stream().pipe(
-    Stream.runForEach(Console.log),
+    Effect.andThen(
+      Stream.runForEach(Console.log),
+    ),
   );
 
 export class CableClerkDaemon extends Effect.Tag(tag)<
   CableClerkDaemon,
   CableClerk
 >() {
-  public static live = Layer.succeed(
+  public static live = Layer.effect(
     CableClerkDaemon,
-    CableClerkDaemon.of({
-      work,
-    }),
+    Effect.succeed(
+      CableClerkDaemon.of({
+        sendCable,
+        work,
+      }),
+    ),
   );
 }
