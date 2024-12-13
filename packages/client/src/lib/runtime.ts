@@ -1,9 +1,8 @@
 import { withLogLevel } from "@config";
 import {
-  TicketStoreService,
   UserAuthClient,
-  UserProfileStoreService,
 } from "@services";
+import { TicketStoreService, UserProfileStoreService } from "@store";
 import { ManagedRuntime } from "effect";
 import * as Layer from "effect/Layer";
 

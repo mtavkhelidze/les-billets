@@ -10,7 +10,7 @@ import * as O from "effect/Option";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 
-const tag = "@my/client/services/ServerSocketService";
+const tag = "ServerSocketService";
 const tagFor = (subTag: string) => tag + "/" + subTag;
 
 interface WithSocketCause {

@@ -24,12 +24,15 @@ class UserProfileStoreImpl implements UserProfileStore {
     );
   }
 
-  public stream = () => this.wire.changes;
+  public stream = () => {
+    return this.wire.changes;
+  };
 
-  public user = () => pipe(
-    this.wire,
-    SRef.get,
-  );
+  public user = () => {
+    return this.wire.pipe(
+      SRef.get,
+    );
+  };
 }
 
 export class UserProfileStoreService extends Context.Tag(

@@ -28,7 +28,6 @@ class UserAuthClientImpl implements UserAuth {
       Effect.andThen(api =>
         api.user.login({ payload: LoginRequest.make({ email, password }) }),
       ),
-      Effect.tap(console.log),
       Effect.map(res => UserProfile.make(res)),
       Effect.mapError(_ =>
         Match.value(_).pipe(

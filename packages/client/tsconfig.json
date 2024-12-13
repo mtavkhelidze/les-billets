@@ -3,11 +3,11 @@
         "verbatimModuleSyntax": false,
         "baseUrl": ".",
         "paths": {
-            "@config": [
-                "src/config.ts"
-            ],
             "@blocks/*": [
                 "src/blocks/*"
+            ],
+            "@config": [
+                "src/config.ts"
             ],
             "@daemons": [
                 "src/daemons/index.ts"
@@ -20,6 +20,9 @@
             ],
             "@state": [
                 "src/state/index.ts"
+            ],
+            "@store": [
+                "src/store/index.ts"
             ]
         }
     },

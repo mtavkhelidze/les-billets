@@ -1,14 +1,13 @@
 import { ClientCable, GetTicketList, ServerCable } from "@my/domain/http";
 import { fromJson, toJson } from "@my/domain/json";
 import { UserProfile } from "@my/domain/model";
+import { ServerSocket, ServerSocketService } from "@services";
 import {
-  ServerSocket,
-  ServerSocketService,
   TicketStore,
   TicketStoreService,
   UserProfileStore,
   UserProfileStoreService,
-} from "@services";
+} from "@store";
 import { Console, pipe } from "effect";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -20,7 +19,6 @@ const cableToJson = toJson(ClientCable);
 const cableFromJson = fromJson(ServerCable);
 
 const tag = "@my/client/daemons/CableClerkDaemon";
-const tagFor = (subTag: string) => tag + "/" + subTag;
 
 interface CableClerk {
   readonly sendCable: (cable: ClientCable) => Effect.Effect<void>;
@@ -35,17 +33,13 @@ class CableClerkImpl implements CableClerk {
     );
   };
   public readonly work = () => {
-    return UserProfileStoreService.pipe(
-      Effect.andThen(store => store.stream()),
-      Effect.andThen(
-        Stream.runForEach(
-          O.match({
-            onSome: this.onUserIn,
-            onNone: this.onUserOut,
-          }),
-        ),
+    return this.profileStore.stream().pipe(
+      Stream.runForEach(
+        O.match({
+          onSome: this.onUserIn,
+          onNone: this.onUserOut,
+        }),
       ),
-      Effect.ignoreLogged,
     );
   };
   private dispatch = (cable: ServerCable) => Match.value(cable).pipe(
@@ -60,8 +54,8 @@ class CableClerkImpl implements CableClerk {
           this.sendCable(GetTicketList.make()),
           this.serverSocket.messages().pipe(
             Stream.flatMap(cableFromJson),
-            Stream.tap(Console.log),
             Stream.runForEach(this.dispatch),
+            Effect.fork,
           ),
         ]),
       ),
@@ -69,8 +63,10 @@ class CableClerkImpl implements CableClerk {
   };
 
   private onUserOut = () => {
-    console.log("User is gone");
-    return Effect.void;
+    return this.serverSocket.destroy().pipe(
+      Effect.catchAll(Effect.logDebug),
+      Effect.ignore,
+    );
   };
 
   constructor(
