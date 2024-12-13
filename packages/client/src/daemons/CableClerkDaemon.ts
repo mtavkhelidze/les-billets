@@ -1,3 +1,4 @@
+import { tagWith } from "@lib/tag.ts";
 import { ClientCable, GetTicketList, ServerCable } from "@my/domain/http";
 import { fromJson, toJson } from "@my/domain/json";
 import { UserProfile } from "@my/domain/model";
@@ -18,7 +19,7 @@ import * as Stream from "effect/Stream";
 const cableToJson = toJson(ClientCable);
 const cableFromJson = fromJson(ServerCable);
 
-const tag = "@my/client/daemons/CableClerkDaemon";
+const tag = tagWith("CableClerkDaemon");
 
 interface CableClerk {
   readonly sendCable: (cable: ClientCable) => Effect.Effect<void>;
@@ -30,6 +31,7 @@ class CableClerkImpl implements CableClerk {
     return cableToJson(cable).pipe(
       Effect.andThen(json => this.serverSocket.send(json)),
       Effect.catchAll(Effect.logDebug),
+      Effect.withLogSpan(tag("sendCable")),
     );
   };
   public readonly work = () => {
@@ -59,12 +61,16 @@ class CableClerkImpl implements CableClerk {
           ),
         ]),
       ),
+      Effect.catchAll(Effect.logDebug),
+      Effect.withLogSpan(tag("onUserIn")),
+      Effect.ignore,
     );
   };
 
   private onUserOut = () => {
     return this.serverSocket.destroy().pipe(
-      Effect.catchAll(Effect.logDebug),
+      Effect.catchAll(Effect.logTrace),
+      Effect.withLogSpan(tag("onUserOut")),
       Effect.ignore,
     );
   };
@@ -76,7 +82,7 @@ class CableClerkImpl implements CableClerk {
   ) {}
 }
 
-export class CableClerkDaemon extends Effect.Tag(tag)<
+export class CableClerkDaemon extends Effect.Tag(tag())<
   CableClerkDaemon,
   CableClerk
 >() {

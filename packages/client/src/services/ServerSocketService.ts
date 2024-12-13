@@ -1,7 +1,8 @@
 import { wsUrl } from "@config";
 import { NetAddress } from "@lib/net_address.ts";
 import { AppRuntime } from "@lib/runtime.ts";
-import { EventMessage, Socket, SocketEvent } from "@lib/socket.ts";
+import { Socket, SocketEvent } from "@lib/socket.ts";
+import { tagWith } from "@lib/tag.ts";
 import { pipe } from "effect";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -10,36 +11,35 @@ import * as O from "effect/Option";
 import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 
-const tag = "ServerSocketService";
-const tagFor = (subTag: string) => tag + "/" + subTag;
+const tag = tagWith("ServerSocketService");
 
 interface WithSocketCause {
   cause: Error;
   message: string;
 }
 
-export class CannotCreate extends Data.TaggedError(tagFor("CannotCreate"))<
+export class CannotCreate extends Data.TaggedError(tag("CannotCreate"))<
   WithSocketCause
 > {
   public static make = (cause: Error): CannotCreate =>
     new CannotCreate({ cause, message: `${cause}` });
 }
 
-export class CannotDestroy extends Data.TaggedError(tagFor("CannotDestroy"))<
+export class CannotDestroy extends Data.TaggedError(tag("CannotDestroy"))<
   WithSocketCause
 > {
   public static make = (cause: Error): CannotDestroy =>
     new CannotDestroy({ cause, message: `${cause}` });
 }
 
-export class CannotSend extends Data.TaggedError(tagFor("CannotSend"))<
+export class CannotSend extends Data.TaggedError(tag("CannotSend"))<
   WithSocketCause
 > {
   public static make = (cause: Error): CannotSend =>
     new CannotSend({ cause, message: `${cause}` });
 }
 
-export class AlreadyConnected extends Data.TaggedError(tagFor("CannotSend")) {}
+export class AlreadyConnected extends Data.TaggedError(tag("CannotSend")) {}
 
 export type ServerSocketError =
   | AlreadyConnected
@@ -118,7 +118,7 @@ class ServerSocketImpl implements ServerSocket {
         );
       }),
     ).pipe(
-      Effect.annotateLogs(tag, "dispatch"),
+      Effect.withLogSpan(tag("dispatch")),
       AppRuntime.runFork,
     );
   };

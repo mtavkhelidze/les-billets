@@ -1,4 +1,5 @@
 import { AppRuntime } from "@lib/runtime.ts";
+import { tagWith } from "@lib/tag.ts";
 import { UserProfile } from "@my/domain/model";
 import { UserAuthClient } from "@services";
 import { UserProfileStoreService } from "@store";
@@ -6,6 +7,8 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Stream from "effect/Stream";
 import { useEffect, useState } from "react";
+
+const tag = tagWith("useUserProfile");
 
 export const useUserProfile = () => {
   const [error, setError] = useState<O.Option<Error>>(O.none());
@@ -45,6 +48,7 @@ export const useUserProfile = () => {
         ),
       ),
       Effect.zipLeft(Effect.logDebug("Logged in.")),
+      Effect.withLogSpan(tag("loginEffect")),
       Effect.tapBoth({
         onSuccess: _ => Effect.void,
         onFailure: Effect.succeed,
@@ -74,6 +78,7 @@ export const useUserProfile = () => {
       UserProfileStoreService.pipe(
         Effect.andThen(store => store.set(O.none()).pipe(
             Effect.zipLeft(Effect.logDebug("Logged out.")),
+            Effect.withLogSpan(tag("logout")),
           ),
         ),
       ),
