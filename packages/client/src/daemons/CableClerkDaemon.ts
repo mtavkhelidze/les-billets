@@ -60,6 +60,7 @@ class CableClerkImpl implements CableClerk {
           this.sendCable(GetTicketList.make()),
           this.serverSocket.messages().pipe(
             Stream.flatMap(cableFromJson),
+            Stream.tap(Console.log),
             Stream.runForEach(this.dispatch),
           ),
         ]),

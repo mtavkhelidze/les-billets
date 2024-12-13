@@ -7,8 +7,7 @@ export type TicketStatus = S.Schema.Type<typeof TicketStatus>;
 export const TicketID = S.UUID;
 export type TicketID = S.Schema.Type<typeof TicketID>;
 
-export class Ticket extends S.TaggedClass<Ticket>()(
-  "@my/domain/model/Ticket",
+export class Ticket extends S.Class<Ticket>("Ticket")(
   {
     createdAt: S.DateTimeUtc,
     createdBy: UserID,
