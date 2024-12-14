@@ -1,5 +1,5 @@
 import { NotFound } from "@blocks/NotFound.tsx";
-import { TicketsTable } from "@blocks/tickets-table";
+import { Tickets } from "@blocks/tickets-table";
 import { UserLogin } from "@blocks/user-login";
 import { useUserProfile } from "@state";
 
@@ -21,7 +21,7 @@ export const Routes = () => {
       <Route path="/"><Redirect to="/tickets" /></Route>
       <Route path="/tickets">
         <Protected with={() => isLoggedIn}>
-          <TicketsTable tickets={[]} />
+          <Tickets />
         </Protected>
       </Route>
       <Route path="/login"><UserLogin /></Route>

@@ -21,7 +21,7 @@ export class NetAddress extends Data.Class {
       catch: NetAddressError.make,
     });
   public addQueryParam = (key: string, value: string) => {
-    this.url.searchParams.append(key, value);
+    this.url.searchParams.set(key, value);
     return NetAddress.make(this.url.toString());
   };
   public removeQueryParam = (key: string) => {

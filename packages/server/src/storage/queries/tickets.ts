@@ -18,7 +18,7 @@ export const failWithQueryError = (error: Error) => Effect.fail(
 );
 
 const TicketRow = Ticket.pipe(
-  Schema.omit("updatedBy", "_tag"),
+  Schema.omit("updatedBy"),
   Schema.extend(
     Schema.Struct({
       updatedBy: Schema.NullOr(Schema.String),

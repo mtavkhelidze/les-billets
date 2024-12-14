@@ -1,1 +1,1 @@
-export { TicketsTable } from "./TicketsTable.tsx";
+export { Tickets } from "./Tickets.tsx";
