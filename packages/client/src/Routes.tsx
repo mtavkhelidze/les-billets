@@ -1,5 +1,5 @@
 import { NotFound } from "@blocks/NotFound.tsx";
-import { Tickets } from "@blocks/tickets-table";
+import { Tickets } from "@blocks/tickets";
 import { UserLogin } from "@blocks/user-login";
 import { useUserProfile } from "@state";
 

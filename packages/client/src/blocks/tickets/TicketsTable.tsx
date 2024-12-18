@@ -1,45 +1,15 @@
-import { ticketTitleCells } from "@blocks/tickets-table/utils.ts";
 import { Ticket } from "@my/domain/model";
-import * as Arr from "effect/Array";
 import * as React from "react";
-import { type ChangeEventHandler, useEffect, useState } from "react";
 
 import "./TicketTable.css";
 import { TicketRow } from "./TicketRow";
+import { ticketTitleCells } from "./utils.ts";
 
 type Props = {
   tickets: readonly Ticket[];
 }
 
-type SelectValueType = Ticket["status"] | "all";
-
-const selectTicketsWith = (status: Ticket["status"]) =>
-  Arr.filter<Ticket>(t => t.status === status);
-
-
 export const TicketsTable: React.FC<Props> = ({ tickets }) => {
-  const [filter, setFilter] = useState<SelectValueType>("all");
-  const [rows, setRows] = useState<readonly Ticket[]>([]);
-
-  const setFilteredRows: ChangeEventHandler<HTMLSelectElement> = (e) => {
-    setFilter(e.target.value as SelectValueType);
-  };
-
-  useEffect(() => {
-    setRows(tickets);
-  }, [tickets]);
-
-  useEffect(() => {
-    switch (filter) {
-      case "closed":
-      case "locked":
-      case "open":
-        return setRows(selectTicketsWith(filter)(tickets));
-      default:
-        return setRows(tickets);
-    }
-  }, [filter]);
-
   return (
     <div className=" w-full ticket-table">
       <table className="table-auto text-left  w-full">
@@ -52,7 +22,7 @@ export const TicketsTable: React.FC<Props> = ({ tickets }) => {
         </tr>
         </thead>
         <tbody>
-        {rows.map(t => <TicketRow key={t.id} ticket={t} />)}
+        {tickets.map(t => <TicketRow key={t.id} ticket={t} />)}
         </tbody>
       </table>
     </div>

@@ -1,10 +1,10 @@
-import { TitleCell } from "@blocks/tickets-table/TitleCell.tsx";
 import { Ticket } from "@my/domain/model";
 import { flow, pipe } from "effect";
 import * as Arr from "effect/Array";
 import * as Rec from "effect/Record";
 import * as Str from "effect/String";
 import React from "react";
+import { TitleCell } from "./TitleCell.tsx";
 
 // @misha: this is an almost useless exercise in hubris and vanity
 
@@ -18,6 +18,7 @@ const splitAndCapitalize: (key: KeyType) => string = flow(
   Str.capitalize,
   Str.pascalToSnake,
   Str.replace(/_/g, " "),
+  Str.replace(" at", ""),
   Str.capitalize,
 );
 

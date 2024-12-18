@@ -3,6 +3,13 @@
     tr {
       @apply text-gray-700 bg-gray-200;
 
+      td, th {
+        @apply px-2 py-1;
+        &:last-child {
+          @apply text-right;
+        }
+      }
+
       th {
         @apply border-b-2 border-black mb-10;
 
@@ -19,10 +26,7 @@
       @apply align-top;
 
       td, th {
-        @apply pr-2 py-1;
-        &:last-child {
-          @apply pr-0;
-        }
+        @apply px-2 py-1;
       }
     }
 
