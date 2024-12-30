@@ -1,7 +1,7 @@
 {
     "name": "des-billets",
     "dependencies": {
-        "@effect/opentelemetry": "^0.41.6",
+        "@effect/opentelemetry": "^0.41.8",
         "@opentelemetry/sdk-trace-base": "^1.30.0",
         "typescript": "^5.7.2"
     },
