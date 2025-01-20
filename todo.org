@@ -1,0 +1,15 @@
+* Add lock ticket
+* Add update/unlock ticket
+* Add pagination
+* Move JWT token handling to cookies
+* Add memory cache (Redis or InMemory) to hold JWT tokens
+- Check we have the token
+- Check token signature
+- Check expiration time
+- Remove token on logout
+* Add simple registration
+- Simeple email and password
+* Add delete account and delete ticket options
+- Move affected tickets to a un-normilised separate archive table?
+* FUTURE Move token operations into a microservice
+- C++/gRPC

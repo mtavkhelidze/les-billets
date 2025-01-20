@@ -1,0 +1,43 @@
+.ticket-table {
+  thead {
+    tr {
+      @apply text-gray-700 bg-gray-200;
+
+      td, th {
+        @apply px-2 py-1;
+        &:last-child {
+          @apply text-right;
+        }
+      }
+
+      th {
+        @apply border-b-2 border-black mb-10;
+
+        span {
+          @apply inline-block pb-1 pt-0.5;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      @apply text-neutral-800 text-gray-700;
+      @apply align-top;
+
+      td, th {
+        @apply px-2 py-1;
+      }
+    }
+
+    tr:nth-child(even) {
+      @apply bg-gray-200;
+    }
+  }
+
+  td {
+    &:first-child {
+      @apply py-0.5 px-1;
+    }
+  }
+}

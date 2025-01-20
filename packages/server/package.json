@@ -1,0 +1,31 @@
+{
+    "dependencies": {
+        "@effect/platform": "^0.70.3",
+        "@effect/platform-bun": "^0.49.33",
+        "@effect/sql": "^0.20.12",
+        "@effect/sql-sqlite-bun": "^0.21.12",
+        "@my/domain": "workspace:*",
+        "@opentelemetry/sdk-trace-node": "^1.29.0",
+        "dotenv": "^16.4.7",
+        "jsrsasign": "^11.1.0",
+        "jsrsasign-util": "^1.0.5",
+        "ws": "latest"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.1.14",
+        "@types/jsrsasign": "^10.5.15"
+    },
+    "module": "./server.ts",
+    "name": "@my/server",
+    "peerDependencies": {
+        "effect": "^3.11.2",
+        "typescript": "^5.7.2"
+    },
+    "scripts": {
+        "start": "bun run server.ts",
+        "typecheck": "tsc --noEmit",
+        "watch:start": "bun run --watch server.ts",
+        "watch:typecheck": "tsc --noEmit --watch"
+    },
+    "type": "module"
+}

@@ -1,0 +1,46 @@
+terraform {
+  required_version = ">= 1.0.0"
+  # Ensure that the Terraform version is 1.0.0 or higher
+
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 4.0.0"
+    }
+  }
+}
+
+locals {
+  project_id = "zgharbi-ge-terraform-made-easy"
+}
+
+variable "location" {
+  default     = "US"
+  description = "Instance location"
+  type        = string
+}
+
+variable "zone" {
+  default     = "us-central1-a"
+  description = "Zone of the instance"
+  type        = string
+}
+
+variable "region" {
+  default     = "us-central1"
+  description = "Region of the instance"
+  type        = string
+}
+
+provider "google" {
+  project = local.project_id
+  region  = var.region
+  zone    = var.zone
+}
+
+resource "google_storage_bucket" "default" {
+  location                 = var.location
+  name                     = "tme_bucket_01"
+  public_access_prevention = "enforced"
+  storage_class            = "STANDARD"
+}

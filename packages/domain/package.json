@@ -1,0 +1,30 @@
+{
+    "dependencies": {
+        "@effect/platform": "^0.70.3",
+        "http-status-codes": "^2.3.0"
+    },
+    "exports": {
+        ".": "./src/index.ts",
+        "./api": "./src/api/index.ts",
+        "./http": "./src/http/index.ts",
+        "./http/errors": "./src/http/errors.ts",
+        "./http/websocket": "./src/http/wc.ts",
+        "./model": "./src/model/index.ts",
+        "./json": "./src/json.ts",
+        "./storage": "./src/storage/index.ts",
+        "./utils": "./src/utils/index.ts"
+    },
+    "main": "src/index.ts",
+    "name": "@my/domain",
+    "peerDependencies": {
+        "effect": "^3.11.2",
+        "typescript": "^5.7.2"
+    },
+    "private": true,
+    "scripts": {
+        "typecheck": "tsc --noEmit",
+        "watch:typecheck": "tsc --noEmit --watch"
+    },
+    "type": "module",
+    "version": "1.0.0"
+}

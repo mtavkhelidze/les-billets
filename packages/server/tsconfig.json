@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "paths": {
+            "@api": [
+                "./src/api/index.ts"
+            ],
+            "@api/error": [
+                "./src/api/error.ts"
+            ],
+            "@controllers": [
+                "./src/controllers/index.ts"
+            ],
+            "@services/*": [
+                "./src/services/*"
+            ],
+            "@storage": [
+                "./src/storage/index.ts"
+            ],
+            "@storage/*": [
+                "./src/storage/*"
+            ]
+        }
+    },
+    "extends": "../../tsconfig.json",
+    "include": [
+        "./server.ts",
+        "./src"
+    ]
+}
