@@ -1,4 +1,5 @@
 * Add lock ticket
+* Add daemon process to unlock expired ticket locks
 * Add update/unlock ticket
 * Add pagination
 * Move JWT token handling to cookies
