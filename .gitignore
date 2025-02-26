@@ -177,5 +177,5 @@ dist
 *.ignore/
 drizzle/db.sqlite
 
-*.txt
+*.ignore.txt
 data/*.*
