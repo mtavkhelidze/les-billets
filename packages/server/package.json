@@ -9,7 +9,7 @@
         "dotenv": "^16.4.7",
         "jsrsasign": "^11.1.0",
         "jsrsasign-util": "^1.0.5",
-        "ws": "latest"
+        "ws": "^8.18.1"
     },
     "devDependencies": {
         "@types/bun": "^1.2.5",
