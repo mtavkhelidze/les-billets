@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@effect/platform": "^0.70.3",
+        "@effect/platform": "^0.70.7",
         "http-status-codes": "^2.3.0"
     },
     "exports": {
@@ -18,7 +18,7 @@
     "name": "@my/domain",
     "peerDependencies": {
         "effect": "^3.11.2",
-        "typescript": "^5.7.2"
+        "typescript": "^5.8.2"
     },
     "private": true,
     "scripts": {

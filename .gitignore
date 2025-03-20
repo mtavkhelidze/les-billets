@@ -179,3 +179,4 @@ drizzle/db.sqlite
 
 *.ignore.txt
 data/*.*
+ignore/
