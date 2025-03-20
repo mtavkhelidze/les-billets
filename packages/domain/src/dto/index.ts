@@ -8,3 +8,11 @@ export {
 } from "./cable.ts";
 
 export { TicketsResponse } from "./tickets.ts";
+export {
+  Conflict,
+  HttpError,
+  InternalServerError,
+  InvalidCredentials,
+  NotFound,
+  Unauthorized,
+} from "./errors.ts";

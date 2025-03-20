@@ -1,5 +1,5 @@
-import { LoginRequest } from "@my/domain/http";
-import type { InvalidCredentials } from "@my/domain/http/errors";
+import { LoginRequest } from "../../../domain/src/dto";
+import type { InvalidCredentials } from "@my/domain/dto";
 import { UserProfile } from "@my/domain/model";
 import { identity } from "effect";
 import * as Effect from "effect/Effect";

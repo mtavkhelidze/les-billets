@@ -1,9 +1,9 @@
 import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "@effect/platform";
-import { LoginRequest, LoginResponse } from "@my/domain/http";
+import { LoginRequest, LoginResponse } from "../dto";
 import {
   InternalServerError,
   InvalidCredentials,
-} from "@my/domain/http/errors";
+} from "@my/domain/dto";
 
 export class UserEndpoints extends HttpApiGroup
   .make("user")

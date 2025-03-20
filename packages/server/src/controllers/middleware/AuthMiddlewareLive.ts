@@ -1,5 +1,5 @@
 import { AuthMiddleware } from "@my/domain/api";
-import { Unauthorized } from "@my/domain/http/errors";
+import { Unauthorized } from "@my/domain/dto";
 import { JwtBackend } from "@services/JwtBackend.ts";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

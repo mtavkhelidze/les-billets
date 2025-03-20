@@ -6,9 +6,7 @@
     "exports": {
         ".": "./src/index.ts",
         "./api": "./src/api/index.ts",
-        "./http": "./src/http/index.ts",
-        "./http/errors": "./src/http/errors.ts",
-        "./http/websocket": "./src/http/wc.ts",
+        "./dto": "./src/dto/index.ts",
         "./model": "./src/model/index.ts",
         "./json": "./src/json.ts",
         "./storage": "./src/storage/index.ts",

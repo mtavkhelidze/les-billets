@@ -3,7 +3,7 @@ import { LesBilletsAPI } from "@my/domain/api";
 import {
   InternalServerError,
   InvalidCredentials,
-} from "@my/domain/http/errors";
+} from "@my/domain/dto";
 import { SystemUser, UserProfile } from "@my/domain/model";
 import { JwtBackend } from "@services/JwtBackend.ts";
 import { UserStorageService } from "@storage";

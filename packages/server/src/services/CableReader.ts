@@ -1,4 +1,4 @@
-import { type ClientCable, TicketList } from "@my/domain/http";
+import { type ClientCable, TicketList } from "../../../domain/src/dto";
 import { CentralTelegraph } from "@services/TelegraphService.ts";
 import { TicketStorageService } from "@storage";
 

@@ -1,5 +1,5 @@
 import { tagWith } from "@lib/tag.ts";
-import { ClientCable, GetTicketList, ServerCable } from "@my/domain/http";
+import { ClientCable, GetTicketList, ServerCable } from "../../../domain/src/dto";
 import { fromJson, toJson } from "@my/domain/json";
 import { UserProfile } from "@my/domain/model";
 import { ServerSocket, ServerSocketService } from "@services";

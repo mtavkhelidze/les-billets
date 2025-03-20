@@ -4,7 +4,7 @@ import {
   HttpServerResponse,
 } from "@effect/platform";
 import { LesBilletsAPI } from "@my/domain/api";
-import { ClientCable } from "@my/domain/http";
+import { ClientCable } from "../../../domain/src/dto";
 import { fromJson } from "@my/domain/json";
 import { CableReaderService } from "@services/CableReader.ts";
 import { CentralTelegraph } from "@services/TelegraphService.ts";

@@ -1,7 +1,7 @@
 import { HttpApiBuilder } from "@effect/platform";
 import { AuthUserId, LesBilletsAPI } from "@my/domain/api";
-import { TicketsResponse } from "@my/domain/http";
-import { InternalServerError } from "@my/domain/http/errors";
+import { TicketsResponse } from "../../../domain/src/dto";
+import { InternalServerError } from "@my/domain/dto";
 import { TicketStorageService } from "@storage";
 import * as Effect from "effect/Effect";
 

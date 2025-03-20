@@ -1,6 +1,6 @@
 import { HttpApiMiddleware, HttpApiSecurity } from "@effect/platform";
 import * as Context from "effect/Context";
-import { Unauthorized } from "../../http/errors.ts";
+import { Unauthorized } from "../../dto/errors.ts";
 import { UserProfile } from "../../model";
 
 export class AuthUserId
