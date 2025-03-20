@@ -1,10 +1,9 @@
-import { TitleCell } from "@blocks/tickets/TitleCell.tsx";
+import { TableTitleRow } from "@blocks/tickets/TableTitleRow.tsx";
 import { Ticket } from "@my/domain/model";
 import * as React from "react";
 
 import "./TicketsTable.css";
 import { TicketRow } from "./TicketRow";
-import { ticketTitleCells } from "./utils.ts";
 
 type Props = {
   tickets: readonly Ticket[];
@@ -16,15 +15,11 @@ export const TicketsTable: React.FC<Props> = ({ tickets }) => {
       <table className="table-auto text-left  w-full">
         <thead>
         <tr>
-          {ticketTitleCells["title"]}
-          {ticketTitleCells["description"]}
-          {ticketTitleCells["createdAt"]}
-          {ticketTitleCells["status"]}
-          <TitleCell key="actions" title={<button>add</button>}></TitleCell>
+          <TableTitleRow />
         </tr>
         </thead>
         <tbody>
-        {tickets.map(t => <TicketRow key={t.id} ticket={t} />)}
+        {/*{tickets.map(t => <TicketRow key={t.id} ticket={t} />)}*/}
         </tbody>
       </table>
     </div>

@@ -1,6 +1,7 @@
 import { ActionButton } from "@blocks/tickets/ActionButton.tsx";
 import { formatDistance, formatIso } from "@lib/datetime.ts";
 import { Ticket } from "@my/domain/model";
+import { useTickets } from "@state";
 import React from "react";
 
 import "./TicketsTable.css";
@@ -12,6 +13,8 @@ type Props = {
 
 export const TicketRow: React.FC<Props> = ({ ticket }) => {
   const { title, createdAt, updatedAt, description, status } = ticket;
+  const { saveTicket, lockTicket, unlockTicket } = useTickets();
+
   return (
     <tr>
       <th
